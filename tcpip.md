@@ -1,4 +1,4 @@
-Windows上几个影响TCP并发连接的参数：
+Windows下几个影响TCP并发连接的参数：
 0. Ctrl+R --> regedit --> HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\Tcpip\Parameters
 1. TcpNumConnections
    maximum number of connections of that TCP can have open simultaneously
@@ -15,3 +15,6 @@ Windows上几个影响TCP并发连接的参数：
 4. MaxHashTableSize
    TCP control blocks(TCB) stored in a hash table, the value must be power of 2
    
+Linux下TCP并发连接数量限制：
+1. 单进程同时打开的文件句柄上限,默认为1024,可通过ulimit -n xxx 命令进行调整
+2. 系统同时打开的文件句柄上限,可通过/etc/sysctl.conf调整
