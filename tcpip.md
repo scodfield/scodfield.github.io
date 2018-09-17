@@ -16,5 +16,6 @@ Windows下几个影响TCP并发连接的参数：
    TCP control blocks(TCB) stored in a hash table, the value must be power of 2
    
 Linux下TCP并发连接数量限制：
-1. 单进程同时打开的文件句柄上限,默认为1024,可通过ulimit -n xxx 命令进行调整
-2. 系统同时打开的文件句柄上限,可通过/etc/sysctl.conf调整
+1. 本地端口范围
+2. 单进程同时打开的文件句柄上限,默认为1024,可通过ulimit -n xxx 命令进行调整
+3. 系统同时打开的文件句柄上限,可通过/etc/sysctl.conf调整
