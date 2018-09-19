@@ -20,3 +20,9 @@ Linux下TCP并发连接数量限制：
 2. 单进程同时打开的文件句柄上限,默认为1024,可通过ulimit -n xxx 命令进行调整
 3. 系统同时打开的文件句柄上限,可通过/etc/sysctl.conf调整
 4. 系统内核的IP_TABLES防火墙对最大跟踪的TCP连接数有限制
+
+tips to remember:
+1. TCP连接建立（三次握手）由内核协议栈实现,连接建立后socket状态转为established,并被放入icsk_accept_queue，accept()被唤醒,返回socket
+2. listen()开启监听队列,客户端SYN包到来,创建新sock,sock为状态TCP_SYN_RECV,并被存入半连接队列syn_table中
+3. SYN攻击:客户端伪造大量IP地址,不间断的向服务器发送SYN包,塞满服务端半连接队列,导致正常的SYN请求被丢弃,SYN攻击是DDos攻击的一种,检测SYN攻击
+   netstat + awk '/^tcp/' 查看SYN_RECV状态的tcp连接即可
