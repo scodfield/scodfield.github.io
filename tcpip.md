@@ -33,6 +33,9 @@ tips to remember:
    d> 确认号 ack number 4byte
       确认号是接收方希望接收到的下一个报文的首字节的序号
       tcp双向通信,所以在三次握手建立连接的时候,双方同步seq number,更新各自的ack number
+      这里想到个问题,在第三次握手的时候,客户端发送ACK包,其中 ACKbit=1,ack_number=服务端seq number+1,那此时客户端的seq number=??
+      又或者,服务端ack number已在第一次握手时同步了客户端seq number,在连接建立之前(此时为syn_recv状态)or接收到客户端ACK包时
+      并不会更改自身ack number,也即第三次握手时,客户端无需关心seq number
    
 2. TCP连接建立（三次握手）由内核协议栈实现,连接建立后socket状态转为established,并被放入icsk_accept_queue，accept()被唤醒,返回socket
 3. listen()开启监听队列,客户端SYN包到来,创建新sock,sock为状态TCP_SYN_RECV,并被存入半连接队列syn_table中
