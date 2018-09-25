@@ -56,15 +56,27 @@ tips to remember:
 3. listen()开启监听队列,客户端SYN包到来,创建新sock,sock为状态TCP_SYN_RECV,并被存入半连接队列syn_table中
 4. SYN攻击:客户端伪造大量IP地址,不间断的向服务器发送SYN包,塞满服务端半连接队列,导致正常的SYN请求被丢弃,SYN攻击是DDos攻击的一种,检测SYN攻击
    netstat + awk '/^tcp/' 查看SYN_RECV状态的tcp连接即可
-5. windows下查看tcp、udp及端口等统计情况:netstat -an | find "ESTABLISHED" /c 统计活跃状态的tcp连接,状态与linux类似,包括LISTENING,CLOSE_WAIT,
+5. 在进行本地压测的时候,出现一个情形,首次启动客户机没有任何问题,加机器人再次启动客户机时,日志报:connrefused
+   第一反应是上次的客户机tcp连接没有释放,由于客户机tcp连接设置了保活机制(keepalive),而默认的保活检测时间过长(默认是7200s),以及保活重发次数
+   另外一个会影响的参数是系统释放连接资源之前的等待时间(TcpTimedWaitDelay),系统不释放资源导致本地动态端口,TCB,TCB hashtable等系统资源不足,
+   从而拒绝连接,注册表调整参数
+   a> Ctrl+R --> regedit --> HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\Tcpip\Parameters 
+   b> 右键 --> 新建 --> DWORD --> 输入键值 --> 选中键值&右键 --> 修改 --> 基数栏选择十进制&填入具体参数值
+   c> MaxUserPort 65534
+   d> MaxFreeTcbs 16000
+   e> MaxHashTableSize 65536
+   f> TcpTimedWaitDelay 30 (s)
+   g> KeepAliveTime 120000 (ms)
+   h> KeepAliveInterval 1000 (系统未收到响应而重发保活信号的间隔,ms)
+6. windows下查看tcp、udp及端口等统计情况:netstat -an | find "ESTABLISHED" /c 统计活跃状态的tcp连接,状态与linux类似,包括LISTENING,CLOSE_WAIT,
    ESTABLISHED,TIME_WAIT
-6. netstat参数 
+7. netstat参数 
    -a 显示所有连接和监听端口
    -n 以数字形式显示地址和端口号
    -o 显示与每个连接相关的所属进程
    -p proto 显示proto指定的协议连接,包括TCP,UDP,TCPv6,UDPv6
    比如显示所有tcp连接: netstat -an -p tcp
-7. windows下与linux类似的为find,常用参数如下: 
+8. windows下与linux类似的为find,常用参数如下: 
    /v 指定不包含指定所有行
    /c 对指定的行进行技术
    /i 不区分大小写
