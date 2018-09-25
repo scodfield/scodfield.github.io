@@ -56,3 +56,5 @@ tips to remember:
 3. listen()开启监听队列,客户端SYN包到来,创建新sock,sock为状态TCP_SYN_RECV,并被存入半连接队列syn_table中
 4. SYN攻击:客户端伪造大量IP地址,不间断的向服务器发送SYN包,塞满服务端半连接队列,导致正常的SYN请求被丢弃,SYN攻击是DDos攻击的一种,检测SYN攻击
    netstat + awk '/^tcp/' 查看SYN_RECV状态的tcp连接即可
+5. windows下查看tcp、udp及端口等统计情况:netstat -an | find "ESTABLISHED" /c 统计活跃状态的tcp连接,状态与linux类似,包括LISTENING,CLOSE_WAIT,
+   ESTABLISHED,TIME_WAIT
