@@ -68,6 +68,7 @@ tips to remember:
    f> TcpTimedWaitDelay 30 (s)
    g> KeepAliveTime 120000 (ms)
    h> KeepAliveInterval 1000 (系统未收到响应而重发保活信号的间隔,ms)
+   调整参数,关闭注册表,重启电脑即可
 6. windows下查看tcp、udp及端口等统计情况:netstat -an | find "ESTABLISHED" /c 统计活跃状态的tcp连接,状态与linux类似,包括LISTENING,CLOSE_WAIT,
    ESTABLISHED,TIME_WAIT
 7. netstat参数 
