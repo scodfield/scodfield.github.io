@@ -58,3 +58,15 @@ tips to remember:
    netstat + awk '/^tcp/' 查看SYN_RECV状态的tcp连接即可
 5. windows下查看tcp、udp及端口等统计情况:netstat -an | find "ESTABLISHED" /c 统计活跃状态的tcp连接,状态与linux类似,包括LISTENING,CLOSE_WAIT,
    ESTABLISHED,TIME_WAIT
+6. netstat参数 
+   -a 显示所有连接和监听端口
+   -n 以数字形式显示地址和端口号
+   -o 显示与每个连接相关的所属进程
+   -p proto 显示proto指定的协议连接,包括TCP,UDP,TCPv6,UDPv6
+   比如显示所有tcp连接: netstat -an -p tcp
+7. windows下与linux类似的为find,常用参数如下: 
+   /v 指定不包含指定所有行
+   /c 对指定的行进行技术
+   /i 不区分大小写
+   "" 指定要搜索的字符串
+   比如显示端口为20001的所有连接: netstat -ano | find "20001" ,类似的还有一个findstr,不需要(""),如: netstat -ano | findstr 20001
