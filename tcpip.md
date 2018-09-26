@@ -21,7 +21,7 @@ Linux下TCP并发连接数量限制：
 3. 系统同时打开的文件句柄上限,可通过/etc/sysctl.conf调整
 4. 系统内核的IP_TABLES防火墙对最大跟踪的TCP连接数有限制
 
-tips to remember:
+Tips to remember:
 1. TCP报文有两部分组成：头部和数据部分,头部的各字段体现了TCP的使用和功能,通信的另一端收到tcp报文后,去掉头部,组装接收到的消息
    头部的前20个字节是固定的,这也是头部的最小大小,头部最大60个字节,结构如下:
    a> 源端口 2byte
@@ -60,14 +60,14 @@ tips to remember:
    第一反应是上次的客户机tcp连接没有释放,由于客户机tcp连接设置了保活机制(keepalive),而默认的保活检测时间过长(默认是7200s),以及保活重发次数
    另外一个会影响的参数是系统释放连接资源之前的等待时间(TcpTimedWaitDelay),系统不释放资源导致本地动态端口,TCB,TCB hashtable等系统资源不足,
    从而拒绝连接,注册表调整参数
-   a> Ctrl+R --> regedit --> HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\Tcpip\Parameters 
-   b> 右键 --> 新建 --> DWORD --> 输入键值 --> 选中键值&右键 --> 修改 --> 基数栏选择十进制&填入具体参数值
-   c> MaxUserPort 65534
-   d> MaxFreeTcbs 16000
-   e> MaxHashTableSize 65536
-   f> TcpTimedWaitDelay 30 (s)
-   g> KeepAliveTime 120000 (ms)
-   h> KeepAliveInterval 1000 (系统未收到响应而重发保活信号的间隔,ms)
+   a. Ctrl+R --> regedit --> HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\Tcpip\Parameters 
+   b. 右键 --> 新建 --> DWORD --> 输入键值 --> 选中键值&右键 --> 修改 --> 基数栏选择十进制&填入具体参数值
+   c. MaxUserPort 65534
+   d. MaxFreeTcbs 16000
+   e. MaxHashTableSize 65536
+   f. TcpTimedWaitDelay 30 (s)
+   g. KeepAliveTime 120000 (ms)
+   h. KeepAliveInterval 1000 (系统未收到响应而重发保活信号的间隔,ms)
    调整参数,关闭注册表,重启电脑即可
 6. windows下查看tcp、udp及端口等统计情况:netstat -an | find "ESTABLISHED" /c 统计活跃状态的tcp连接,状态与linux类似,包括LISTENING,CLOSE_WAIT,
    ESTABLISHED,TIME_WAIT
