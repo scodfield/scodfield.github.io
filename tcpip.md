@@ -50,7 +50,14 @@ Tips to remember:
          4> 复位 RST(Reset) RST=1表示tcp连接出现严重错误,需释放并重新连接,一般称该报文为'复位报文'
          5> 同步 SYN(Synchronization) SYN=1表示该报文是一个请求连接的报文,一般称为'同步报文',三次握手的第一个报文
          6> 终止 FIN(Finish) FIN=1表示该报文发送方的发送数据已发送完毕,请求释放连接,一般称为'结束报文',四次挥手断开连接时用到此标志
-   h> 窗口大小 window size
+   h> 窗口大小 window size 2btye
+      告诉对方本段tcp接收缓冲区还可以接收多少字节的数据,对方据此控制发送的速度
+      窗口大小指的是从本报文段头部ack number起,可接收的字节数
+   i> 校验和 TCP Checksum 2byte
+      校验和由发送端填充,接收端对整个报文进行CRC计算,目的是检验报文段在传输过程中是否损坏,损坏则丢弃
+   j> 紧急指针 Urgent Pointer 2byte
+      仅在标志位URG=1时有效,指定了本报文段中紧急数据的字节数
+      紧急数据在报文段数据部分的首部,其后是普通数据,即当URG=1时,TCP报文:头部+数据(紧急+普通)
    
 2. TCP连接建立（三次握手）由内核协议栈实现,连接建立后socket状态转为established,并被放入icsk_accept_queue，accept()被唤醒,返回socket
 3. listen()开启监听队列,客户端SYN包到来,创建新sock,sock为状态TCP_SYN_RECV,并被存入半连接队列syn_table中
