@@ -85,7 +85,9 @@
 	c) 锁超时被自动释放,若有多个进程同时申请锁,且都得到锁(在高负载的情况下,很容易出现)
 31. watch命令锁住Redis的整个键(与mysql锁表相同),因此频繁操作时影响执行的性能,但这并不是说粗粒度锁一无是处,
     因为使用多个细粒度锁时,也会引发死锁风险
-32. mongo连接远程数据库
+32. mongod启动
+    mongod --dbpath xxx --logpath yyy --fork --auth --bind_ip zzz
+33. mongo连接远程数据库
 	mongo ip
 	mongo ip:port
 	mongo ip:port/db_name
