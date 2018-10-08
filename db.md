@@ -42,7 +42,7 @@
     sql语句块请参考sql教程,常用的有变量定义赋值相关的set,declare,控制语句if - then - else,case及循环语句,其它的还有字符串类的concat,substring,length,数学类的abs,floor,format,rand,round,日期时间类的current_date,current_time,current_timestamp,date,year,month等,具体的函数可以在需要的时候查询具体的参数和用法
     存储过程还可以使用prepare,execute,deallocate|drop预处理语句,用法如下:
 	set @table = 'tables';
-    set @sql_str = concat('select count(*) from ', @table);
+    set @sql_str = concat('select count( * ) from ', @table);
     prepare schema_table from @sql_str; execute schema_table; drop prepare schema_table;
     调用存储过程使用call proc_name
     删除存储过程使用drop [if exists] proc_name
@@ -85,3 +85,8 @@
 	c) 锁超时被自动释放,若有多个进程同时申请锁,且都得到锁(在高负载的情况下,很容易出现)
 31. watch命令锁住Redis的整个键(与mysql锁表相同),因此频繁操作时影响执行的性能,但这并不是说粗粒度锁一无是处,
     因为使用多个细粒度锁时,也会引发死锁风险
+32. mongo连接远程数据库
+	mongo ip
+	mongo ip:port
+	mongo ip:port/db_name
+    示例: mongo 192.168.1.100:27027/thd_game
