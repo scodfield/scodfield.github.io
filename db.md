@@ -27,3 +27,22 @@
 	9) 复合索引中单独引用非第一个索引字段
 	10) not in和<>操作
 	11) 索引字段为字符串,但使用时未加引号
+13. mysql分区类型：range分区(partition by range())、list分区(partition by list(),与range分区类似,区别是list分区的列的值是某列表中的一个,而range的值是连续的)、hash分区(partition by hash(),确保要分区的数据平均分布到各个分区)、key分区(partition by key(),与hash分区类似,区别是hash函数为mysql提供)
+14. mysql创建分区时自动对分区表从0开始编号
+15. mysql delimiter设置分隔符,默认为分号,可以通过delimiter重新设置,与存储过程并无必然联系,一般在执行含分号的多条语句时使用,比如自定义函数、存储过程或者触发器(慎用,太消耗资源)
+16. mysql存储过程是一组完成特定功能的sql语句块,经过预编译保存在进程字典中,常用语批量处理一些重复性高的操作;
+    mysql5.7中information_schema.routines表查看存储过程信息
+    create procedure proc_name(parameters)
+    begin
+    	some valid sql statements
+    end
+    存储过程默认绑定当前数据库,若需指定某数据库则在存储过程名前加数据库名即可
+    存储过程参数分为输入参数IN,输出参数OUT,输入输出参数INOUT,默认为IN类型,声明方式为:[IN|OUT|INOUT] para_name datatype
+    常用的数据类型datatype有:int float varchar()
+    sql语句块请参考sql教程,常用的有变量定义赋值相关的set,declare,控制语句if - then - else,case及循环语句,其它的还有字符串类的concat,substring,length,数学类的abs,floor,format,rand,round,日期时间类的current_date,current_time,current_timestamp,date,year,month等,具体的函数可以在需要的时候查询具体的参数和用法
+    存储过程还可以使用prepare,execute,deallocate|drop预处理语句,用法如下:
+	set @table = 'tables';
+    set @sql_str = concat('select count(*) from ', @table);
+    prepare schema_table from @sql_str; execute schema_table; drop prepare schema_table;
+    调用存储过程使用call proc_name
+    删除存储过程使用drop [if exists] proc_name
