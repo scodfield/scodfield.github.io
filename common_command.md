@@ -29,3 +29,8 @@
    示例:
       telnet 192.168.1.7
       telnet 192.168.1.8 8080 (可测试端口是否开启)
+3. 检测端口是否开启的方式:
+   telnet ip port
+   ssh -v -p port username@ip (ssh -v -p 6789 root@192.168.1.7)
+   wget ip:port
+   连接成功一般都会有connected提示,失败一般是提示connection refused
