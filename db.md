@@ -89,4 +89,5 @@
 	mongo ip
 	mongo ip:port
 	mongo ip:port/db_name
+	mongo ip:port/db_name -u xxx -p yyy
     示例: mongo 192.168.1.100:27027/thd_game
