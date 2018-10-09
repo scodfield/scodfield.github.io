@@ -35,3 +35,4 @@
    wget ip:port
    连接成功一般都会有connected提示,失败一般是提示connection refused
 4. cat /etc/redhat-release 查看centos发行版本
+5. windows上进行压测的时候,统计已占用的tcp接口: netstat -ano | find "TCP" /c, /c 统计个数
