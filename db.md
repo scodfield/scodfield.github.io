@@ -93,3 +93,13 @@
 	mongo ip:port/db_name
 	mongo ip:port/db_name -u xxx -p yyy
     示例: mongo 192.168.1.100:27027/thd_game
+34. 十一放假期间公司调整网络,回来发现mongo已关闭,重启,报错 error number 1,搜了一下发现原因是mongod非正常关闭导致的
+    删掉$dbpath下的mongod.lock及$logpath下的日志文件,重启mongod即可
+    查询mongo文档(https://docs.mongodb.com/manual/tutorial/manage-mongodb-processes/),正确关闭mongo有如下几种方式:
+      use shutdownServer() 登入mongo shell,键入 
+        use admin
+        db.shutdownServer()
+      use --shutdown linux command line,键入
+        mongod --shutdown
+      use CTRL-C 以交互模式(interactive mode)运行mongod实例时适用此方法
+      use kill linux command line,键入 kill mongod_process_id 或者 kill -2 mongod_processed_id (决不能使用kill -9) 
