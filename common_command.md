@@ -34,3 +34,4 @@
    ssh -v -p port username@ip (ssh -v -p 6789 root@192.168.1.7)
    wget ip:port
    连接成功一般都会有connected提示,失败一般是提示connection refused
+4. cat /etc/redhat-release 查看centos发行版本
