@@ -21,3 +21,11 @@
    b> erl -config xxx.config 该配置文件中罗列各app的配置项, [{AppName1, [{Par1,Vla1}]}, {AppName2, [{Par2, Val2}]}].
    c> xxx.app 中的env选项
    项目中用到的其它所谓的“配置”,均由py脚本生成.config文件,再在服务启动的时候,编译生成对应的.beam文件
+8. 配置导表时,若报错KeyError则输入的config name在game_server.spec里没找到json对应的key值
+   若报错UTF BOM则是在修改game_server.spec文件后保存的时候默认的编码格式不是UTF-8(记事本默认编码为ANSI)
+   sublime text3 -> preferences -> settings -> 在左边栏找到"default_encoding":"xxx",将该行复制到右边栏的user
+   文件,值改为"UTF-8",sublime text3默认不显示当前文件的编码格式,可在左边栏找到"show_encoding"和"show_line_endings" 复制到右边栏user文件中,
+   将值改为true即可,保存关闭,可在sublime的最右下角看到编码格式
+9. rebar2 get-deps的时候,重定向deps的下载路径,rebar_deps:download_source/2,  
+   第一个参数AppDir是deps下载后的保存路径
+10.rebar2 create-app appid=AppName 在当前目录下创建app,生成src/xx.app.src,xx_app.erl,xx_sup.erl
