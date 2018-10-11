@@ -108,6 +108,8 @@
     on the admin database),创建命令为db.createUser({user:"xxx", pwd:"yyy", roles:[{},...]})
     createUser的roles选项,指定了被创建用户的"角色",包括内置角色和自定义角色,mongo采用基于角色授权的方式管理对数据库的相关操作
     为了便于管理,首个超级管理员账号,可以选择内置角色中属于superuser roles的root角色,root拥有所有权限(provides full privileges on all resources)
+    localhost exception which allows you to create a user administrator in the admin database
+    管理员的创建流程可参考mongodb doc的Enable Auth(https://docs.mongodb.com/manual/tutorial/enable-authentication/)
 36. 为project创建database和user时,可选择内置角色中属于Database Administration Roles的dbAdmin,dbOwner
     可由db.createRole()自定义角色类型,db.createRole({role,writeConcern})
     role结构为:{role:"role_name", privileges:[],roles:[]}
