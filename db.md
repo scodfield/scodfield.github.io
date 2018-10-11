@@ -126,3 +126,6 @@
 		 }, 
 		 { w: "majority" , wtimeout: 5000 }
 	)
+37. 创建User时的database为用户的authentication database, 两种方式实现验证登录:
+	mongo命令行 --auth -u xxx -p yyy --authenticationDatabase zzz
+	mongo直接连接mongd/mongos --> use user_authentication_database  db.auth(user_name,pwd)
