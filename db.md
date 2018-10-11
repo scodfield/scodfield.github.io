@@ -103,3 +103,9 @@
         mongod --shutdown
       use CTRL-C 以交互模式(interactive mode)运行mongod实例时适用此方法
       use kill linux command line,键入 kill mongod_process_id 或者 kill -2 mongod_processed_id (决不能使用kill -9) 
+35. mongo首次运行时并未开启验证,登录后需要首先创建一个超级管理员用户,用于管理其他用户
+    由手册可知,mongo3.0以后,在admin中创建(As of MongoDB 3.0, with the localhost exception, you can only create users 
+    on the admin database),创建命令为db.createUser({user:"xxx", pwd:"yyy", roles:[{},...]})
+    createUser的roles选项,指定了被创建用户的"角色",包括内置角色和自定义角色,mongo采用基于角色授权的方式管理对数据库的相关操作
+    为了便于管理,首个超级管理员账号,可以选择内置角色中属于superuser roles的root角色,root拥有所有权限(provides full privileges on all resources)
+    
