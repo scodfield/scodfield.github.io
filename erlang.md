@@ -1,3 +1,4 @@
+
 1. centos6.9安装erlang 20.3
    安装依赖: yum install -y gcc gcc-c++ glibc-devel make automake autoconf ncurses-devel openssl-devel m4 kernel-devel
    下载源码: wget http://erlang.org/download/otp_src_20.3.tar.gz
@@ -29,3 +30,7 @@
 9. rebar2 get-deps的时候,重定向deps的下载路径,rebar_deps:download_source/2,  
    第一个参数AppDir是deps下载后的保存路径
 10.rebar2 create-app appid=AppName 在当前目录下创建app,生成src/xx.app.src,xx_app.erl,xx_sup.erl
+11.JSON (JavaScript Object Notatioin)独立于语言的轻量级的文本数据交换格式
+   JSON语法:数据保存在名称/值对中;数据由逗号分隔;花括号保存对象;中括号保存数组
+   JSON的值:数字(整形或浮点数);字符串(双引号包裹);逻辑值(true,false);数组([]);对象({});空(null)
+   示例: {"player" : {"name" : "xxx", age : 18, "friends" : [{"name" : "yyy"}, {"name" : "zzz"}]}}
