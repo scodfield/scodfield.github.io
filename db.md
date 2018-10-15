@@ -132,3 +132,11 @@
 38. 搭建外网数据库环境时用到的几个命令
 	安装mysql客户端: yum install mysql
     	mysql导入本地文件: mysql -h xxx -uyyy -pzzz db_name < local_sql_path
+39. centos yum 安装mongodb
+	/etc/yum.repos.d/下,创建mongodb的repo文件 mongodb-org-3.6.repo,文件内容为:
+	[mongodb-org-3.6]
+	name=MongoDB Repository
+	baseurl=https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/3.6/x86_64/
+	gpgcheck=0
+	enabled=1 
+	保存退出,执行: yum install -y mongodb-org 
