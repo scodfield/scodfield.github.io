@@ -129,3 +129,6 @@
 37. 创建User时的database为用户的authentication database, 两种方式实现验证登录:
 	mongo命令行 --auth -u xxx -p yyy --authenticationDatabase zzz
 	mongo直接连接mongd/mongos --> use user_authentication_database  db.auth(user_name,pwd)
+38. 搭建外网数据库环境时用到的几个命令
+	安装mysql客户端: yum install mysql
+    	mysql导入本地文件: mysql -h xxx -uyyy -pzzz db_name < local_sql_path
