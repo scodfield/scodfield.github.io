@@ -132,7 +132,7 @@
 38. 搭建外网数据库环境时用到的几个命令
 	安装mysql客户端: yum install mysql
     	mysql导入客户端本地文件: mysql -h xxx -uyyy -pzzz db_name < local_sql_path
-	source命令同样可以导入文件,不过需要先登录到数据库终端 
+	source命令同样可以导入文件,不过需要先登录到数据库终端,source命令只能导入服务端本地文件 
 	mysql shell中LOAD DATA INFILE读取文件:LOAD DATA LOCAL INFIEL 'xxx.txt' INTO TABLE yyy;
 	LOAD DATA的local字段可以指定从客户机路径导入文件,如果没有指定则从服务器路径导入
 39. centos yum 安装mongodb
@@ -150,3 +150,9 @@
 	SELECT @str_sql := CONCAT('DROP TABLE IF EXISTS ', GROUP_CONCAT(`table_name`))
     	FROM `information_schema`.`tables`
     	WHERE `table_schema` = database() AND `table_name` LIKE pattern;
+	经过试验,NULL是执行的结果,首次初始化时,没有符合条件的表,所以返回的是NULL,再次执行,则会返回@str_sql,值类似于:
+	@str_sql := CONCAT('DROP TABLE IF EXISTS ', GROUP_CONCAT(`table_name`))
+	DROP TABLE IF EXISTS xxx_pattern,yyy_pattern,zzz_pattern
+41. mysql varchar类型执行+-等数学运算时,会自动隐式转换,原则是:字符开头的一律为0,数字开头的直接截取到第一个不是字符的位置
+	select sum(pre_value - after_value) as count from table_name;
+	上述语句中,pre_value/after_value均为varchar类型,当符合条件的数据比较多时,耗费的时间将大大增加
