@@ -153,6 +153,8 @@
 	经过试验,NULL是执行的结果,首次初始化时,没有符合条件的表,所以返回的是NULL,再次执行,则会返回@str_sql,值类似于:
 	@str_sql := CONCAT('DROP TABLE IF EXISTS ', GROUP_CONCAT(`table_name`))
 	DROP TABLE IF EXISTS xxx_pattern,yyy_pattern,zzz_pattern
+  注:Unless otherwise stated, group functions ignore NULL values. 也就是说group_concat会自动忽略NULL值
 41. mysql varchar类型执行+-等数学运算时,会自动隐式转换,原则是:字符开头的一律为0,数字开头的直接截取到第一个不是字符的位置
 	select sum(pre_value - after_value) as count from table_name;
 	上述语句中,pre_value/after_value均为varchar类型,当符合条件的数据比较多时,耗费的时间将大大增加
+	                                                          
