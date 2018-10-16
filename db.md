@@ -131,7 +131,10 @@
 	mongo直接连接mongd/mongos --> use user_authentication_database  db.auth(user_name,pwd)
 38. 搭建外网数据库环境时用到的几个命令
 	安装mysql客户端: yum install mysql
-    	mysql导入本地文件: mysql -h xxx -uyyy -pzzz db_name < local_sql_path
+    	mysql导入客户端本地文件: mysql -h xxx -uyyy -pzzz db_name < local_sql_path
+	source命令同样可以导入文件,不过需要先登录到数据库终端 
+	mysql shell中LOAD DATA INFILE读取文件:LOAD DATA LOCAL INFIEL 'xxx.txt' INTO TABLE yyy;
+	LOAD DATA的local字段可以指定从客户机路径导入文件,如果没有指定则从服务器路径导入
 39. centos yum 安装mongodb
 	/etc/yum.repos.d/下,创建mongodb的repo文件 mongodb-org-3.6.repo,文件内容为:
 	[mongodb-org-3.6]
@@ -140,3 +143,10 @@
 	gpgcheck=0
 	enabled=1 
 	保存退出,执行: yum install -y mongodb-org 
+40. mysql使用group_concat出现下面的结果:
+	@str_sql := CONCAT('DROP TABLE IF EXISTS ', GROUP_CONCAT(`table_name`))
+	NULL
+	语句是:
+	SELECT @str_sql := CONCAT('DROP TABLE IF EXISTS ', GROUP_CONCAT(`table_name`))
+    	FROM `information_schema`.`tables`
+    	WHERE `table_schema` = database() AND `table_name` LIKE pattern;
