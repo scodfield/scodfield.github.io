@@ -35,3 +35,4 @@
    JSON的值:数字(整形或浮点数);字符串(双引号包裹);逻辑值(true,false);数组([]);对象({});空(null)
    示例: {"player" : {"name" : "xxx", age : 18, "friends" : [{"name" : "yyy"}, {"name" : "zzz"}]}}
 12. gen_server:call/3 timeout选项,由手册可知,在实现时,catch gen:call/4,则如果超时,返回的是捕捉到的超时信息:{'EXIT', Reason}
+13. io:format函数中显示格式的控制序列为:~F.P.PadModC, F为打印宽度,P为打印精度,Pad(padding)为填充字符,Mod(modifier)为标识符
