@@ -155,6 +155,4 @@
 	DROP TABLE IF EXISTS xxx_pattern,yyy_pattern,zzz_pattern
   注:Unless otherwise stated, group functions ignore NULL values. 也就是说group_concat会自动忽略NULL值
 41. mysql varchar类型执行+-等数学运算时,会自动隐式转换,原则是:字符开头的一律为0,数字开头的直接截取到第一个不是字符的位置
-	select sum(pre_value - after_value) as count from table_name;
-	上述语句中,pre_value/after_value均为varchar类型,当符合条件的数据比较多时,耗费的时间将大大增加
-	                                                          
+42. 日志报错:duplicate entry 'xxx' for key 'PRIMARY',主键冲突,再次插入数据前,先删除已有的数据,否则用update
