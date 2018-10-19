@@ -158,3 +158,5 @@
 42. 日志报错:duplicate entry 'xxx' for key 'PRIMARY',主键冲突,再次插入数据前,先删除已有的数据,否则用update
 43. mysql> delete table 并不会清除主键的auto_increment计数,drop table 可以
 	delete table 不能批量删除表,比如我用concat和group_concat拼接具有相同前缀的表删除语句,提示syntax error
+44. 查看auto_increment: select table_shcema,table_name,auto_increment from information_schema.tables where table_schema = database() and table_name like 'xxx';
+    可在当前database执行: drop database database(); 执行后再: select database(); 结果为NULL 
