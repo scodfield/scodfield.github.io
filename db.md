@@ -160,3 +160,5 @@
 	delete table 不能批量删除表,比如我用concat和group_concat拼接具有相同前缀的表删除语句,提示syntax error
 44. 查看auto_increment: select table_shcema,table_name,auto_increment from information_schema.tables where table_schema = database() and table_name like 'xxx';
     可在当前database执行: drop database database(); 执行后再: select database(); 结果为NULL 
+45. 设置主键自增初始值可以在建表时通过:AUTO_INCREMENT=xxxx制定,如: create table tb_name (column_name,column_type) AUTO_INCREMENT=100000
+    也可以通过: alter table tb_name AUTO_INCREMENT=10000 来设定,不过这种方式要确保新的值要比表中已有的值大
