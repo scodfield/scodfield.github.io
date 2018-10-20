@@ -37,3 +37,8 @@
 12. gen_server:call/3 timeout选项,由手册可知,在实现时,catch gen:call/4,则如果超时,返回的是捕捉到的超时信息:{'EXIT', Reason}
 13. io:format函数中显示格式的控制序列为:~F.P.PadModC, F为打印宽度,P为打印精度,Pad(padding)为填充字符,Mod(modifier)为标识符,标识符对参数
     就行解释说明,比如't',表示参数为unicode字符
+14. 关于玩家accid,首先是建表时在table option那可以指定初始值(table option也就是设定engine,charset等),其次是采用的mysql依赖库中
+    有一个mysql:insert_id/1的接口,参数则为与mysql建立连接的进程,通过trace代码,可以发现进程在parse_ok_packet时,首先解析出来的是affected rows
+    第二个解析的就是insert_id,由此可知,mysql返回的响应结果中,包含了insert的自增ID
+    mysql返回是protocol发送ok报文,ok报文的结构:0标志位,affected_rows,last_insert_id,server_status,warning_count,message
+    至此,解开所有疑惑
