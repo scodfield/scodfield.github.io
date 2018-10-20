@@ -166,3 +166,4 @@
 	mysql shell登录服务器,执行insert/update后,可通过:select LAST_INSERT_ID(); 或者: select max(auto_increment_column) from tb_name;
 	对于active connections,mysql服务器为每个连接单独维护last_insert_id值,各个连接之间互不影响
 	当insert多条数据时,返回的插入的第一条数据的自增ID,而不是max(auto_increment_column)
+47. 贴一个淘宝写的mysql源码分析--连接与认证过程的网址,以备后续参考学习:http://mysql.taobao.org/monthly/2018/08/07/ 
