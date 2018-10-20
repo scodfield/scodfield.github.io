@@ -162,3 +162,7 @@
     可在当前database执行: drop database database(); 执行后再: select database(); 结果为NULL 
 45. 设置主键自增初始值可以在建表时通过:AUTO_INCREMENT=xxxx制定,如: create table tb_name (column_name,column_type) AUTO_INCREMENT=100000
     也可以通过: alter table tb_name AUTO_INCREMENT=10000 来设定,不过这种方式要确保新的值要比表中已有的值大
+46. mysql insert/update语句执行后,返回自增ID
+	mysql shell登录服务器,执行insert/update后,可通过:select LAST_INSERT_ID(); 或者: select max(auto_increment_column) from tb_name;
+	对于active connections,mysql服务器为每个连接单独维护last_insert_id值,各个连接之间互不影响
+	当insert多条数据时,返回的插入的第一条数据的自增ID,而不是max(auto_increment_column)
