@@ -42,3 +42,5 @@
     第二个解析的就是insert_id,由此可知,mysql返回的响应结果中,包含了insert的自增ID
     mysql返回是protocol发送ok报文,ok报文的结构:0标志位,affected_rows,last_insert_id,server_status,warning_count,message
     至此,解开所有疑惑
+15. rebar2编译project时,显示一个'invalid syntax'的Python错误,经查是Python版本不兼容,python -V 发现是2.7,而目前用的是3.5,安装3.5+,更新环境
+    变量,再次编译,同样的报错,想起来需要关闭之前打开的终端,重启之后ok
