@@ -44,3 +44,5 @@
     至此,解开所有疑惑
 15. rebar2编译project时,显示一个'invalid syntax'的Python错误,经查是Python版本不兼容,python -V 发现是2.7,而目前用的是3.5,安装3.5+,更新环境
     变量,再次编译,同样的报错,想起来需要关闭之前打开的终端,重启之后ok
+16. httpd有一个最大连接数参数:max_clients,另外再压力测试的过程中,报错:socket_closed_remotely,https://bugs.erlang.org/browse/ERL-473 
+    说是httpc handle达到了keep_alive:max,暂时没看懂,明天继续
