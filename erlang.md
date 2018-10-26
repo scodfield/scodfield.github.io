@@ -46,4 +46,8 @@
     变量,再次编译,同样的报错,想起来需要关闭之前打开的终端,重启之后ok
 16. httpd有一个最大连接数参数:max_clients,另外再压力测试的过程中,报错:socket_closed_remotely,https://bugs.erlang.org/browse/ERL-473 
     说是httpc handle达到了keep_alive:max,暂时没看懂,明天继续
+    通过查阅日志,发现在web_server的cpu负载过高的时候会返回这个错误
+    查看手册,httpc_handler进程在收到tcp_closed,ssl_closed时,将session.socket = {remote_close, Socket},进而再调用deliver_answer/1时
+    向request进程发送相应,Response = httpc_response:error(Request, socket_closed_remotely),然后就抛出socket_closed_remotely
+    下一步就是确认,web_server在cpu或内存等资源不足时,是否会主动关闭连接
 17. 需求需要去掉lists最后一个元素,使用lists:droplast/1,需要列表非空
