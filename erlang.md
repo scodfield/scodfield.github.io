@@ -46,3 +46,4 @@
     变量,再次编译,同样的报错,想起来需要关闭之前打开的终端,重启之后ok
 16. httpd有一个最大连接数参数:max_clients,另外再压力测试的过程中,报错:socket_closed_remotely,https://bugs.erlang.org/browse/ERL-473 
     说是httpc handle达到了keep_alive:max,暂时没看懂,明天继续
+17. 需求需要去掉lists最后一个元素,使用lists:droplast/1,需要列表非空
