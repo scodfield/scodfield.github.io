@@ -49,5 +49,7 @@
     通过查阅日志,发现在web_server的cpu负载过高的时候会返回这个错误
     查看手册,httpc_handler进程在收到tcp_closed,ssl_closed时,将session.socket = {remote_close, Socket},进而再调用deliver_answer/1时
     向request进程发送相应,Response = httpc_response:error(Request, socket_closed_remotely),然后就抛出socket_closed_remotely
-    下一步就是确认,web_server在cpu或内存等资源不足时,是否会主动关闭连接
+    (web_server在cpu或内存等资源不足时,是否会主动关闭连接??)
+    socket_closed_remotely是服务器主动关闭了连接,一般发生在短时间有大量请求时,如dos攻击,网络爬虫
+    由手册可知,在调用httpc:request/N时,HTTP option中的version指明了使用的http协议版本,其默认值为:"HTTP/1.1"
 17. 需求需要去掉lists最后一个元素,使用lists:droplast/1,需要列表非空
