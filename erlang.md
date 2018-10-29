@@ -59,3 +59,7 @@
 19. epmd进程启动时,为本地erlang节点分配一个动态端口,通过启动参数-kernel inet_dist_listen_min inet_dist_listen_max可以指定端口范围
     如: erl -sname thd_node1 -kernel inet_dist_listen_min 5860 inet_dist_listen_max 5870 
     极端情况是min=max 则只能启动一个节点,若强行启动第二个节点则会报上面eaddrinuse的错误,原因当然是无法在epmd注册,没有可用端口分配给新节点了
+    erlang集群中,节点之间的通信用的就是epmd分配的端口
+    可用通过application:set_env(kernel,inet_dist_listen_min/max,xxx)动态改变端口范围,若动态改变则需要重启epmd进程,因为即便erlang节点关闭
+    epmd进程仍然会存在,重启使参数生效
+    epmd进程默认使用的端口是4369
