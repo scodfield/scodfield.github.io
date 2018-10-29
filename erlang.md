@@ -53,3 +53,6 @@
     socket_closed_remotely是服务器主动关闭了连接,一般发生在短时间有大量请求时,如dos攻击,网络爬虫
     由手册可知,在调用httpc:request/N时,HTTP option中的version指明了使用的http协议版本,其默认值为:"HTTP/1.1"
 17. 需求需要去掉lists最后一个元素,使用lists:droplast/1,需要列表非空
+18. remsh登录后台节点时,报错:Protocal 'inet_tcp':register/listen error: eaddrinuse,查了一下是epmd进程的问题
+    epmd(erlang port mapper daemon) 用于erlang节点和ip及端口的映射,一般erl启动时,若启动参数包含-name -sname时就会自动启动该进程
+    不过按网上的说法:lsof -i:4369 之后并未发现占用端口的其它进程,只好搬出杀手锏重启大法,问题解决
