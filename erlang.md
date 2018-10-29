@@ -56,3 +56,6 @@
 18. remsh登录后台节点时,报错:Protocal 'inet_tcp':register/listen error: eaddrinuse,查了一下是epmd进程的问题
     epmd(erlang port mapper daemon) 用于erlang节点和ip及端口的映射,一般erl启动时,若启动参数包含-name -sname时就会自动启动该进程
     不过按网上的说法:lsof -i:4369 之后并未发现占用端口的其它进程,只好搬出杀手锏重启大法,问题解决
+19. epmd进程启动时,为本地erlang节点分配一个动态端口,通过启动参数-kernel inet_dist_listen_min inet_dist_listen_max可以指定端口范围
+    如: erl -sname thd_node1 -kernel inet_dist_listen_min 5860 inet_dist_listen_max 5870 
+    极端情况是min=max 则只能启动一个节点,若强行启动第二个节点则会报上面eaddrinuse的错误,原因当然是无法在epmd注册,没有可用端口分配给新节点了
