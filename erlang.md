@@ -63,6 +63,3 @@
     可用通过application:set_env(kernel,inet_dist_listen_min/max,xxx)动态改变端口范围,若动态改变则需要重启epmd进程,因为即便erlang节点关闭
     epmd进程仍然会存在,重启使参数生效
     epmd进程默认使用的端口是4369
-20. 引起eaddrinuse的原因是三方库mongdb建立了大量的远程连接(netstat -anp | grep 27017),大量连接则是由于mongodb服务器假设在腾讯云上
-    腾讯云要求,登录用户必须先在admin里验证,而不能是普通的数据库,导致三方库不停的连接验证,占用了大量端口,通过将配置文件中的database选项
-    设为admin,再次启动服务后,只有连接池设定的10个连接进程
