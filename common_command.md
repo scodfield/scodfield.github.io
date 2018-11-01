@@ -44,3 +44,12 @@
    权限标识: r 读权限,数字4表示; w 写权限,数字2表示; x 执行权限,数字1表示; - 不具有任何权限,数字0表示
    文字设定操作符: + 表示增加权限; - 表示取消权限; = 表示赋予限定的权限,并取消其它剩余的权限
 7. svn commit的时候,提示:changing file 'xxxxx' is forbidden for the server,查了一下说是用户没有相应权限
+8. netstat 查看网络状态,参数如下
+   -a 显示所有选项
+   -t 显示tcp协议的连接状态
+   -u 显示udp协议的连接状态
+   -n 不显示列名
+   -l 显示处于listen状态的连接
+   -s 按各协议(ip,icmp,tcp,udp等)显示统计信息
+   -p 显示建立连接的程序名(PID/program_name)
+   -r 显示本地路由信息
