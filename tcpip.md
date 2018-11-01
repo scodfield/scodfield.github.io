@@ -97,3 +97,7 @@ Tips to remember:
     通过对比其他资料,这个address应该就是需要占用的端口,httpc申请的是动态端口,那么很有可能是动态端口不够用
     /proc/sys/net/ipv4/ip_local_port_range 查看本地TCP/UDP端口范围
     可由: echo '32768 60999' > /proc/sys/net/ipv4/ip_local_port_range  更改端口范围
+11. TCP/UDP端口类型:
+    0 - 1023 固定端口,与常见应用紧密绑定的端口
+    1024 - 49151 注册端口,与应用松散绑定
+    49452 - 65535 动态端口,可与任意应用绑定
