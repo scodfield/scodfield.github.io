@@ -66,3 +66,7 @@
 20. NIF(Native Implemented Functions)可以使我们用C来实现相同的逻辑,但运行速度比纯erlang更快,与C语言程序速度很接近
     nif和port driver都可以用来扩张erlang,但nif更简洁有效
     C编译生成的动态库(.so)在erlang调用C模块时,动态加载到进程空间中,调用nif无需上下文切换,但是安全性不高,nif的crash会导致erlang进程的crash
+21. windows编译erlang nif需要erlang的头文件和静态库:$ERL_ROOT\erts9.3\include\, $ERL_ROOT\erts9.3\lib\erts_MD.lib
+    翻阅手册,windows下的编译命令: cl -LD -MD -Fe nif_test.dll nif_test.c
+    linux下的编译命令: gcc -fPIC -shared -o niftest.so niftest.c -I $ERL_ROOT/usr/include/
+    在vps上测试,bingo...
