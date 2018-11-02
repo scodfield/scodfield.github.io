@@ -63,3 +63,6 @@
     可用通过application:set_env(kernel,inet_dist_listen_min/max,xxx)动态改变端口范围,若动态改变则需要重启epmd进程,因为即便erlang节点关闭
     epmd进程仍然会存在,重启使参数生效
     epmd进程默认使用的端口是4369
+20. NIF(Native Implemented Functions)可以使我们用C来实现相同的逻辑,但运行速度比纯erlang更快,与C语言程序速度很接近
+    nif和port driver都可以用来扩张erlang,但nif更简洁有效
+    C编译生成的动态库(.so)在erlang调用C模块时,动态加载到进程空间中,调用nif无需上下文切换,但是安全性不高,nif的crash会导致erlang进程的crash
