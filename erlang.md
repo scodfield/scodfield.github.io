@@ -70,3 +70,4 @@
     翻阅手册,windows下的编译命令: cl -LD -MD -Fe nif_test.dll nif_test.c
     linux下的编译命令: gcc -fPIC -shared -o niftest.so niftest.c -I $ERL_ROOT/usr/include/
     在vps上测试,bingo...
+22. 调用lua进行战斗验证的时候,装完lua,试了一下,退出的时候发现常规的q,exit不管用了,搜了一下,unix下用:Ctrl-D,windows下用:Ctrl-Z
