@@ -83,3 +83,4 @@
     则可通过: if( lua_pcall(L,0,0,0) != 0) printf("error:%s\n", lua_tostring(L,-1)); 打印错误信息
     函数执行完毕,栈中数据被弹出栈,返回值按顺序入栈,即最后一个返回值再栈顶,此时可以通过:lua_to*(L,-1) lua_pop(L,1) 依次获取返回值
 25. nif执行时报错,崩掉的是整个节点,也没有crash dump,更没有日志
+26. lua: /usr/local/include erlang:/opt/erlang20/lib/erlang
