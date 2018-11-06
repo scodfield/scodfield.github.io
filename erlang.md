@@ -71,3 +71,14 @@
     linux下的编译命令: gcc -fPIC -shared -o niftest.so niftest.c -I $ERL_ROOT/usr/include/
     在vps上测试,bingo...
 22. 调用lua进行战斗验证的时候,装完lua,试了一下,退出的时候发现常规的q,exit不管用了,搜了一下,unix下用:Ctrl-D,windows下用:Ctrl-Z
+23. C与lua通过一个虚拟的栈进行交互,第一个压入栈的索引为1,依次递增,直至栈顶,也可用通过负数来访问栈顶元素,-1为栈顶,依次类推
+    lua_to*(lua_State* L, int index)返回返回栈中index索引的值,并将该值转换为星号代表的类型,如:lua_tostring(L,-1) 
+    上述函数只是返回对应索引的值,并不会pop,如需弹出元素可使用:lua_pop(L,1)
+24. C调用lua函数,可通过:luaL_loadfile(L,filename)加载函数
+    加载之后,通过:lua_getglobal(L,"fun_name")将函数压入栈中,接着将函数所需的参数按照定义的顺序依次压入栈中,函数为lua_push*,星号为对应类型
+    如:lua_pushinteger(L,3) lua_pushstring(L, "hehehe") lua_pushboolean(L,1)
+    参数压入之后,通过:lua_pcall完成对函数的调用,lua_pcall有四个参数,第一个为lua_State,第二个为传递给函数的参数个数,第三个为期望返回的结果个数
+    第四个为错误处理的函数索引(在栈中的索引,为0表示没有错误处理函数,若有则需要先把其压入栈中),例:lua_pcall(L,1,1,0)
+    lua函数运行错误的话,lua_pcall返回一个非零值,并在栈中压入一条错误信息
+    则可通过: if( lua_pcall(L,0,0,0) != 0) printf("error:%s\n", lua_tostring(L,-1)); 打印错误信息
+    函数执行完毕,栈中数据被弹出栈,返回值按顺序入栈,即最后一个返回值再栈顶,此时可以通过:lua_to*(L,-1) lua_pop(L,1) 依次获取返回值
