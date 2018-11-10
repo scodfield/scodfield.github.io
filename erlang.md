@@ -84,3 +84,12 @@
     函数执行完毕,栈中数据被弹出栈,返回值按顺序入栈,即最后一个返回值再栈顶,此时可以通过:lua_to*(L,-1) lua_pop(L,1) 依次获取返回值
 25. nif执行时报错,崩掉的是整个节点,也没有crash dump,更没有日志
 26. lua: /usr/local/include erlang:/opt/erlang20/lib/erlang
+27. C编译成动态库之后,在实际运行的时候给变量赋值,此时才会加载path指定的lua文件,而且如果需要更改lua文件,更改之后,调用C中的load函数即可,
+    一般load函数包括: L = luaL_newstate(); luaL_openlibs(L); lua状态机变量L,一般可定义为一个全局变量:static lua_State* L = NULL;
+28. 调用前端写的脚本时,lua5.1 vs lua5.3的一些坑
+    attempt to call a nil value (global 'xxx'):
+    loadstring -- load
+    unpack -- table.unpack
+    attempt to index a functioni value (global 'iparis'):
+    原来以为又是一个淘汰的函数,最后看了下,原来是前端大哥脚本写错了(ipairs(xxx)写成了ipairs[xxx])
+    
