@@ -73,3 +73,10 @@
     -fPIC 表示编译为位置独立的代码,不用此选项的话编译后的代码是位置相关的,所以动态载入时,是通过代码拷贝的方式来满足不同进程的需要
           而不能达到真正代码段共享的目的
     例: gcc -fPIC -shared -o test.so test.c -I /usr/local/lib
+12. 查看系统内核版本的几个方式:
+    uname -a or -r
+    cat /proc/version
+    查看发行版本的方式:
+    lsb_release -a
+    cat /etc/redhat-release
+    cat /etc/issue
