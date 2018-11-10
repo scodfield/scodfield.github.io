@@ -92,4 +92,18 @@
     unpack -- table.unpack
     attempt to index a functioni value (global 'iparis'):
     原来以为又是一个淘汰的函数,最后看了下,原来是前端大哥脚本写错了(ipairs(xxx)写成了ipairs[xxx])
-    
+29. 调用前端lua脚本时,节点直接就崩了,也没留下任何日志或消息,因此需要将lua报错信息返回回来,此处用的lua_pcall/4
+    可在头文件或C文件定义一个traceback/1:
+    static int traceback(lua_State* L) 
+      { const char* msg = lua_tostring(L,-1); if(msg){ luaL_traceback(L,L,msg,1); } else { lua_pushliteral(L,"no message") } return 1 }
+    traceback函数应该先压入栈中,比如在调用calc函数之前:
+    lua_pushcfunction(L,traceback); 
+    lua_getglobal(L,"calc"); lua_pushstring(L,buf);
+    if(0 != lua_pcall(L,1,LUA_MULTRET,1)) {
+      // trace_back
+    }
+    const char* calc_result = lua_tostring(L,-1);
+    memset(buf,0,1024);
+    strncpy(buf,calc_result,strlen(calc_result));
+    lua_pop(L,1);
+    return enif_make_string(env,buf,ERL_NIF_LATIN1);
