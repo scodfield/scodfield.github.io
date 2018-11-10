@@ -107,3 +107,4 @@
     strncpy(buf,calc_result,strlen(calc_result));
     lua_pop(L,1);
     return enif_make_string(env,buf,ERL_NIF_LATIN1);
+30. 在调试lua的时候,为了尽量避免lua文件语法错误,可以在调用之前,在cmd/shell里通过:luac xxx.lua 来检查相关的语法错误
