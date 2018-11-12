@@ -108,3 +108,5 @@
     lua_pop(L,1);
     return enif_make_string(env,buf,ERL_NIF_LATIN1);
 30. 在调试lua的时候,为了尽量避免lua文件语法错误,可以在调用之前,在cmd/shell里通过:luac xxx.lua 来检查相关的语法错误
+31. C与lua互调时,每次都会得到一个新的虚拟栈,栈里是传递给对方的函数及参数,调用返回时,将栈清空,将返回值放入栈中
+    所以可以看到,在调试lua脚本时,加载lua的load函数与调用计算的calc函数,每次都会将traceback函数首先压入栈中
