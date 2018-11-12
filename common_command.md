@@ -85,3 +85,15 @@
     zip -r xxx.zip yyy zzz.txt 压缩yyy目录和zzz.txt到xxx.zip
     unzip xxx.zip 将xxx.zip解压到当前路径
     unzip xxx.zip -d yyy 将xxx.zip解压到yyy目录
+14. 设置系统环境变量
+    export PATH=xxx/yyy:$PATH 只对当前shell有效,退出则失效,为临时设置
+    编辑/etc/profile文件,添加:export PATH=$PATH:xxx/yyy 保存退出后,下次进入shell生效,或者执行:source /etc/profile,对所有用户永久生效
+    编辑~/.bash_profile文件,后续操作同/etc/profile,对当前用户永久生效
+    source /etc/profile的原理是再一次执行/etc/profile shell脚本,使用sh /etc/profile是不行的,因为sh是在子shell进程中执行的,即使环境改变了
+    也不会反应到当前环境中,而source是在当前shell进程中执行的,所以能看到环境的改变
+    环境设置文件包括:系统环境设置文件和个人环境设置文件
+    系统环境设置文件包括:登录环境设置文件/etc/profile,非登录环境设置文件/etc/bashrc
+    个人环境设置文件包括:登录环境设置文件~/.bash_profile,非登录环境设置文件~/.bashrc
+    登录环境指的是用户登录系统后的工作环境
+    非登录环境指的是用户调用子shell时使用的工作环境
+    env命令显示所有的环境变量
