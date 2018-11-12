@@ -80,3 +80,8 @@
     lsb_release -a
     cat /etc/redhat-release
     cat /etc/issue
+13. zip/unzip
+    zip -r xxx.zip yyy 将当前路径下的yyy目录压缩为xxx.zip
+    zip -r xxx.zip yyy zzz.txt 压缩yyy目录和zzz.txt到xxx.zip
+    unzip xxx.zip 将xxx.zip解压到当前路径
+    unzip xxx.zip -d yyy 将xxx.zip解压到yyy目录
