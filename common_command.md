@@ -97,3 +97,7 @@
     登录环境指的是用户登录系统后的工作环境
     非登录环境指的是用户调用子shell时使用的工作环境
     env命令显示所有的环境变量
+15. source,sh,bash,./
+    source xxx/yyy 在当前shell读取并执行文件中的命令,文件无需可执行权限,source命令可简写为".", source xxx/yyy 等同于 . xxx/yyy
+    sh/bash xxx/yyy 使用sh/bash解释器在子shell中读取并执行命令,文件无需可执行权限
+    ./xxx 在子shell中读取并执行命令,需要文件有可执行权限
