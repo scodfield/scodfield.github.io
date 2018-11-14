@@ -101,3 +101,6 @@
     source xxx/yyy 在当前shell读取并执行文件中的命令,文件无需可执行权限,source命令可简写为".", source xxx/yyy 等同于 . xxx/yyy
     sh/bash xxx/yyy 使用sh/bash解释器在子shell中读取并执行命令,文件无需可执行权限
     ./xxx 在子shell中读取并执行命令,需要文件有可执行权限
+16. vi编辑模式下,按Esc进入命令行模式,"u"是撤销,相当windows下的Ctrl+Z,撤销了多次,ctrl+r(重做)来反转撤销的的动作,也即它是撤销的撤销
+    命令行模式,移动光标到某一个字符上,按"x",删除一个字符
+    命令行模式,移动光标到某一行,按"dd",删除一整行
