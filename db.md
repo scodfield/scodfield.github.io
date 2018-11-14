@@ -167,3 +167,16 @@
 	对于active connections,mysql服务器为每个连接单独维护last_insert_id值,各个连接之间互不影响
 	当insert多条数据时,返回的插入的第一条数据的自增ID,而不是max(auto_increment_column)
 47. 贴一个淘宝写的mysql源码分析--连接与认证过程的网址,以备后续参考学习:http://mysql.taobao.org/monthly/2018/08/07/ 
+48. Mysql的一些约束规范
+    数据表的字符集一般都是UTF8,如果需要存储emoji表情,需要使用UTF8mb4,mysql5.5.3以后支持
+    单表数据量控制在1亿以下
+    所有字段均定义为NOT NULL,除非要存NULL,两个缺点:使用Null时InnoDB引擎需要额外一个字节存储,浪费空间;默认Null值过多,影响优化器选择执行计划
+    使用varchar存储变长字符串,varchar(N) N指的是字符个数,不是字节数
+    使用decimal存储精确浮点数
+    少用blob,test
+    不在数据库存储图片和文件,一般存地址
+    单个索引的字段数不超过5,单表索引数不超过5
+    避免索引的隐式转换和冗余索引
+    索引可以加速读,也会引入额外的写入和锁,降低写入能力
+    避免大表的join,优化器对join优化策略比较简单
+    避免在数据库中进行大量的数学运算
