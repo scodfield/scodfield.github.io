@@ -104,3 +104,15 @@
 16. vi编辑模式下,按Esc进入命令行模式,"u"是撤销,相当windows下的Ctrl+Z,撤销了多次,ctrl+r(重做)来反转撤销的的动作,也即它是撤销的撤销
     命令行模式,移动光标到某一个字符上,按"x",删除一个字符
     命令行模式,移动光标到某一行,按"dd",删除一整行
+17. 测试服升级了配置,想查看一下CPU及内存相关信息
+    cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l 查看物理cpu个数
+    cat /proc/cpuinfo | grep "cpu cores" | uniq 查看每个物理cpu中的core数
+    cat /proc/cpuinfo | grep "processor" | wc -l 查看逻辑cpu个数,逻辑cpu个数 = 物理cpu数 X 每个物理cpu的core数 X 超线程数
+    cat /proc/cpuinfo | grep name | cut -f2 -d: | uniq -c 查看cpu型号
+    查看内存的使用情况一般用free命令,free的输出可以看做是一个二维数据,包含了3行6列
+    6列字段值分别如下
+    total 总内存大小, used 实际已使用内存, free 空闲内存, shared 进程共享的内存总内存, buffers 缓冲区内存, cached 缓存内存
+    3行字段如下
+    Mem 操作系统角度的内存使用情况, -/+ buffers/cached 应用程序角度, Swap 交换区角度
+    free命令常用的几个参数
+    -b 以byte为单位显示内存使用情况, -k -m -g 以K/M/GB为单位显示, -o 不显示缓冲区调节列, -s<间隔秒数> 持续观察内存使用情况
