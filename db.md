@@ -180,3 +180,8 @@
     索引可以加速读,也会引入额外的写入和锁,降低写入能力
     避免大表的join,优化器对join优化策略比较简单
     避免在数据库中进行大量的数学运算
+48. DDL(Data Definition Languages)数据定义语言,主要用来定义或改变表的结构,包括create,drop,alter,truncate
+    DML(Data Manipulation Languages)数据操作语言,用于表中数据的添加,删除,更新和查询,包括insert,delete,update,select
+    DCL(Data Control Languages)数据控制语言,用于授予或收回对数据的访问权限,包括grant(授权),revoke(取消授权)
+    mysql执行DDL时需要锁表,锁表期间数据无法写入,online DDL主要采用Facebook OSC和5.6 OSC,5.6 OSC未解决DDL时从库的延时问题,而facebook OSC
+    则采用触发器+change log的方式,腾讯互娱的online DDL是通过修改InnoDB存储格式来实现的(https://segmentfault.com/a/1190000004946420)
