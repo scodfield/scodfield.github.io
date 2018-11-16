@@ -133,4 +133,7 @@
     #define MAKE_HASH(Term) ((is_small(Term)) ? (Uint32) unsigned_val(Term) :  \
      ((is_atom(Term)) ?  (Uint32) atom_val(Term) : make_internal_hash(Term, 0)))
     MAKE_HASH返回一个Uint32型整数
-    pd_hash_value_to_ix(ProcDict* pdict, Uint32 hx)则返回:hx & pdict->sizeMask 作为数组索引
+    pd_hash_value_to_ix(ProcDict* pdict, Uint32 hx)则返回:hx & pdict->sizeMask 作为数组索引,此处有疑问,取余运算后,如何保证索引唯一
+    创建进程字典的时候,调用ensure_array_size(ProcDict** ppdict, unsigned int size),data数组的大小则由next_array_size(size)决定,
+    返回的是大于等于size的最小的(10 * 2^N),数组每个值填充NIL,也就是说data数组中存在冗余数据,并不是存N个数据,就申请N个空间
+ 
