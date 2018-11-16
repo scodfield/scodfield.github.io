@@ -118,3 +118,19 @@
     min_bin_vheap_size 进程最小二进制虚拟堆大小
     vm启动时可通过+hxxx选项或spawn进程时通过spawn_opt指定数值来定制进程创建的heap初始值
     erlang gc会动态调整堆大小,如果进程空间不足,则会不断的申请和回收内存,所以对于需要较大内存的进程,可指定较大的初始化内存
+34. erl_process.h process结构的定义(line966-1131)
+    其中进程字典: ProcDict* dictionary; 进程字典可能是NULL
+    翻阅erl_process_dict.h, typedef struct proc_dict {unsigned int sizeMask; ...; Eterm data[1];} ProcDict;
+    那么很明显进程字典中的数据存放在data数组中,翻阅erl_process_dict.c,先看一下put这个bif函数的对应实现:pd_hash_put
+    最关键的当然是ARRAY_PUT(p->dictionary, hval, tpl); 其中
+    hval = pd_hash_value(p->dictionary, id); id也就是key,返回的是对应的hash值
+    tpl = TUPLE2(hp, id, value); id,value分别对应key,value,返回的是{key,value}的二元tuple
+    继续翻阅可知ARRAY_PUT与ARRAY_GET同为数据访问的宏定义(Array access macro),如下:
+    #define ARRAY_GET(PDict, Index) (ASSERT((Index) < (PDict)->arraySize), (PDict)->data[Index])
+    #define ARRAY_PUT(PDict, Index, Val) (ASSERT((Index) < (PDict)->arraySize), (PDict)->data[Index] = (Val))
+    可知,data是一个以key的hash值为下标的Eterm数组,回过来在看pd_hash_value这个宏定义
+    #define pd_hash_value(Pdict, Key) pd_hash_value_to_ix(Pdict, MAKE_HASH((Key)))
+    #define MAKE_HASH(Term) ((is_small(Term)) ? (Uint32) unsigned_val(Term) :  \
+     ((is_atom(Term)) ?  (Uint32) atom_val(Term) : make_internal_hash(Term, 0)))
+    MAKE_HASH返回一个Uint32型整数
+    pd_hash_value_to_ix(ProcDict* pdict, Uint32 hx)则返回:hx & pdict->sizeMask 作为数组索引
