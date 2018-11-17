@@ -185,3 +185,7 @@
     DCL(Data Control Languages)数据控制语言,用于授予或收回对数据的访问权限,包括grant(授权),revoke(取消授权)
     mysql执行DDL时需要锁表,锁表期间数据无法写入,online DDL主要采用Facebook OSC和5.6 OSC,5.6 OSC未解决DDL时从库的延时问题,而facebook OSC
     则采用触发器+change log的方式,腾讯互娱的online DDL是通过修改InnoDB存储格式来实现的(https://segmentfault.com/a/1190000004946420)
+49. 查看mysql的数据存储位置
+    mysql shell: show global variables like "%datadir%";
+    shell: cat /etc/my.conf or cat /etc/init.d/mysqld 查看datadir选项
+    mysql shell: show global variables like "%dir%"; 可查看更多和路径有关的配置值
