@@ -189,3 +189,9 @@
     mysql shell: show global variables like "%datadir%";
     shell: cat /etc/my.conf or cat /etc/init.d/mysqld 查看datadir选项
     mysql shell: show global variables like "%dir%"; 可查看更多和路径有关的配置值
+50. 存储统计信息时,mysql报:data truncated for column 'xxx' at row 1
+    通常出现这个报错的原因有:乱码,超过字段定义的长度,存在非法字符(类型不一致or编码问题)
+    修改表字段: alter table t_name change old_column new_column new_data_type
+    修改数据库编码: alter database db_name character set = character_set_name
+    修改表编码: alter table t_name convert to character set character_set_name
+    
