@@ -195,4 +195,17 @@
     修改表字段类型: alter table t_name modif column column_name new_data_type
     修改数据库编码: alter database db_name character set = character_set_name
     修改表编码: alter table t_name convert to character set character_set_name
-    
+51. mysql的优化从哪些方面入手:
+    a) 硬件太老:CPU,RAM,Disk,其它还包括网卡性能,机房的网络
+	不同mysql版本对cpu的利用,5.1及之前的版本最多只能用4个core,5.5可以用24个,5.6可以用48+个
+        在高并发环境,基本是靠提高内存缓存来减少对磁盘的访问,对于一般业务可按总数据的15%-20%(经验值)来规划缓存的热点数据
+        核心库查询的平均响应时间不能超过30ms,如果超过则可能已达到承载极限,需要扩容,可对query的响应时间进行长期监控
+        mysql的归档日志(binlog),重做日志(redolog),回滚日志(undolog),中继日志(relaylog)等文件为顺序读写,可以放到机械硬盘上
+        数据文件(datafile),数据库表结构数据文件(ibdata file,.ibd)等为随机读写,可以放到SSD上
+    b) 数据库设计不好,表结构,索引,单表大小,高级特性
+       数据库设计不要过多使用触发器,函数,存储过程,mysql5.6之前的版本子查询的性能很差,如果需要在生产环境使用子查询,选5.6+版本
+    c) 程序写的烂,
+       应用程序尽量用连接池,特别是大型高并发应用程序,应用连接池减少连接的创建开销
+       复杂语句,针对业务进行优化业务及查询语句,或者mysql主从架构,只从从库查询, 
+       无效逻辑,全表扫描,可以在查询语句加where等限制条件,或者建立sql审查,经过DBA审核后,才能发布上线,对于大批量的更新操作,
+       将任务拆分成小任务,分批更新
