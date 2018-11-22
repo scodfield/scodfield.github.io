@@ -209,3 +209,10 @@
        复杂语句,针对业务进行优化业务及查询语句,或者mysql主从架构,只从从库查询, 
        无效逻辑,全表扫描,可以在查询语句加where等限制条件,或者建立sql审查,经过DBA审核后,才能发布上线,对于大批量的更新操作,
        将任务拆分成小任务,分批更新
+52. 一篇对比mongodb和mysql读写性能的文章:https://blog.csdn.net/clh604/article/details/19608869
+    mongodb充分利用内存资源,读性能比mysql快了一个量级
+    在不指定"_id"的情况下,mongodb的写性能是mysql的一倍,但在指定"_id"的情况下,mongodb的性能低于mysql指定primary key,且波动很大
+    mongodb指定"_id"的情况下,每次插入数据,都要检查该"_id"是否可用,当数据量较大时(1亿条),判重开销将拖慢整个数据库的插入速度
+    mongodb不指定"_id"时,系统自动计算唯一ID,"_id"为ObjectID类型,ObjectID为12byte,每个byte包含2位16进制字符,所以"_id"是一个24位的字符串
+    ObjectID 12字节包含以下部分:0-3byte是时间戳(精确到秒一级),4-6byte是机器码,7-8byte是生成ObjectID的进程PID,9-11byte为计数器(此处存疑,
+    也有资料说是随机数),一个mongod进程维护一个全局唯一的计数器,保证同一秒的ObjectID唯一
