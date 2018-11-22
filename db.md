@@ -214,5 +214,16 @@
     在不指定"_id"的情况下,mongodb的写性能是mysql的一倍,但在指定"_id"的情况下,mongodb的性能低于mysql指定primary key,且波动很大
     mongodb指定"_id"的情况下,每次插入数据,都要检查该"_id"是否可用,当数据量较大时(1亿条),判重开销将拖慢整个数据库的插入速度
     mongodb不指定"_id"时,系统自动计算唯一ID,"_id"为ObjectID类型,ObjectID为12byte,每个byte包含2位16进制字符,所以"_id"是一个24位的字符串
-    ObjectID 12字节包含以下部分:0-3byte是时间戳(精确到秒一级),4-6byte是机器码,7-8byte是生成ObjectID的进程PID,9-11byte为计数器(此处存疑,
-    也有资料说是随机数),一个mongod进程维护一个全局唯一的计数器,保证同一秒的ObjectID唯一
+    ObjectID 12字节包含以下部分:0-3byte是时间戳(精确到秒一级),4-6byte是机器码,7-8byte是生成ObjectID的进程PID,9-11byte为计数器,
+    一个mongod进程维护一个全局唯一的计数器,保证同一秒的ObjectID唯一
+53. mongodb data/文件夹下的 mongod.lock文件,如果下次启动的时候还存在的话,需要删掉才能启动成功
+54. mongodb的主从部署:
+	./mongod --dbpath /data/master --port 1000 --master
+	./mongod --dbpath /data/slave --port 1001 --slave --source localhost:1000
+    主从部署,--master指定主节点,--slave 表明slave节点,--source 指定主节点的地址和端口
+    mongodb的replica Set(复制集)部署:
+	./mongod --dbpath /data/set1 --port 1000 --replSet set_name
+	./mongod --dbpath /data/set2 --port 1001 --replSet set_name
+	./mongod --dbpaht /data/set3 --port 1002 --replSet set_name
+   Replica Set需要指定相同的复制集名称(--replSetC参数),mongod实例可在同一台设备,也可是多台设备
+   单节点、主从、及复制集只需要启动mongod即可,mongod用来分片存储数据,mongos则用于shard集群中的路由处理
