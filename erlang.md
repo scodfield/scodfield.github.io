@@ -136,4 +136,10 @@
     pd_hash_value_to_ix(ProcDict* pdict, Uint32 hx)则返回:hx & pdict->sizeMask 作为数组索引,此处有疑问,取余运算后,如何保证索引唯一
     创建进程字典的时候,调用ensure_array_size(ProcDict** ppdict, unsigned int size),data数组的大小则由next_array_size(size)决定,
     返回的是大于等于size的最小的(10 * 2^N),数组每个值填充NIL,也就是说data数组中存在冗余数据,并不是存N个数据,就申请N个空间
- 
+ 35. 记一个深坑
+    先看下两个函数的输出
+    erlang:term_to_binary('XYZ_TEST').   ==> <<131,100,0,8,88,89,90,95,84,69,83,84>>
+    erlang:atom_to_binary('XYZ_TEST').   ==> <<"XYZ_TEST">>  // io:format("~w",[<<"XYZ_TEST">>])  ==> <<88,89,90,95,84,69,83,84>>
+    可以看到term_to_binary/1函数转换的binary,多输出了四个字符(<<131,100,0,8>>),并且有一个131,该值超出了ASCII范围(0-127)
+    还有一个坑,在5.5,5.7上用相同的init.sql分别初始化数据库,分别插入上述两个binary串,5.5全部返回ok
+    5.7在第一个binary串报错:Error 1366 (HY000) Incorrect string value:'xxx' for column:'yyy' at row 1,第二个binary串ok
