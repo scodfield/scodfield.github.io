@@ -235,6 +235,7 @@
 	character-set-client 客户端字符集,当客户端向服务器发送请求时,请求以该字符集进行编码
 	character-set-results 结果字符集,服务器向客户端返回结果时,以该字符集进行编码,客户端如果没有定义该字符集,
 	则默认采用character-set-client字符集
+	chracter-set-connection 数据库连接字符集
     处理中文时,可将character-set-server和character-set-client设置为GB2312,若需要处理多种语言,可将二者设置为utf8
 56. mysql的默认字符集
     编译mysql时,指定了一个默认的字符集latin1
@@ -246,3 +247,20 @@
 57. mysql表的字符集和字符序
     字符集(character set)定义了字符及字符的编码
     字符序(collation)定义了字符的比较规则
+    mysql乱码与客户端,数据库连接,数据库,查询结果的字符集有关,插入数据时,客户端,数据库连接,数据库的字符集需保持一致,因为在这三个地方要进行
+    编码转换,同插入数据,查询数据时,返回结果,数据库连接,客户端字符集需保持一致
+    mysql shell: show character set;  or use information_shcema; select * from character_sets; // 显示mysql支持的字符集
+    mysql shell: show collation where charset = 'xxx'; or use information_schema; select * from collations 
+	where character_set_name = 'xxx'; // 显示字符集支持的字符序
+    mysql shell: show variables like 'character_set_server'; show variables like 'collation_server'; // 查看mysql server的字符集,字符序
+    mysql server字符集&字符序可在启动mysqld时通过命令行指定,或修改配置文件,或在运行时,mysql shell: set character_set_server = 'utf8';
+    或者在编译时,cmake . -DDEFAULT_CHARSET=utf8mb4 -DDEFAULT_COLLATION=utf8mb4_general_ci
+    创建或修改数据库时,通过CHARACTER SET及COLLATE字段指定字符集和字符序,例:
+	create/alter database db_name [default] character set xxx [default] collate yyy;
+    查看数据库的字符集和字符序
+    mysql shell: use db_name; select @@character_set_database, @@collation_database; 
+    也可通过information_schema及建库语句查看,建库语句为:show create database db_name;
+    数据库表的字符集与字符序与数据库类似,需要注意的是:如果建表时指定了charset_name与collation_name则使用指定的字符集
+    若只指定了charset_name,则collation_name采用charset_name对应的默认字符序
+    若只指定了collation_name,则charset_name采用collation_name关联的字符集
+    若两者均为指定,则采用数据库的字符集与字符序
