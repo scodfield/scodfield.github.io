@@ -236,3 +236,13 @@
 	character-set-results 结果字符集,服务器向客户端返回结果时,以该字符集进行编码,客户端如果没有定义该字符集,
 	则默认采用character-set-client字符集
     处理中文时,可将character-set-server和character-set-client设置为GB2312,若需要处理多种语言,可将二者设置为utf8
+56. mysql的默认字符集
+    编译mysql时,指定了一个默认的字符集latin1
+    安装mysql时,可以在配置文件(my.ini)中指定默认字符集,若未指定,则继承自编译时指定的字符集
+    启动mysqld时,可以在命令行中指定一个默认字符集,没指定则继承自配置文件中的字符集,此时character-set-server被设置为此字符集
+    创建一个新数据库时,若未指定,则character-set-database继承自character-set-server
+    创建表时,若未指定,则表的默认字符集继承自character-set_database
+    创建或修改column时,可通过character set xxx指定该column使用的字符集,若未指定,则使用表默认的字符集
+57. mysql表的字符集和字符序
+    字符集(character set)定义了字符及字符的编码
+    字符序(collation)定义了字符的比较规则
