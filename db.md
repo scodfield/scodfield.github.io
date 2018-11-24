@@ -227,3 +227,12 @@
 	./mongod --dbpaht /data/set3 --port 1002 --replSet set_name
    Replica Set需要指定相同的复制集名称(--replSetC参数),mongod实例可在同一台设备,也可是多台设备
    单节点、主从、及复制集只需要启动mongod即可,mongod用来分片存储数据,mongos则用于shard集群中的路由处理
+55. mysql对字符集的支持分为4个层次,分别为服务器,数据库,表和连接
+    常用的几个字符集:
+	character-set-server/default-character-set 服务器字符集,默认情况下使用的
+	character-set-database 数据库字符集
+        character-set-table 表字符集,若创建数据和表示未指定字符集,则默认采用的就是服务器字符集
+	character-set-client 客户端字符集,当客户端向服务器发送请求时,请求以该字符集进行编码
+	character-set-results 结果字符集,服务器向客户端返回结果时,以该字符集进行编码,客户端如果没有定义该字符集,
+	则默认采用character-set-client字符集
+    处理中文时,可将character-set-server和character-set-client设置为GB2312,若需要处理多种语言,可将二者设置为utf8
