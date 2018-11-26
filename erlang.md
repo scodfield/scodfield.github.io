@@ -152,3 +152,6 @@
     堆的垃圾回收,存取ETS及发送消息,开发者确保每一步操作都会消耗reduction,reduction消耗完,进程被调度器放回运行队列,接着调用队列中下一个进程,
     因此erlang可以说是真正实现了抢占式多任务并能做到软实时的少数语言之一,相比于吞吐量,erlang更看重的是低延迟,当erlang系统负载较高时,可对耗时
     的任务实现自动降级(计算过程中,更多的被抢占),参考来源:http://jlouisramblings.blogspot.com/2013/01/how-erlang-does-scheduling.html
+37. SMP (Symmetrical Multi Processor)对称多处理器
+    没有smp支持时,VM在主线程只会运行一个scheduler,调度器从运行队列中取出可运行的进程和IO任务,此时无需对数据进行加锁
+    有smp支持的VM可运行多个调度器,并且可通过"+S"参数指定调度器的数量,smp的启动和关闭可通过"-smp [enable|disable|auto]"来指定
