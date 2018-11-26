@@ -155,3 +155,4 @@
 37. SMP (Symmetrical Multi Processor)对称多处理器
     没有smp支持时,VM在主线程只会运行一个scheduler,调度器从运行队列中取出可运行的进程和IO任务,此时无需对数据进行加锁
     有smp支持的VM可运行多个调度器,并且可通过"+S"参数指定调度器的数量,smp的启动和关闭可通过"-smp [enable|disable|auto]"来指定
+38. 补一篇erlang调度原理的中文翻译博客:http://www.cnblogs.com/zhengsyao/p/how_erlang_does_scheduling_translation.html
