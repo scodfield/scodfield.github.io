@@ -83,6 +83,7 @@
     则可通过: if( lua_pcall(L,0,0,0) != 0) printf("error:%s\n", lua_tostring(L,-1)); 打印错误信息
     函数执行完毕,栈中数据被弹出栈,返回值按顺序入栈,即最后一个返回值再栈顶,此时可以通过:lua_to*(L,-1) lua_pop(L,1) 依次获取返回值
 25. nif执行时报错,崩掉的是整个节点,也没有crash dump,更没有日志
+    nif默认不会被抢占,也不会消耗reduction计数,因此耗时的nif会导致系统延迟
 26. lua: /usr/local/include erlang:/opt/erlang20/lib/erlang
 27. C编译成动态库之后,在实际运行的时候给变量赋值,此时才会加载path指定的lua文件,而且如果需要更改lua文件,更改之后,调用C中的load函数即可,
     一般load函数包括: L = luaL_newstate(); luaL_openlibs(L); lua状态机变量L,一般可定义为一个全局变量:static lua_State* L = NULL;
@@ -143,3 +144,11 @@
     可以看到term_to_binary/1函数转换的binary,多输出了四个字符(<<131,100,0,8>>),并且有一个131,该值超出了ASCII范围(0-127)
     还有一个坑,在5.5,5.7上用相同的init.sql分别初始化数据库,分别插入上述两个binary串,5.5全部返回ok
     5.7在第一个binary串报错:Error 1366 (HY000) Incorrect string value:'xxx' for column:'yyy' at row 1,第二个binary串ok
+36. 关于erlang的调度
+    erlang进程在每一个cpu核心上运行一个线程(平衡cpu负载),每个线程运行一个调度器,+sbt参数可以将调度器和核心绑定,可运行的erlang 
+    process放入调度器的运行队列,获得时间片后开始运行
+    调度器通过复杂的过程在调度器之间迁移一些进程,平衡多个调度器的负载
+    抢占指的是调度器能够强制剥夺任务的执行,erlang进程和端口都有一个reduction计数,任何操作都要消耗reduction,包括函数的调用,BIF的调用,进程中
+    堆的垃圾回收,存取ETS及发送消息,开发者确保每一步操作都会消耗reduction,reduction消耗完,进程被调度器放回运行队列,接着调用队列中下一个进程,
+    因此erlang可以说是真正实现了抢占式多任务并能做到软实时的少数语言之一,相比于吞吐量,erlang更看重的是低延迟,当erlang系统负载较高时,可对耗时
+    的任务实现自动降级(计算过程中,更多的被抢占),参考来源:http://jlouisramblings.blogspot.com/2013/01/how-erlang-does-scheduling.html
