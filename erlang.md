@@ -158,4 +158,4 @@
 38. 补一篇erlang调度原理的中文翻译博客:http://www.cnblogs.com/zhengsyao/p/how_erlang_does_scheduling_translation.html
 39. spawn(fun() -> etop:start([{sort,memory},{lines,20}]) end).  etop会阻塞进程
 40. 压测时,日志进程堆积了大量的消息,大多数进程占用的内存都在32M+(最大45M),此时的标准是2min,216条,Reds指标(reductions计数)都在14w+(最小148014)
-    应该进一步调整标准,增加向日志节点写的频率
+    应该进一步调整标准,增加向日志节点写的频率,reductions初始只有2k,10w+的Reds表明进程在执行过程中会被频繁抢占,执行效率不高
