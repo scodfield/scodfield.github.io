@@ -166,3 +166,12 @@
 42. 数据库的读写性能终究还是有上限,此时需要考虑如何冷启动,比如加缓存,减少对数据的二次读写,或者提前加载部分数据
 43. prim_inet:async_recv在异步接收的时候,若超时,要考虑处理包未完全接收的情况,尤其是弱网情况下,async_recv(Socket,Length,TimeOut),分别表示
     Socket,要接收的字节数及超时时间,-1 = infinity,单位是
+44. prim_inet底层调用的C文件是erts/emulator/drivers/common/inet_drv.c
+    对于async_recv,对应的就是tcp_inet_ctl(inet_drv.c:9933)函数的case TCP_REQ_RECV语句块(inet_drv.c:10180)
+    在语句块的开始,tcp描述符变量(tcp_descriptor*)desc,首先判断其状态(连接重置econnreset,关闭closed,未连接enotconn)
+    当期望读取的字节大于TCP_MAX_PACKET_SIZE时,返回enomem
+    若一切顺利,将会调用sock_select函数接收数据,并返回ctl_reply(INET_REP_OK, tbuf, 2, rbuf, rsize)
+    异常时返回的是ctl_error(EReason, rbuf, rsize)
+    由语句块第一部分对desc状态的检查可知,若erlang的gw进程没有调用发送或接收函数,则底层socket的状态并不会主动返回
+    也就是存在一种情况,若对方突然断开连接或断网(未完成tcp的挥手),则本方的底层socket在断开瞬间就改变了状态,但prim_inet及其上层进程并未收到
+    状态改变,除非prim_inet及其上层进程主动调用接收或发送函数,才会触发对状态改变的检查,并返回相应的状态
