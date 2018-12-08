@@ -188,3 +188,6 @@
     xmerl:export_simple(Content,CallBack,[{prolog, "<?xml version=\"1.0\" encoding=\"utf-8\"?>"}]).
     xmerl_scan:file/1返回的xmlElement并未包含prolog(如果原xml文件有的话)
     发现xmer:export/export_simple在导出的时候,并未包含xmlComment,即便原始的xml文件包含这些内容(比如和客户端有关的并不会每次都用到的一些热更信息)
+49. mnesia集群中没有主节点概念,集群节点依次启动之后,对于相同的表而言,读(where_to_read)是本地,写(where_to_write)是所有节点
+    dirty_write的SyncMode是async_dirty,向所有involved node发送async_dirty消息,
+    由手册知,此处的involved_node = mnesia:table_info(m_table,where_to_read)
