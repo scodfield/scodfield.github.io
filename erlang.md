@@ -184,3 +184,7 @@
 46. 想在start werl时,默认执行 -s xxx yyy 自动启动服务器,结果是不行,不知道有没有其他方法可以实现
 47. RFC(Request for Comments)请求意见稿,是由互联网工程任务组(IETF)发布的一组备忘录,是用来记录互联网规范,协议和过程的标准文件,基本的互联网
     通信协议都有在RFC文档内详细说明,常见互联网协议的RFC编号:IP 791, TCP 793, UDP 768, HTTP1.1 2616, FTP 959
+48. xmerl处理xml文档,输出vsn和encoding可以通过export/export_simple的第三个参数(子元素列表)实现,具体是prolog属性
+    xmerl:export_simple(Content,CallBack,[{prolog, "<?xml version=\"1.0\" encoding=\"utf-8\"?>"}]).
+    xmerl_scan:file/1返回的xmlElement并未包含prolog(如果原xml文件有的话)
+    发现xmer:export/export_simple在导出的时候,并未包含xmlComment,即便原始的xml文件包含这些内容(比如和客户端有关的并不会每次都用到的一些热更信息)
