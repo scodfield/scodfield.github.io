@@ -191,3 +191,22 @@
 49. mnesia集群中没有主节点概念,集群节点依次启动之后,对于相同的表而言,读(where_to_read)是本地,写(where_to_write)是所有节点
     dirty_write的SyncMode是async_dirty,向所有involved node发送async_dirty消息,
     由手册知,此处的involved_node = mnesia:table_info(m_table,where_to_read)
+50. 我们来看一下mnesia:create_table的调用过程
+    mnesia:create_table --> mnesia_schema:create_table --> mnesia_schema:schema_transaction(fun() -> do_multi_create_table(TabDef) end)
+    do_multi_create_table返回创建表的操作列表:[{op, create_table, vsn_cs2list(Cs)}],操作列表被插入tidstore,而schema_transaction调用的则是
+    mnesia:transaction(Fun) --> mnesia:transaction/6 --> mnesia_tm:transaction/6 --> mnesia_tm:execute_inner/9 --> 
+    mnesia_tm:execute_transaction/5 --> mnesia_tm:apply_fun/3 --> mnesia_tm:t_commit(Type), 这个type就是mnesia:transaction/1中的Kind,
+    默认是async,mnesia_tm:arrange(Tid,Store,Type)返回#prep{},arrange函数调用do_arrange/5函数便利Store表
+    其中,后续用到的#prep.protocol字段,当Store中的Key有op/restore_op时,protocol=asym_trans,arrange函数在调用do_arrange后返回{N,Prep}
+    N是Store的大小 --> mnesia_tm:multi_commit/5,第一个参数就是arrange返回的Prep#prep.protocol,multi_commit匹配到asym_trans
+    multi_commit中,首先通过ask_commit/5向所有的disc/ram_nodes请求提交,而后调用recv_call/4接收involved nodes的vote结果,
+    ask_commit/5的第三个参数是投票结果,默认是do_commit,involved nodes返回vote_yes时并不会更改vote_result
+    当有一个node返回的是vote_no时,vote_result={do_abort, Reason}
+    vote_result = do_commit时,先调用tell_participants(Pids, {Tid, pre_commit}),向involved nodes具体的Pid发送准备提交的消息
+    之后调用rec_acc_pre_commit(Pids, Tid, Store, {C,Local},do_commit, DumperMode, [], [])
+    rec_acc_pre_commit接收返回的pre_commit消息,除非返回do_abort/mnesia_down
+    rec_acc_pre_commit的Res=do_commit时,先tell_participants(GoodPids, {Tid, committed}),后do_commit/3提交操作
+    do_commit/3 --> do_update/4 --> mnesia_dumper:update(Tid, C#commit.schema_ops, DumperMode),do_update_op/3
+    mnesia_dumper:update/3 --> mnesia_controller:release_schema_commit_lock() --> cast({release_schema_commit_lock, self()})
+    --> opt_start_worker --> opt_start_loader --> load_and_reply --> load_table_fun --> mnesia_loader:disc/net_load_table
+    bingo...
