@@ -210,3 +210,7 @@
     mnesia_dumper:update/3 --> mnesia_controller:release_schema_commit_lock() --> cast({release_schema_commit_lock, self()})
     --> opt_start_worker --> opt_start_loader --> load_and_reply --> load_table_fun --> mnesia_loader:disc/net_load_table
     bingo...
+51. erlang socket的三种消息接收模式active,passive,active once,可以通过gen_tcp:connect,gen_tcp:listen来设置
+    active 主动模式,系统底层接收到数据后,主动向对应的erlang控制进程发消息,该模式不能进行流量控制,若客户端疯狂发包,将会造成控制进程消息堆积
+    passive 被动模式,erlang控制进程显式调用gen_tcp,gen_udp的recv/2,3函数,可以控制流量 
+    active once/N 混合模式,这种模式的主动仅针对前1/N条消息,之后就进入passive模式,必须显式调用inet:setopts/2重新设置模式,才能接受新的消息
