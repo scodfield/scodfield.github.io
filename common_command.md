@@ -135,3 +135,7 @@
     n 继续查找下一个匹配的关键字, N 在当前位置,反向查找匹配的字符串
     vi中有很多设置项,比如显示行号,在命令行模式,输入: set number 显示行号, set nonumber 关闭行号, set nu/nonu 是上述两个命令的简写
     比如在长文本中查找时,现在命令行模式下打开行号,再输入"/xxx",即可清楚的看到匹配的字符串在哪一行
+20. 项目打包,之前用的是WinRAR,后边有同学想直接用zip命令,在此记录一下
+    https://sourceforge.net/projects/gnuwin32/files/zip/3.0/zip-3.0-bin.zip/download 解压缩,取zip.exe
+    https://sourceforge.net/projects/gnuwin32/files/bzip2/1.0.5/bzip2-1.0.5-bin.zip/download 解压缩,取bzip2.dll
+    将上述两个文件放在 X:\Program files\Git\usr\bin 
