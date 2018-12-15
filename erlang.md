@@ -223,3 +223,6 @@
     erts_port_xxx函数的声明在erl_port.h,而erts_port_command/5最后调用的也是erts_port_output/6
     erts_port_control和erts_port_output又是调用的erts_schedule_proc2port_signal/8
     erts_schedule_porc2port_signal/8和erts_schedule_port2port_signal/4调用的是erl_port_task.c erts_port_task_schedule,进行port task调度
+53. 需要拿手机号搞些东西,第一个问题就是匹配手机号,erlang的re模块
+    re:compile/1,2 第一个参数就是正则表达式,语法也是标准的正则表达式语法
+    匹配手机号: {ok, MP} = re:compile("^1[0-9]{10}"). re:run("123xxxxyyyy",MP). 
