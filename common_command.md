@@ -141,3 +141,4 @@
     将上述两个文件放在 X:\Program files\Git\usr\bin 
 21. 为了便于回溯项目改动,TortoiseSVN可以强制在提交时写日志,项目文件夹右键 --> Properties --> New --> Log size 设定日志的大小即可
 22. linux系统万物皆文件,关于程序的配置文件可参考:https://www.ibm.com/developerworks/cn/linux/management/configuration/index.html
+23. 阮老师的科普文用来重温基础知识真真是极好的,这次是make命令:http://www.ruanyifeng.com/blog/2015/02/make.html
