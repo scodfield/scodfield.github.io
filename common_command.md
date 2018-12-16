@@ -142,3 +142,8 @@
 21. 为了便于回溯项目改动,TortoiseSVN可以强制在提交时写日志,项目文件夹右键 --> Properties --> New --> Log size 设定日志的大小即可
 22. linux系统万物皆文件,关于程序的配置文件可参考:https://www.ibm.com/developerworks/cn/linux/management/configuration/index.html
 23. 阮老师的科普文用来重温基础知识真真是极好的,这次是make命令:http://www.ruanyifeng.com/blog/2015/02/make.html
+24. 子项目增多,每次启动都要在多个文件夹中来回切,搞个启动脚本,记录一下在shell脚本中调用另一个脚本的方式,资料来自网络
+    fork:调用方式为sh path/to/script.sh or ./script.sh,fork在执行时,新开子shell执行脚本,子shell的环境变量继承自父shell,执行完毕返回
+    父shell,子shell的环境变量不会带回父shell
+    exec:被调用脚本在当前shell执行,使用exec调用脚本后,父脚本中exec之后的内容不再执行
+    source:被调用脚本在当前shell执行,当前脚本可使用被调用脚本声明的变量和环境变量,相当于将多个脚本合并在一起执行
