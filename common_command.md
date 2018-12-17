@@ -142,6 +142,10 @@
 21. 为了便于回溯项目改动,TortoiseSVN可以强制在提交时写日志,项目文件夹右键 --> Properties --> New --> Log size 设定日志的大小即可
 22. linux系统万物皆文件,关于程序的配置文件可参考:https://www.ibm.com/developerworks/cn/linux/management/configuration/index.html
 23. 阮老师的科普文用来重温基础知识真真是极好的,这次是make命令:http://www.ruanyifeng.com/blog/2015/02/make.html
+    安装使用GNU的autoconf,automake生成的程序,最常用的就是下面三个命令: ./configure,make,make install
+    ./configure命令检测平台的目标特征,生成Makefile文件,./configure命令可加上参数,对安装的程序进行控制,./configure --help参考参数及其含义
+    make命令读取Makefile文件中的第一个目标,读取目标下的commands,编译程序
+    make install读取Makefile中的install目标,将程序安装到制定的位置
 24. 子项目增多,每次启动都要在多个文件夹中来回切,搞个启动脚本,记录一下在shell脚本中调用另一个脚本的方式,资料来自网络
     fork:调用方式为sh path/to/script.sh or ./script.sh,fork在执行时,新开子shell执行脚本,子shell的环境变量继承自父shell,执行完毕返回
     父shell,子shell的环境变量不会带回父shell
