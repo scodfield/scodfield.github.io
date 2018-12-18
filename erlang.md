@@ -226,3 +226,8 @@
 53. 需要拿手机号搞些东西,第一个问题就是匹配手机号,erlang的re模块
     re:compile/1,2 第一个参数就是正则表达式,语法也是标准的正则表达式语法
     匹配手机号: {ok, MP} = re:compile("^1[0-9]{10}"). re:run("123xxxxyyyy",MP). 
+54. 同集群内mnesia节点之间同步数据,同一份数据copy到不同的节点,如果存玩家的public_info,需要考虑冷热数据的区分,当然第一步是预估数据量的大小
+    erlang:system_info(wordsize). 返回当前系统一个word所占的字节
+    mnesia:table_info(m_tab,size). 返回m_tab表存储的元素个数
+    mnesia:table_info(mtab,memory). 返回m_tab表占用的word,由wordsize可计算出占用的字节,取一下平均,可预估最后占用的内存大小
+    大概算了一下,以目前存储的数据,100w条记录大概占用604M
