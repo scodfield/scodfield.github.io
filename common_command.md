@@ -146,6 +146,14 @@
     ./configure命令检测平台的目标特征,生成Makefile文件,./configure命令可加上参数,对安装的程序进行控制,./configure --help参考参数及其含义
     make命令读取Makefile文件中的第一个目标,读取目标下的commands,编译程序
     make install读取Makefile中的install目标,将程序安装到制定的位置
+    make命令接收目标参数读取Makefile文件,或:-f xxx or --file=xxx制定的规则文件,Makefile文件由一系列规则构成,规则格式如下
+    targe:prerequisites
+    <tab> commands
+    规则描述了目标,目标的依赖文件及如何构建目标的命令,make命令在执行时先扫描依赖文件,若依赖文件不存在或者last_modification时间戳比target
+    的时间戳新,则会重新构架目标文件,如果依赖文件时间戳都比目标文件的时间戳晚(依赖文件自上次构建之后,再未变化),则不会再次构建目标
+    commands构建命令,是一行或多行shell命令,每一行commands都在不同的子shell中执行,所以并不能跨行使用在其它子shell中声明的变量or环境变量
+    解决方法可以放到同一行,用分号隔开,或者在换行符前加反斜杠转移,再或者是使用.ONESHELL内置变量
+    make命令默认不编译上次编译之后就没有更改的文件,若要更改该默认行为,可使用-B选项,例: make -B xxx
 24. 子项目增多,每次启动都要在多个文件夹中来回切,搞个启动脚本,记录一下在shell脚本中调用另一个脚本的方式,资料来自网络
     fork:调用方式为sh path/to/script.sh or ./script.sh,fork在执行时,新开子shell执行脚本,子shell的环境变量继承自父shell,执行完毕返回
     父shell,子shell的环境变量不会带回父shell
