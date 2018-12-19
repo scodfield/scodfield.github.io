@@ -161,3 +161,8 @@
     source:被调用脚本在当前shell执行,当前脚本可使用被调用脚本声明的变量和环境变量,相当于将多个脚本合并在一起执行
 25. 之前都是查看文件后几行,现在有一个erl_crash.dump文件,比较大(4.15G),编辑器打开比较慢,在gitbash里面用head命令查看前几行即可
     head -n N xxx 或者 head -N xxx,例:head -n 5 erl_crash.dump, head -5 erl_crash.dump
+26. 临时搭建一个http服务器
+    yum install httpd 安装
+    service httpd start 启动
+    配置文件 /etc/httpd/conf/httpd.conf,常见修改的选项包括:ServerName,DocumentRoot,Listen
+   去掉apache的欢迎页,/etc/httpd/conf.d/welcome.conf文件删掉或改为其它名字,此时将会显示/var/www/html/的目录结构
