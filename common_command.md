@@ -166,3 +166,4 @@
     service httpd start 启动
     配置文件 /etc/httpd/conf/httpd.conf,常见修改的选项包括:ServerName,DocumentRoot,Listen
    去掉apache的欢迎页,/etc/httpd/conf.d/welcome.conf文件删掉或改为其它名字,此时将会显示/var/www/html/的目录结构
+   更改后,重启服务,service httpd restart
