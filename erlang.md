@@ -22,11 +22,14 @@
    b> erl -config xxx.config 该配置文件中罗列各app的配置项, [{AppName1, [{Par1,Vla1}]}, {AppName2, [{Par2, Val2}]}].
    c> xxx.app 中的env选项
    项目中用到的其它所谓的“配置”,均由py脚本生成.config文件,再在服务启动的时候,编译生成对应的.beam文件
-8. 配置导表时,若报错KeyError则输入的config name在game_server.spec里没找到json对应的key值
+8. 配置导表时,若报错KeyError则输入的config name在game_server.spec里没找到json对应的key值,另外一种情况是,
+   xlrd.open_workbook.sheet_by_name得到table数据时,table.nrows返回的行数超过了有效行数,比如只配了10条左右的数据,但是打印table.nrows时
+   显示的是155,远远超过正常的有效行数,导致读取11行时得到的空{},d={},d["label"] 报KeyError
    若报错UTF BOM则是在修改game_server.spec文件后保存的时候默认的编码格式不是UTF-8(记事本默认编码为ANSI)
    sublime text3 -> preferences -> settings -> 在左边栏找到"default_encoding":"xxx",将该行复制到右边栏的user
    文件,值改为"UTF-8",sublime text3默认不显示当前文件的编码格式,可在左边栏找到"show_encoding"和"show_line_endings" 复制到右边栏user文件中,
    将值改为true即可,保存关闭,可在sublime的最右下角看到编码格式
+   配置导表,若报错信息不全时,或出现一些不常见报错,需要调试时,可修改py文件,再由pyInstaller重新生成exe(批处理即可),进行调试
 9. rebar2 get-deps的时候,重定向deps的下载路径,rebar_deps:download_source/2,  
    第一个参数AppDir是deps下载后的保存路径
 10.rebar2 create-app appid=AppName 在当前目录下创建app,生成src/xx.app.src,xx_app.erl,xx_sup.erl
