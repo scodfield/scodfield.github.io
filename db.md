@@ -264,3 +264,9 @@
     若只指定了charset_name,则collation_name采用charset_name对应的默认字符序
     若只指定了collation_name,则charset_name采用collation_name关联的字符集
     若两者均为指定,则采用数据库的字符集与字符序
+58. 记录下导出数据库、表的用法,命令行下:mysqldump -hxxxx -uyyy -pzzz db_name > xxx/yyy/db_name.sql 导出数据库
+    mysqldump -hxxxx -uyyy -pzzz db_name t_name > xxx/yyy/t_name.sql
+    导入数据,命令行下:mysql -hxxxx -uroot -pyyy db_name < xxx/yyy/db_name.sql
+    mysql shell下source导入,use db_name; source local/path/to/db.sql;
+    mysql shell下select导出,select * from t_name into outfile 'xxx/t_name.txt';
+    select导出时,若mysql server的 --secure-file-priv选项有效,则导出操作失败
