@@ -272,3 +272,5 @@
     select into oufile导出时,若mysql server的 --secure-file-priv选项有效,则导出操作失败
     select导出的另一个可能遇到的问题是报:Access denied for user 'root'@'%' (using password:YES),查了一下说是root用户没有FILE权限
     不过这个问题可以绕过,直接在本地shell: echo "select * from t_name" | mysql -hxxx -uroot -pyyy db_name > path/to/local/t_name.txt
+59. echo+管道的方式导出表数据到本地文件,如果跨越多个库可以采用追加的方式"... >> path/to/local/t_name.txt"
+    这种方式的缺点其一是需要多次手动执行,其二就是结果中会有重复的字段名(字段名表1数据字段名表2数据),格式上有些尴尬
