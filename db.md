@@ -269,4 +269,6 @@
     导入数据,命令行下:mysql -hxxxx -uroot -pyyy db_name < xxx/yyy/db_name.sql
     mysql shell下source导入,use db_name; source local/path/to/db.sql;
     mysql shell下select导出,select * from t_name into outfile 'xxx/t_name.txt';
-    select导出时,若mysql server的 --secure-file-priv选项有效,则导出操作失败
+    select into oufile导出时,若mysql server的 --secure-file-priv选项有效,则导出操作失败
+    select导出的另一个可能遇到的问题是报:Access denied for user 'root'@'%' (using password:YES),查了一下说是root用户没有FILE权限
+    不过这个问题可以绕过,直接在本地shell: echo "select * from t_name" | mysql -hxxx -uroot -pyyy db_name > path/to/local/t_name.txt
