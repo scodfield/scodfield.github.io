@@ -234,3 +234,9 @@
     mnesia:table_info(m_tab,size). 返回m_tab表存储的元素个数
     mnesia:table_info(mtab,memory). 返回m_tab表占用的word,由wordsize可计算出占用的字节,取一下平均,可预估最后占用的内存大小
     大概算了一下,以目前存储的数据,100w条记录大概占用604M
+55. erlang节点的一些限制
+    进程数量限制,erlang:system_info(process_limit). 可通过启动参数"+P"修改
+    端口数量限制,erlang:system_info(port_limit). 可通过环境变量ERL_MAX_PORTS或启动参数"+Q"修改
+    ets表数量限制,erlang:system_info(ets_limit). 可通过启动参数"+e"修改
+    atom数量限制,erlang:system_info(atom_limit). 可通过启动参数"+t"修改
+    同时打开的文件和socket数量取决于能使用的端口数量及操作系统限制
