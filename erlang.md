@@ -240,3 +240,5 @@
     ets表数量限制,erlang:system_info(ets_limit). 可通过启动参数"+e"修改
     atom数量限制,erlang:system_info(atom_limit). 可通过启动参数"+t"修改
     同时打开的文件和socket数量取决于能使用的端口数量及操作系统限制
+56. supervisor监督树结构中,若type=worker类型的子进程再生成一个supervisor的子进程,该子supervisor进程仍然在整个监督树中,也就是说supervisor的
+    父进程不一定非得是supervisor进程
