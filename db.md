@@ -274,3 +274,8 @@
     不过这个问题可以绕过,直接在本地shell: echo "select * from t_name" | mysql -hxxx -uroot -pyyy db_name > path/to/local/t_name.txt
 59. echo+管道的方式导出表数据到本地文件,如果跨越多个库可以采用追加的方式"... >> path/to/local/t_name.txt"
     这种方式的缺点其一是需要多次手动执行,其二就是结果中会有重复的字段名(字段名表1数据字段名表2数据),格式上有些尴尬
+60. 常见join操作,用来统计些数据 
+    select count(distinct t1.field_name) from t_name1 t1 left/right/inner join t_name1/2 t2 on t1.field_name = t2.field_name where xxx
+    left join 以左表数据为基准,同理right join,inner join则是取交集
+    关于select xxx as yyy,除了可以给字段取别名,比如:select user_id as id, user_name as name from user; 之外,还可以给select出来的临时表命名
+    比如:select id,name from (select user_id as id, user_name as name from user) as temp_user where xxx
