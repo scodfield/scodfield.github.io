@@ -279,3 +279,14 @@
     left join 以左表数据为基准,同理right join,inner join则是取交集
     关于select xxx as yyy,除了可以给字段取别名,比如:select user_id as id, user_name as name from user; 之外,还可以给select出来的临时表命名
     比如:select id,name from (select user_id as id, user_name as name from user) as temp_user where xxx
+61. 上回遇到一个没有FILE权限的提示,此处记录一下mysql权限相关的命令
+    授权, mysql> grant privilege on *.* to *@* identified by "password" with grant option;
+	privilege可以是所有权限(all privileges),也可以是select,insert,update,drop,alter等
+        on x.y x指代数据库,y指代数据库中的表,*.*表示当前server的任何数据库及表
+        to x@y x指代用户名,y指代限制的登录主机地址,可以是IP,IP段,域名或者任何地址('%'),'root'@'%'表示允许root用户在任意地址远程登录
+        identified by "password" 指定登录密码
+        with grant option 表示该用户可以将自己拥有的权限授权给其它用户
+    刷新权限, mysql> flush privileges;
+    查看当前用户权限, mysql> show grants;  
+    查看某用户权限, mysql> show grants for 'xx'@'yyyy';
+    回收权限, mysql> revoke privilege on *.* from 'xx'@'yyyy';
