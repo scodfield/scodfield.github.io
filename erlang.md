@@ -242,3 +242,4 @@
     同时打开的文件和socket数量取决于能使用的端口数量及操作系统限制
 56. supervisor监督树结构中,若type=worker类型的子进程再生成一个supervisor的子进程,该子supervisor进程仍然在整个监督树中,也就是说supervisor的
     父进程不一定非得是supervisor进程
+57. try catch可以嵌套,不过try语句块避免使用尾递归,因为erlang虚拟机始终保持对try块的引用,以防出现异常,所以try块调用尾递归会造成大量内存消耗
