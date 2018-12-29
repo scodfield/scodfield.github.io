@@ -290,3 +290,8 @@
     查看当前用户权限, mysql> show grants;  
     查看某用户权限, mysql> show grants for 'xx'@'yyyy';
     回收权限, mysql> revoke privilege on *.* from 'xx'@'yyyy';
+62. 导入.frm,.myd,.myi文件
+    .frm 描述了表的结构, .myd 为表的数据记录, .myi 则是表的索引数据
+    mysql> create database new_db;
+    在mysql的data文件夹下打开new_db文件夹,将上述三个文件copy到里面
+    mysql> show tables [desc t_name]; 查看表信息
