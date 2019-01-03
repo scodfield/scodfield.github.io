@@ -172,4 +172,4 @@
     上传文件or文件夹到远程服务器:scp [-r] /path/to/local_file_or_dir user_name@server_add:/path/to/remote_dir
 28. 查找文件所有安装路径:whereis xxx (whereis erl)
     查找运行文件所在路径:which xxx (which erl)
-    查找某一个具体文件:find /target/path -name xxx.y (find / -name lua.h)
+    查找某一个具体文件:find /target/path -name xxx.y (find / -name erl_nif.h)
