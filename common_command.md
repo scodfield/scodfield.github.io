@@ -170,4 +170,6 @@
 27. 利用scp命令来通过ssh上传下载文件
     从远程服务器下载文件or文件夹:scp [-r] user_name@server_addr:/path/to/file_or_dir /path/to/local_file_or_dir
     上传文件or文件夹到远程服务器:scp [-r] /path/to/local_file_or_dir user_name@server_add:/path/to/remote_dir
-    
+28. 查找文件所有安装路径:whereis xxx (whereis erl)
+    查找运行文件所在路径:which xxx (which erl)
+    查找某一个具体文件:find /target/path -name xxx.y (find / -name lua.h)
