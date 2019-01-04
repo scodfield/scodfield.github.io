@@ -243,3 +243,7 @@
 56. supervisor监督树结构中,若type=worker类型的子进程再生成一个supervisor的子进程,该子supervisor进程仍然在整个监督树中,也就是说supervisor的
     父进程不一定非得是supervisor进程
 57. try catch可以嵌套,不过try语句块避免使用尾递归,因为erlang虚拟机始终保持对try块的引用,以防出现异常,所以try块调用尾递归会造成大量内存消耗
+58. gcc -fPIC -shared -o xxx.so xxx.c -I"XXXX" -lluajit-5.1时,提示:Failed to load NIF library libluajit-5.1.so.2 cannot open shared         object file no such file or directory, ls /usr/local/include 可知libluajit-5.1.so.2是一个连接文件
+    源文件为同目录下的libluajit-5.1.so.2.1.0,但是为什么会提示打不开该文件?
+    通过-L参数直接指定libluajit-5.1.so.2.1.0,提示:Failed to load ... undefined symbol lua_settop
+    若指定同目录下的libluajit-5.1.a,报错同上
