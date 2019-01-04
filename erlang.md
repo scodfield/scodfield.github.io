@@ -256,3 +256,5 @@
 59. rebar可通过port_specs,port_env这两个配置项编译nif模块,具体的编译连接参数可参考rebar_port_compile.erl,一般是配置下CFLAGS,CXXFLAGS,LDFLAGS
     如果考虑到跨平台,可在rebar.config.script脚本中,通过os:type()决定相应平台的配置,达到动态更改rebar.config的目的
     关于nif的编译配置,还可以翻阅rebar.config.sample文件
+60. 关于第58条,"提示打不开该文件?", 编译时已经指定了lua动态库所在路径,不过不晓得为什么失效了,解决方法之一是修改/etc/ld.so.conf文件
+    在文件末尾加上和-L参数一样的路径(/usr/local/lib),保存,退出,执行ldconfig命令,再次编译,在erl shell里加载,
