@@ -243,7 +243,15 @@
 56. supervisor监督树结构中,若type=worker类型的子进程再生成一个supervisor的子进程,该子supervisor进程仍然在整个监督树中,也就是说supervisor的
     父进程不一定非得是supervisor进程
 57. try catch可以嵌套,不过try语句块避免使用尾递归,因为erlang虚拟机始终保持对try块的引用,以防出现异常,所以try块调用尾递归会造成大量内存消耗
-58. gcc -fPIC -shared -o xxx.so xxx.c -I"XXXX" -lluajit-5.1时,提示:Failed to load NIF library libluajit-5.1.so.2 cannot open shared         object file no such file or directory, ls /usr/local/include 可知libluajit-5.1.so.2是一个连接文件
+58. gcc -fPIC -shared -o xxx.so xxx.c -I"XXXX" -lluajit-5.1时,提示:Failed to load NIF library libluajit-5.1.so.2 cannot open shared         object file no such file or directory, ls /usr/local/include 可知libluajit-5.1.so.2是一个软连接文件
     源文件为同目录下的libluajit-5.1.so.2.1.0,但是为什么会提示打不开该文件?
     通过-L参数直接指定libluajit-5.1.so.2.1.0,提示:Failed to load ... undefined symbol lua_settop
     若指定同目录下的libluajit-5.1.a,报错同上
+    gcc -l 指定要链接的库名,完整的库名包括开头的lib和".so",".a"的结尾
+    gcc -L 添加链接库的搜索路径
+    gcc产生警告信息的编译选项,大多以-W开头,常用的是-Wall
+    预处理、编译、汇编、连接,连接库时,默认情况下编译器会优先加载动态库,如需要强制加载静态库,可以通过-static选项,如:gcc xxx -static -llib_name yyy
+    动态库的搜索顺序:-L参数,系统变量LD_LIBRARY_PATH,/etc/ld.so.conf文件(修改文件后,需执行ldconfig),gcc安装时配置的路径(gcc --print-search-dir | grep libraries),这个也是默认路径,一般是/usr/lib,/lib
+59. rebar可通过port_specs,port_env这两个配置项编译nif模块,具体的编译连接参数可参考rebar_port_compile.erl,一般是配置下CFLAGS,CXXFLAGS,LDFLAGS
+    如果考虑到跨平台,可在rebar.config.script脚本中,通过os:type()决定相应平台的配置,达到动态更改rebar.config的目的
+    关于nif的编译配置,还可以翻阅rebar.config.sample文件
