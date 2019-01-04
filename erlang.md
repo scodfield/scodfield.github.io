@@ -251,6 +251,7 @@
     gcc -L 添加链接库的搜索路径
     gcc产生警告信息的编译选项,大多以-W开头,常用的是-Wall
     预处理、编译、汇编、连接,连接库时,默认情况下编译器会优先加载动态库,如需要强制加载静态库,可以通过-static选项,如:gcc xxx -static -llib_name yyy
+    静态库搜索顺序:-L参数,环境变量LIBRARY_PATH,默认路径(参考动态库的默认路径)
     动态库的搜索顺序:-L参数,系统变量LD_LIBRARY_PATH,/etc/ld.so.conf文件(修改文件后,需执行ldconfig),gcc安装时配置的路径(gcc --print-search-dir | grep libraries),这个也是默认路径,一般是/usr/lib,/lib
 59. rebar可通过port_specs,port_env这两个配置项编译nif模块,具体的编译连接参数可参考rebar_port_compile.erl,一般是配置下CFLAGS,CXXFLAGS,LDFLAGS
     如果考虑到跨平台,可在rebar.config.script脚本中,通过os:type()决定相应平台的配置,达到动态更改rebar.config的目的
