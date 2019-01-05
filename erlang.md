@@ -282,3 +282,8 @@
     编译 将预处理后的文件转换成汇编代码,生成.s文件 编译器egcs; 
     汇编 将汇编文件转换为目标代码(机器码),生成.o文件 汇编器as;
     链接 连接目标代码,生成可执行程序 链接器ld
+62. 准备给项目加上Nginx,用于客户端的热更新,Nginx的几个常用命令(手册):
+    若指定--prefix=xxx,则安装后,将该目录加入PATH,直接调用nginx,即可启动服务
+    nginx -s reload 重新加载nginx.conf文件
+    nginx -s stop 快速关服
+    nginx -s quit 优雅关服
