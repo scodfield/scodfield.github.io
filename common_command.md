@@ -181,3 +181,5 @@
     最开始没找到网上说的/etc/sysconfig/network-scripts/ifcfg-eth0,最后发现是修改一下目录下的ifcfg-ensxx即可(xx依据版本不同)
     新增的几个配置项主要是IPADDR,NETMASK,GATEWAY,DNS1,DNS2 (MTU,NM_CONTROLLED可改可不改), 更改了ONBOOT=yes
     保存退出之后,service nework restart 重启网络服务
+    安装VMware Tools需要手动挂载镜像:https://www.cnblogs.com/liwanliangblog/p/9193880.html
+    
