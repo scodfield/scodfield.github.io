@@ -173,3 +173,11 @@
 28. 查找文件所有安装路径:whereis xxx (whereis erl)
     查找运行文件所在路径:which xxx (which erl)
     查找某一个具体文件:find /target/path -name xxx.y (find / -name erl_nif.h)
+29. 为了方便测试,搞个虚拟机,安装及配置网络桥接模式参考以下文章
+    https://blog.csdn.net/collection4u/article/details/14127671
+    https://blog.csdn.net/fuguangruomeng/article/details/79244055
+    官网下载VMware,再百度一下VMware的注册机或者激活码
+    其次是要明白WMware三种网络模式的区别,目前的需求是必须得用桥接模式,配置桥接模式的时候
+    最开始没找到网上说的/etc/sysconfig/network-scripts/ifcfg-eth0,最后发现是修改一下目录下的ifcfg-ensxx即可(xx依据版本不同)
+    新增的几个配置项主要是IPADDR,NETMASK,GATEWAY,DNS1,DNS2 (MTU,NM_CONTROLLED可改可不改), 更改了ONBOOT=yes
+    保存退出之后,service nework restart 重启网络服务
