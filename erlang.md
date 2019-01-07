@@ -287,3 +287,5 @@
     nginx -s reload 重新加载nginx.conf文件
     nginx -s stop 快速关服
     nginx -s quit 优雅关服
+63. lua源码安装的时候,/usr/local/lib默认只生成了liblua.a的静态库文件,可以通过修改两个Makefile文件,实现在编译安装的时候同时生成.a和.so文件
+    参考文章:https://blog.csdn.net/yzf279533105/article/details/77586747
