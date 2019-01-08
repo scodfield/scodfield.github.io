@@ -190,3 +190,7 @@
     查看已开发的端口:firewall-cmd --list-ports
     开启端口:firewall-cmd --zone=public --add-port=80/tcp --permanent 
     参数说明:zone 作用域, add-port 添加端口,格式为端口/通信协议, permanent 永久生效,没有此参数重启后会失效
+31. centos7安装svn
+    yum -y install subversion
+    svn help [sub_command] 查看checkout,update(up),revert等命令的用法
+    通过svn命令行设置文件or文件夹的externals对应的subcommand是propxxx,可查看详细的用法
