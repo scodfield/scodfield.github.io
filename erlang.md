@@ -260,6 +260,8 @@
     在文件末尾加上和-L参数一样的路径(/usr/local/lib),保存,退出,执行ldconfig命令,再次编译,在erl shell里加载,bingo...
     -L "链接" 的时候,去搜索的路径,它只是指定了程序在编译链接时库的路径,并不影响程序 "执行" 时库的路径,程序执行时,系统还是会在默认路径下查找库
     如果找不到,还是会报cannot open shared object file,此时可以通过修改LD_LIBRARY_PATH环境变量(无需root权限)或者/etc/ld.so.config文件
+    error loading module 'xxx' from yyy/zzz.lua:1: unexpected symbol near 'aaa', 如果是第一行就报错,则zzz.lua文件的格式不是utf8
+    有可能是utf-8 with BOM或者其他格式,在编辑器中save with encoding保存即可(又一个前端的坑...)
 61. 典型编译命令: gcc -fPIC -shared -o xxx.so xxx.c -I. -I/path/to/erl/include -I/path/to/lua/include -g -Wall -Werror -O3 
     -fno-strict-aliasing -lstdc++ -L/paht/to/other/lib -lother_lib_name
     gcc常用编译参数:
