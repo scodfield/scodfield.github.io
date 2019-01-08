@@ -182,4 +182,11 @@
     新增的几个配置项主要是IPADDR,NETMASK,GATEWAY,DNS1,DNS2 (MTU,NM_CONTROLLED可改可不改), 更改了ONBOOT=yes
     保存退出之后,service nework restart 重启网络服务
     安装VMware Tools需要手动挂载镜像:https://www.cnblogs.com/liwanliangblog/p/9193880.html
-    
+30. VMware安装后,启动节点,然而并不能访问,本地和VMware能ping通,telent server_ip port_number不同,熟悉的一幕又来了,防火墙....
+    centos7默认是firewall防火墙,查看防火墙状态:firewall-cmd --state  // running
+    关闭防火墙:systemctl stop firewalld.service
+    禁止开机启动:systemctl disable firewalld.service
+    重启防火墙:systemctl restart firewalld.service, firewall-cmd reload
+    查看已开发的端口:firewall-cmd --list-ports
+    开启端口:firewall-cmd --zone=public --add-port=80/tcp --permanent 
+    参数说明:zone 作用域, add-port 添加端口,格式为端口/通信协议, permanent 永久生效,没有此参数重启后会失效
