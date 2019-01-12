@@ -313,6 +313,12 @@
     http.server.listen # 侦听端口or地址:端口,listen 8080;127.0.0.1:8088;*.8090
     http.server.server_name # 设置服务器名,nginx解析http请求的host头,和server模块进行匹配
     http.server.location # 匹配URL,执行不同的应用配置
+    location有精确匹配,前缀字符串匹配,正则表达式匹配和通用匹配四种方式,优先级依次如下:
+    location = /xx/yy {} % 精确匹配,优先级最高
+    location ^~ /xxx/ {} % 提高匹配优先级的前缀字符串匹配,优先级次之,匹配之后不再进行正则表达式匹配,如果没有^~ 即便前缀匹配到了,仍要进行正则匹配
+    location ~[*] reg_exp {} % 区分/不区分大小写的正则表达式匹配,~区分大小写,~* 不区分大小写
+    location /xxx/ {} % 前缀字符串匹配,为提升优先级,只有在正则不匹配时,才会采用该匹配
+    location / {} % 通用匹配,匹配所有请求
     nginx源码理解:https://www.kancloud.cn/digest/understandingnginx/202587
 63. lua源码安装的时候,/usr/local/lib默认只生成了liblua.a的静态库文件,可以通过修改两个Makefile文件,实现在编译安装的时候同时生成.a和.so文件
     参考文章:https://blog.csdn.net/yzf279533105/article/details/77586747
