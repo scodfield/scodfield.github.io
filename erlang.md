@@ -295,12 +295,20 @@
     worker_rlimit_nofile 100000 # worker进程的最大打开文件数限制,如果没有设置,则为操作系统限制
     error_log logs/error.log # 全局错误日志
     pid logs/nginx.pid # PID文件,nginx启动后,有一个master process, master的pid保存在nginx.pid文件中,可由ps命令查看master和worker进程信息
-    events {} # 事件模块,nginx中处理连接的配置
+    events {} # 事件模块,nginx中处理网络连接的配置
     events.accept mutex [on|off] # 默认为on,使用连接互斥锁进行顺序的accept()系统调用
     events.accept_mutex_delay Nms # 默认500ms,如果一个进程没有互斥锁,它将至少在这个值的时间后被回收
     events.debug_connection [ip|CIDR] # 0.3.54版本后,这个参数支持CIDR地址池格式,这个参数可以指定只记录由某个客户端IP产生的debug信息
     events.multi_accept [on|off] # 默认为off,nginx接到一个新连接通知后调用accept()来接受尽量多的连接
-    events.use [kqueue|rtsig|epoll|/dev/poll|select|poll|eventport] # 指定事件模型
+    events.use [kqueue|rtsig|epoll|/dev/poll|select|poll|eventport] # 指定事件驱动模型
     events.worker_connections # 单个worker process进程的最大并发连接数
+    http {} # http模块
+    http.sendfile on|off # 设置为on,则启用linux上的sendfile系统调用,减少了内核态和用户态之间的两次内存拷贝,在磁盘中读取文件后,直接在内核态
+    发送到网卡,提高发送文件的效率
+    http.keepalive_timeout Ns # server端对连接的保持时间,默认75s
+    http.send_timeout Ns # 客户端在Ns内未接收nginx发送的数据包,则nginx关闭该连接
+    http.client_max_body_size XX # 客户端发送较大http包体的数据时,nginx不需要接收到完整的包体,就可以告诉用户请求过大,不被接受
+    http.include /path/to/file # include只是一个包含另一个文件的命令, include /usr/local/nginx/conf/mime.types; 引入网络资源的媒体类型
+    http.gzip on # nginx采用gzip的压缩的形式发送数据,可减少发送的数据量
 63. lua源码安装的时候,/usr/local/lib默认只生成了liblua.a的静态库文件,可以通过修改两个Makefile文件,实现在编译安装的时候同时生成.a和.so文件
     参考文章:https://blog.csdn.net/yzf279533105/article/details/77586747
