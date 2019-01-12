@@ -310,5 +310,9 @@
     http.client_max_body_size XX # 客户端发送较大http包体的数据时,nginx不需要接收到完整的包体,就可以告诉用户请求过大,不被接受
     http.include /path/to/file # include只是一个包含另一个文件的命令, include /usr/local/nginx/conf/mime.types; 引入网络资源的媒体类型
     http.gzip on # nginx采用gzip的压缩的形式发送数据,可减少发送的数据量
+    http.server.listen # 侦听端口or地址:端口,listen 8080;127.0.0.1:8088;*.8090
+    http.server.server_name # 设置服务器名,nginx解析http请求的host头,和server模块进行匹配
+    http.server.location # 匹配URL,执行不同的应用配置
+    nginx源码理解:https://www.kancloud.cn/digest/understandingnginx/202587
 63. lua源码安装的时候,/usr/local/lib默认只生成了liblua.a的静态库文件,可以通过修改两个Makefile文件,实现在编译安装的时候同时生成.a和.so文件
     参考文章:https://blog.csdn.net/yzf279533105/article/details/77586747
