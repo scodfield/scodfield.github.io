@@ -322,3 +322,10 @@
     nginx源码理解:https://www.kancloud.cn/digest/understandingnginx/202587
 63. lua源码安装的时候,/usr/local/lib默认只生成了liblua.a的静态库文件,可以通过修改两个Makefile文件,实现在编译安装的时候同时生成.a和.so文件
     参考文章:https://blog.csdn.net/yzf279533105/article/details/77586747
+64. nginx缓存设置相关参数
+    proxy_cache_path /path/to/cache # 定义缓存存储位置
+    levels=1:2 # 设置缓存目录深度,最多创建3层
+    keys_zone=xxx:yyy # 定义缓冲区名称和内存缓冲区大小
+    max_size=xxx # 最大磁盘缓存空间
+    inactive=xxx # 设置缓存时间,60m 则60分钟没有访问就删除
+    清楚nginx缓存的插件:ngx_cache_purge
