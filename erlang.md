@@ -323,9 +323,11 @@
 63. lua源码安装的时候,/usr/local/lib默认只生成了liblua.a的静态库文件,可以通过修改两个Makefile文件,实现在编译安装的时候同时生成.a和.so文件
     参考文章:https://blog.csdn.net/yzf279533105/article/details/77586747
 64. nginx缓存设置相关参数
-    proxy_cache_path /path/to/cache # 定义缓存存储位置
-    levels=1:2 # 设置缓存目录深度,最多创建3层
-    keys_zone=xxx:yyy # 定义缓冲区名称和内存缓冲区大小
+    proxy_cache_path /path/to/cache # 定义缓存文件的存储路径
+    levels=1:2 # 设置缓存文件的保存方式,未设置则直接保存到缓存路径,1:2表示缓存文件将根据其key的md5值保存在缓存路径的子目录中,最多创建3层
+    keys_zone=cache_name:meta_size # 定义缓冲区名称和缓存key和其它元数据的存储空间
     max_size=xxx # 最大磁盘缓存空间
     inactive=xxx # 设置缓存时间,60m 则60分钟没有访问就删除
-    清楚nginx缓存的插件:ngx_cache_purge
+    proxy_cache_key "$scheme$proxy_host$uri$is_args$args" # 区分缓存文件的key,前项示例为默认值
+    location.proxy_cache cache_name # location块内,指定缓存区域
+    清除nginx缓存的插件:ngx_cache_purge
