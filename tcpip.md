@@ -124,3 +124,15 @@ Tips to remember:
     传输层提供端到端的接口,网络层为数据包选择路由,数据链路层传输有地址的帧及错误检测,物理层以二进制形式在物理媒体上传输数据
     TCP/IP协议族采用的是五层模型,将表示层和会话层放到应用层中,不过在使用过程中,出现了一个提供安全加密服务的层(SSL/TLS),有了安全层之后
     各应用层协议都可以加上一个S(Security),如HTTPS就是原本的HTTP协议有了SSL/TLS的保护
+15. Linux环境网络IO的同步,异步,阻塞,非阻塞,复用
+    对于一个网络IO,比如读取read来说,它涉及两个对象(调用IO的用户process/thread,内核kernel),两个阶段(等待数据准备,数据从内核copy到进程)
+    blocking IO:用户进程调用recvfrom系统调用,在kernel准备数据及copy数据阶段,用户进程都是阻塞的,直到kernel完成copy,返回ok,用户进程解除block状态;
+    non-blocking IO:用户进程调用recvfrom,kernel未准备好数据时,并不会阻塞用户进程,而是直接返回一个error,用户进程接收到error,得知数据还没准备好
+    于是再次发起read操作,调用recvfrom,如此循环,直到kernel准备好数据后再次受到用户进程的系统调用,此时kernel copy数据到用户缓冲区,返回ok,非阻塞IO
+    需要在准备数据阶段,不断的发起询问,所谓非阻塞指的就是准备数据阶段,每次询问都会立即得到一个结果;
+    IO复用(IO multiplexing),或者称之为event driven IO:常见的实现为select/epoll,基本原理是select/epoll方法会不断的轮询所负责的socket,当某个
+    socket的数据到达,就通知用户进程,调用流程如下:当用户进程调用select,整个进程block,kernel监视select负责的socket,当其中任意一个socket的数据准备
+    好了,select就返回,此时用户进程发起read操作,kernel将数据copy到用户进程,select用到了两个system call(select,recvfrom),select的优势不在于单个
+    处理的更快,而是可以同时处理更多connection;
+    异步IO:用户进程发起异步读取操作之后,去做其它事,kernel接收到异步读之后,立刻返回,所以并不会阻塞用户进程,kernel等待数据准备,并把数据copy到用户
+    缓存之后,kernel给用户进程发送一个signal,告诉它read操作已完成
