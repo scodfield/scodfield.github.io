@@ -138,3 +138,11 @@ Tips to remember:
     缓存之后,kernel给用户进程发送一个signal,告诉它read操作已完成
     POSIX同步与异步的定义:IO操作时进程阻塞为同步,非阻塞为异步
     则阻塞,非阻塞与复用均为同步IO,非阻塞IO虽然在数据未准备好时并未阻塞,但当kernel准备好数据之后,用户进程再次调用recvfrom copy数据时会被阻塞
+16. select/poll适用于所有的Unix系统,epoll则是Linux,从根本上说,poll/select这两个系统调用使用的是相同的代码,同时调用了大量相同的代码
+    select定义:https://github.com/torvalds/linux/blob/v4.10/fs/select.c#L634-L656
+    do_select定义:https://github.com/torvalds/linux/blob/v4.10/fs/select.c#L404-L542
+    poll定义:https://github.com/torvalds/linux/blob/v4.10/fs/select.c#L1005-L1055
+    do_poll定义:https://github.com/torvalds/linux/blob/v4.10/fs/select.c#L795-L879
+    select和poll的两个主要的区别:poll返回的结果类型更多,select只会返回读、写和报错,第二个区别是fd较少时,poll的效率比select高
+    至于原因嘛,从源码上就可以看出来,do_select(select.c#L440)便利fd时,从0开始知道找到fd(fd的本质是个索引值),而do_poll(select.c#L818)则是
+    遍历fd数组,如果当前只有4个fd,则poll只需遍历4次,而select需要从0遍历到max_select_fd
