@@ -146,3 +146,14 @@ Tips to remember:
     select和poll的两个主要的区别:poll返回的结果类型更多,select只会返回读、写和报错,第二个区别是fd较少时,poll的效率比select高
     至于原因嘛,从源码上就可以看出来,do_select(select.c#L440)便利fd时,从0开始知道找到fd(fd的本质是个索引值),而do_poll(select.c#L818)则是
     遍历fd数组,如果当前只有4个fd,则poll只需遍历4次,而select需要从0遍历到max_select_fd
+17. epoll调用包括epoll_create,epoll_ctl,epoll_wait,epoll_create开启epolling,内核返回一个ID,epoll_ctl告诉内核要监听的fd,调整fd set               (declare_interest()),epoll可以同时监听多种不同类型的fd,包括但不限于pipes,FIFOs,sockets,POSIX message queue,devices等,
+    epoll_waite等待内核返回可用的fd,也就是获取事件(get_next_event()),
+    select/poll都是无状态的,所以每次调用的时候都会提供整个fd set,优化就是内核维护状态相关的fd set,避免每次都返回整个fd set,
+    Linux和BSD各自的实现是epoll/kqueue
+    kqueue()函数类似于epoll_create(),kevent()则集成了epoll_ctl()和epoll_wait()
+    从性能上说epoll的一个缺陷是,单次系统调用无法更新多个fd状态,比如有100个fd需要更新状态,那么epoll不得不调用100次epoll_ctl(),那么过度调用系统调用
+    将会导致系统性能降级,相反在一次kevent()调用中,可以指定对多个fd进行状态更新
+    epoll的另外一个限制就是,它基于文件描述符工作,但是时钟,信号,信号量,进程,(linux中的)网络设备等不是文件,无法对这些非文件类型使用基于select/poll/
+    epoll的事件复用技术,Linux提供了许多补充性质的系统调用,比如signalfd(),eventfd(),timerfd_create()来转换非文件类型的文件描述符,然后就可以使用
+    epoll,只是不是那么优雅,而kqueue中kevent结构体支持多种非文件事件,例如,程序可以获得一个子进程退出事件,通过设置filter=EVFILT_PROC,ident=pid
+    fflags=NOTE_EXIT,更多可参考:https://www.cnblogs.com/moonz-wu/p/4740908.html
