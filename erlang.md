@@ -331,3 +331,6 @@
     proxy_cache_key "$scheme$proxy_host$uri$is_args$args" # 区分缓存文件的key,前项示例为默认值
     location.proxy_cache cache_name # location块内,指定缓存区域
     清除nginx缓存的插件:ngx_cache_purge
+65. 整理一下线上定位问题的大致思路:优先看内存和进程消息队列,其次可看相关的日志,最后是一些统计数据(binary,atom大小,网关/玩家进程大小)
+    对于MMO/RPG,卡顿的时候,可以看下地图进程的帧率,也就是每秒对地图数据进行多少次更新
+    压测或者上线后,另一个指标:网关进程和玩家进程的CPU与内存占比,据此可进一步优化
