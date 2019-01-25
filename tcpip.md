@@ -138,12 +138,14 @@ Tips to remember:
     缓存之后,kernel给用户进程发送一个signal,告诉它read操作已完成
     POSIX同步与异步的定义:IO操作时进程阻塞为同步,非阻塞为异步
     则阻塞,非阻塞与复用均为同步IO,非阻塞IO虽然在数据未准备好时并未阻塞,但当kernel准备好数据之后,用户进程再次调用recvfrom copy数据时会被阻塞
-16. select/poll适用于所有的Unix系统,epoll则是Linux,从根本上说,poll/select这两个系统调用使用的是相同的代码,同时调用了大量相同的代码
+16. select/poll适用于所有的Unix系统,epoll则是Linux,从根本上说,poll/select这两个系统调用使用的是相同的代码,工作方式基本相同
     select定义:https://github.com/torvalds/linux/blob/v4.10/fs/select.c#L634-L656
     do_select定义:https://github.com/torvalds/linux/blob/v4.10/fs/select.c#L404-L542
     poll定义:https://github.com/torvalds/linux/blob/v4.10/fs/select.c#L1005-L1055
     do_poll定义:https://github.com/torvalds/linux/blob/v4.10/fs/select.c#L795-L879
-    select和poll的两个主要的区别:poll返回的结果类型更多,select只会返回读、写和报错,第二个区别是fd较少时,poll的效率比select高
+    select和poll的一些区别:
+    select()基于位图(bitmap),poll()基于fd数组,因此select()的一个缺陷就是它的大小的固定的(FD_SETSIZE,1024),即便可以通过某些方式绕过
+    poll返回的结果类型更多,select只会返回读、写和报错,第二个区别是fd较少时,poll的效率比select高
     至于原因嘛,从源码上就可以看出来,do_select(select.c#L440)便利fd时,从0开始知道找到fd(fd的本质是个索引值),而do_poll(select.c#L818)则是
     遍历fd数组,如果当前只有4个fd,则poll只需遍历4次,而select需要从0遍历到max_select_fd
 17. epoll调用包括epoll_create,epoll_ctl,epoll_wait,epoll_create开启epolling,内核返回一个ID,epoll_ctl告诉内核要监听的fd,调整fd set               (declare_interest()),epoll可以同时监听多种不同类型的fd,包括但不限于pipes,FIFOs,sockets,POSIX message queue,devices等,
@@ -156,4 +158,4 @@ Tips to remember:
     epoll的另外一个限制就是,它基于文件描述符工作,但是时钟,信号,信号量,进程,(linux中的)网络设备等不是文件,无法对这些非文件类型使用基于select/poll/
     epoll的事件复用技术,Linux提供了许多补充性质的系统调用,比如signalfd(),eventfd(),timerfd_create()来转换非文件类型的文件描述符,然后就可以使用
     epoll,只是不是那么优雅,而kqueue中kevent结构体支持多种非文件事件,例如,程序可以获得一个子进程退出事件,通过设置filter=EVFILT_PROC,ident=pid
-    fflags=NOTE_EXIT,更多可参考:https://www.cnblogs.com/moonz-wu/p/4740908.html
+    fflags=NOTE_EXIT,发现一篇很清晰的对比epoll_vs_kqueue的文章:http://people.eecs.berkeley.edu/~sangjin/2012/12/21/epoll-vs-kqueue.html
