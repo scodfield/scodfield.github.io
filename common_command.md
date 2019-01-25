@@ -194,3 +194,8 @@
     yum -y install subversion
     svn help [sub_command] 查看checkout,update(up),revert等命令的用法
     通过svn命令行设置文件or文件夹的externals对应的subcommand是propxxx,可查看详细的用法
+32. what happens when start a process on linux?
+    首先进程有很多属性,包括:打开的文件或网络连接,环境变量,信号处理器,内存,寄存器,命名空间,当前工作路径等
+    首先fork(),克隆当前进程,fork()返回-1为报错,0为子进程ID
+    其次execve(),改变内存,寄存器,和执行的程序,不过环境变量,信号处理器等都不变
+    关于fork()函数的内存copy,实际上是"copy on write",只有当父子任一进程有写内存操作时,才会发生实际的copy操作
