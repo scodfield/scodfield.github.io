@@ -295,3 +295,9 @@
     mysql> create database new_db;
     在mysql的data文件夹下打开new_db文件夹,将上述三个文件copy到里面
     mysql> show tables [desc t_name]; 查看表信息
+63. 分布式存储系统的一个重要的三选二理论:C(Consistency,一致性)A(Availability,可用性)P(Partition Tolerant,分区容错性)
+    一致性,分布式系统中所有数据备份,在同一时刻是否具有相同的值,也即是所有节点的数据时刻保持一致
+    可用性,指对任意非失败节点的请求都能在有限时间得到响应
+    分区容错,指的是允许节点之间丢失任意多的消息,网络分区状态一般包括节点网络不同,节点繁忙失去响应,单机房故障等
+    In order to model partition tolerance, the network will be allowed to lose arbitrarily many messages sent from one node to another.
+    上述对P的定义可知,在分布式系统中P是一个必选项,因为现实中,我们面对的是不可靠的网络和可能宕机的机器
