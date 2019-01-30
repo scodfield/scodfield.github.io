@@ -339,3 +339,5 @@
       case Seq rem Rem of true -> timer:sleep(1); _ -> next end, lists:seq(1,Times) end).
     总的思路是尽可能的提高并发性,如:Times=10000,Rem=100,在该条件下用时5.04s -- 5.21s之间,大概每秒不到2k次请求
     在该状态下:netstat -anlp | grep :port | wc -l 统计连接数量,去掉统计,可看到大量连接处于'TIME_WAIT'状态
+    当:Times=10000,Rem=1000时,第一次用时4.99,紧接着再次用上述参数调用,返回socket_closed_remotely,同时可以看到服务端上次调用的连接还未释放
+    连接数由101-->193,此时服务端连接数只有50,其他参数如cpu,memory及节点的port_count等均未有异常,莫非云平台有防DDOS机制?
