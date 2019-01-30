@@ -159,3 +159,10 @@ Tips to remember:
     epoll的事件复用技术,Linux提供了许多补充性质的系统调用,比如signalfd(),eventfd(),timerfd_create()来转换非文件类型的文件描述符,然后就可以使用
     epoll,只是不是那么优雅,而kqueue中kevent结构体支持多种非文件事件,例如,程序可以获得一个子进程退出事件,通过设置filter=EVFILT_PROC,ident=pid
     fflags=NOTE_EXIT,发现一篇很清晰的对比epoll_vs_kqueue的文章:http://people.eecs.berkeley.edu/~sangjin/2012/12/21/epoll-vs-kqueue.html
+18. C10K问题就是Client 10000,说的是同时连接到服务器的客户端数量超过10000,即使硬件性能足够,依然无法正常提供服务,简而言之就是单机1w个并发连接问题
+    C10K问题受到创建进程数,内存空间等的限制,即便我们使用64位创建进程,提高进程创建的上限,使用虚拟内存,扩大内存的使用空间,然而问题依然存在,进程和
+    线程的创建都需要消耗一定的内存,每生成一个栈空间,都会产生内存开销,当使用内存超过物理内存时,一部分数据会被持久化到磁盘上,导致性能的大幅下降
+    C10K问题的突破是单个线程或进程管理多个客户端请求,通过异步编程和事件触发机制,IO的非阻塞,IO多路复用等来提高性能,底层解决方案是epoll,kqueue,
+    libevent等,应用层面的解决方案有OpenRestry,Golang,Node.js
+    参考来源:https://medium.com/@chijianqiang/%E7%A8%8B%E5%BA%8F%E5%91%98%E6%80%8E%E4%B9%88%E4%BC%9A%E4%B8%8D%E7%9F%A5%E9%81%93-c10k-%E9%97%AE%E9%A2%98%E5%91%A2-d024cb7880f3
+    https://my.oschina.net/xianggao/blog/664275
