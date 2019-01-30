@@ -335,6 +335,7 @@
     对于MMO/RPG,卡顿的时候,可以看下地图进程的帧率,也就是每秒对地图数据进行多少次更新
     压测或者上线后,另一个指标:网关进程和玩家进程的CPU与内存占比,据此可进一步优化
 66. httpc:request/4收到socket_closed_remotely,做了个测试
-    test_pressure() -> timer:tc(fun() -> lists:foreach(Seq) -> _Return = httpc:request(get,{Url,[]},[],[]), 
-      case Seq rem 100 of true -> timer:sleep(1); _ -> next end, lists:seq(1,10000) end).
-    总的思路是尽可能的提高并发性,然后就遇到了C10k问题
+    test_pressure(Times,Rem) -> timer:tc(fun() -> lists:foreach(Seq) -> _Return = httpc:request(get,{Url,[]},[],[]), 
+      case Seq rem Rem of true -> timer:sleep(1); _ -> next end, lists:seq(1,Times) end).
+    总的思路是尽可能的提高并发性,如:Times=10000,Rem=100,在该条件下用时5.04s -- 5.21s之间,大概每秒不到2k次请求
+    在该状态下:netstat -anlp | grep :port | wc -l 统计连接数量,去掉统计,可看到大量连接处于'TIME_WAIT'状态
