@@ -320,6 +320,7 @@
     location /xxx/ {} % 前缀字符串匹配,为提升优先级,只有在正则不匹配时,才会采用该匹配
     location / {} % 通用匹配,匹配所有请求
     nginx源码理解:https://www.kancloud.cn/digest/understandingnginx/202587
+    nginx动态代理:https://segmentfault.com/a/1190000007059973
 63. lua源码安装的时候,/usr/local/lib默认只生成了liblua.a的静态库文件,可以通过修改两个Makefile文件,实现在编译安装的时候同时生成.a和.so文件
     参考文章:https://blog.csdn.net/yzf279533105/article/details/77586747
 64. nginx缓存设置相关参数
