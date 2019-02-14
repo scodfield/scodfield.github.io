@@ -319,6 +319,16 @@
     location ~[*] reg_exp {} % 区分/不区分大小写的正则表达式匹配,~区分大小写,~* 不区分大小写
     location /xxx/ {} % 前缀字符串匹配,为提升优先级,只有在正则不匹配时,才会采用该匹配
     location / {} % 通用匹配,匹配所有请求
+    upstream是nginx的负载均衡模块,常见的配置方式如下:
+    轮询, upstream xxx {server name_or_ip1:port1; server name_or_ip2:port2;} 按请求的时间顺序,依次分配不同的server;
+    权重, upstream xxx {server name_or_ip1:port1 weight=w1; server name_or_ip2:port2 weight=w2;} weight字段为轮询的几率,值越大,几率越高;
+    ip_hash, upstream xxx {ip_hash; server name_or_ip1:port1; server name_or_ip2:port2;} 按访问ip的hash结果分配server,则同意客户端访问
+    同一个服务器,可解决session问题
+    fair, upstream xxx {server name_or_ip1:port1; server name_or_ip2:port2; fair;} 按后端服务器的响应时间来分配,时间短的优先分配,该方式
+    需要安装upstream fair balancer模块
+    url_hash, upstream xxx {server name_or_ip1:port1; server name_or_ip2:port2; hash $request_uri; hash_method yyy;} 
+    按方位url的hash结果分配server,在upstream模块中加入hash语句,hash_method指定了hash算法(crc32),需要安装upstream hash模块
+    upstream的使用方法是配合http.server.location.proxy_pass字段,proxy_pass = "http://" + upstream_name即可(proxy_pass=http://upstream_1)
     nginx源码理解:https://www.kancloud.cn/digest/understandingnginx/202587
     nginx动态代理:https://segmentfault.com/a/1190000007059973
 63. lua源码安装的时候,/usr/local/lib默认只生成了liblua.a的静态库文件,可以通过修改两个Makefile文件,实现在编译安装的时候同时生成.a和.so文件
