@@ -329,6 +329,9 @@
     url_hash, upstream xxx {server name_or_ip1:port1; server name_or_ip2:port2; hash $request_uri; hash_method yyy;} 
     按方位url的hash结果分配server,在upstream模块中加入hash语句,hash_method指定了hash算法(crc32),需要安装upstream hash模块
     upstream的使用方法是配合http.server.location.proxy_pass字段,proxy_pass = "http://" + upstream_name即可(proxy_pass=http://upstream_1)
+    nginx的几个常见配置项:$remote_addr,$http_x_forwarded_for 记录客户端ip地址;$remote_user 记录客户端用户名称;$time_local 访问时间和时区;
+    $request 记录请求的url和http协议;$status 记录请求状态;$http_user_agent 记录客户端浏览器的相关信息;
+    $http_referer 记录从哪个页面链接访问过来的; $body_bytes_sent 记录发送给客户端文件的主体内容大小
     nginx源码理解:https://www.kancloud.cn/digest/understandingnginx/202587
     nginx动态代理:https://segmentfault.com/a/1190000007059973
 63. lua源码安装的时候,/usr/local/lib默认只生成了liblua.a的静态库文件,可以通过修改两个Makefile文件,实现在编译安装的时候同时生成.a和.so文件
