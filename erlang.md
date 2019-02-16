@@ -296,10 +296,11 @@
     error_log logs/error.log # 全局错误日志
     pid logs/nginx.pid # PID文件,nginx启动后,有一个master process, master的pid保存在nginx.pid文件中,可由ps命令查看master和worker进程信息
     events {} # 事件模块,nginx中处理网络连接的配置
-    events.accept mutex [on|off] # 默认为on,使用连接互斥锁进行顺序的accept()系统调用
+    events.accept_mutex [on|off] # 默认为on,使用连接互斥锁进行顺序的accept()系统调用,即网络连接的序列化,防止发生惊群现象(一个网络连接到来,
+    同时唤醒多个睡眠进程,但是只有一个进程能获得连接,这样会影响系统性能)
     events.accept_mutex_delay Nms # 默认500ms,如果一个进程没有互斥锁,它将至少在这个值的时间后被回收
     events.debug_connection [ip|CIDR] # 0.3.54版本后,这个参数支持CIDR地址池格式,这个参数可以指定只记录由某个客户端IP产生的debug信息
-    events.multi_accept [on|off] # 默认为off,nginx接到一个新连接通知后调用accept()来接受尽量多的连接
+    events.multi_accept [on|off] # 默认为off,nginx接到一个新连接通知后调用accept()来接受尽量多的连接(单个进程是否同时接受多个连接)
     events.use [kqueue|rtsig|epoll|/dev/poll|select|poll|eventport] # 指定事件驱动模型
     events.worker_connections # 单个worker process进程的最大并发连接数
     http {} # http模块
@@ -307,9 +308,11 @@
     发送到网卡,提高发送文件的效率
     http.keepalive_timeout Ns # server端对连接的保持时间,默认75s
     http.send_timeout Ns # 客户端在Ns内未接收nginx发送的数据包,则nginx关闭该连接
+    http.sendfile_max_chunk xx # 每个进程每次调用时传输的最大大小,默认为0,即不设上限
     http.client_max_body_size XX # 客户端发送较大http包体的数据时,nginx不需要接收到完整的包体,就可以告诉用户请求过大,不被接受
     http.include /path/to/file # include只是一个包含另一个文件的命令, include /usr/local/nginx/conf/mime.types; 引入网络资源的媒体类型
     http.gzip on # nginx采用gzip的压缩的形式发送数据,可减少发送的数据量
+    http.error_page error_code url # 错误页,例:error_page 404 www.google.com;
     http.server.listen # 侦听端口or地址:端口,listen 8080;127.0.0.1:8088;*.8090
     http.server.server_name # 设置服务器名,nginx解析http请求的host头,和server模块进行匹配
     http.server.location # 匹配URL,执行不同的应用配置
