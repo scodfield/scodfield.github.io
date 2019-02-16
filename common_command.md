@@ -199,3 +199,20 @@
     首先fork(),克隆当前进程,fork()返回-1为报错,0为子进程ID
     其次execve(),改变内存,寄存器,和执行的程序,不过环境变量,信号处理器等都不变
     关于fork()函数的内存copy,实际上是"copy on write",只有当父子任一进程有写内存操作时,才会发生实际的copy操作
+33. lsof(list open files) 列出当前系统打开的文件,输出各列的含义如下:
+    command 进程名称
+    pid 进程标识
+    user 进程所有者
+    fd 文件描述符
+    type 文件类型,如DIR(目录),CHR(字符类型),IPv4/6(ip协议套接字),UNIX(unix域套接字)
+    device 磁盘名称
+    size 文件大小
+    node 索引节点(文件在磁盘上的标识)
+    name 打开文件的确切名称
+    lsof的-i选项可以列出符合条件的进程情况,语法:lsof -i[46][protocol][@hostname|hostaddr][:service|port]
+    46 --> IPv4 or IPv6
+    protocol --> tcp or udp
+    hostname --> 网络主机名
+    hostaddr --> IPv4地址
+    service --> /etc/services中的service-name,可以有多个,以逗号分隔,如:lsof -i:rje,echo
+    port --> 端口号,可以有多个,同样以逗号分隔,如:lsof -i:80,8088
