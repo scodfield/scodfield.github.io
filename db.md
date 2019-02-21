@@ -305,3 +305,31 @@
     关于CAP的一些争论和质疑:https://blog.csdn.net/chen77716/article/details/30635543
 64. mongodb数据库备份:mongodump -h db_host[:port] -uxxx -pyyy -d db_name -o /path/to/dump , 该命令将对应的数据库实例备份到指定的本地路径
     数据恢复:mongorestore -h db_host[:port] -d db_name [--dir]/path/to/restore
+65. mongo复制集和分片 
+    mongo的复制指的是数据在多个mongod实例之间的同步,它提供数据的冗余备份,提高数据的可用性和安全性,具体部署可参考上面的记录
+    mongo的分片指的是将大量的数据集合分成一块块的小集合,并将这些小集合分散到多个mongod实例上
+    复制集和分片都有集群的概率,也都涉及到多个mongod实例,二者的区别在于:复制集提供了数据复制的技术,而分片提供的是数据分割的技术
+    分片在允许MongoDB存储海量数据的同时,提供可接受的读写吞吐量,其主要有以下三个组件构成:
+    Shard 实际存储数据,一个Shard在生产环境中,一般可由多个分布于不同机器节点组成的一个Replica set承担,防止单点故障
+    Config Server 存储整个ClusterMetadata,包括chunk信息
+    Query Router 前端路由,客户端由此接入,使得集群对前端应用透明
+    分片实例:
+    首先启动shard server, mongod --port xxx --dbpath yyy --logpath zzz --logappend --fork, 改变port和dbpath启动多个mongod实例
+    其次启动config server, 启动命令同上,指定不同的port,dbpath,logpath即可
+    然后启动route process, mongos --port xxx --configdb config_server_ip:port --fork --logpath yyy --chunkSize zzz
+    最后配置sharding, mongo shell登录到mongos,添加shard节点
+	shell> mongo router_ip:port admin, 登录mongos,并转入admin库(mongo router_ip:port; use admin)
+	mongos> db.runCommand({addshard:"shard_server1:port1"})
+	......
+	mongos> db.runCommand({addshard:"shard_servern:portn"})
+	mongos> db.runCommand({enablesharding:"shard_db_name"}) # 设置分片存储的数据库
+	mongos> db.runCommand({shardcollection:"shard_collection_name",key:{doc_index_field:key_index}}) # 设置分片存储的数据库
+    mongos的启动参数:
+    --chunkSize 指定chunk大小,单位是MB,默认200MB
+    --maxConns 最大并发连接数,默认1000000
+    MongoDB database commands:
+    db.runCommand({addshard:"replica_set/hostname:port"}); 向分片集群添加shard_server
+    db.runCommand({enablesharding:"db_name"}); 激活指定数据库分片
+    db.runCommand({shardcollection:"db_name.collection_name",key:<shardkey>}); 允许指定collection分片
+    shardkey决定了documents在shards上的分布,shardkey的结构是:{document_indexed_field:key_index},第一个字段是文档的索引字段或组合索引
+    key_index有三个取值:1 indexed field的前向遍历分布; -1 indexed field的后向遍历分布; hashed 指定的hash key分布
