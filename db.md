@@ -333,3 +333,6 @@
     db.runCommand({shardcollection:"db_name.collection_name",key:<shardkey>}); 允许指定collection分片
     shardkey决定了documents在shards上的分布,shardkey的结构是:{document_indexed_field:key_index},第一个字段是文档的索引字段或组合索引
     key_index有三个取值:1 indexed field的前向遍历分布; -1 indexed field的后向遍历分布; hashed 指定的hash key分布
+66. mysql之where,having,两者功能类似,均可用于筛选数据,其后的表达式也都一样
+    区别在于:where 针对表中的列发挥作用,查询数据; having 针对查询结果中的列起作用,筛选数据
+    select goods_id,goods_name,cur_price - original_price as price from goods having price > 200;
