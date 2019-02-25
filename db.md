@@ -336,3 +336,8 @@
 66. mysql之where,having,两者功能类似,均可用于筛选数据,其后的表达式也都一样
     区别在于:where 针对表中的列发挥作用,查询数据; having 针对查询结果中的列起作用,筛选数据
     select goods_id,goods_name,cur_price - original_price as price from goods having price > 200;
+67. mysql创建表的三种方式
+    典型create命令:create [temporary] table [if not exists] tb_name create_defination
+    create table like 参照已有表的定义:create [temporary] table [if not exists] tb_name like old_tb_name
+    根据select的结果集创建表:create [temporary] table [if not exists] tb_name as query_expression; (注:该方式创建的新表,没有主键和索引)
+    例:create table goods_as as select id,name,price from goods; 
