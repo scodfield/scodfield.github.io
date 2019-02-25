@@ -341,3 +341,6 @@
     create table like 参照已有表的定义:create [temporary] table [if not exists] tb_name like old_tb_name
     根据select的结果集创建表:create [temporary] table [if not exists] tb_name as query_expression; (注:该方式创建的新表,没有主键和索引)
     例:create table goods_as as select id,name,price from goods; 
+68. mysql count(*)与count(column_name)及sum()的一些小区别
+    count(*) 计算所有的行数; count(column_name) 计算字段非NULL的行数
+    sum(column_name) 计算列名对应的值(非NULL值)的和, sum(表达式) 如果记录满足表达式,则加1
