@@ -344,3 +344,10 @@
 68. mysql count(*)与count(column_name)及sum()的一些小区别
     count(*) 计算所有的行数; count(column_name) 计算字段非NULL的行数
     sum(column_name) 计算列名对应的值(非NULL值)的和, sum(表达式) 如果记录满足表达式,则加1
+69. Navicat导入文件时,若第一行不是字段行,则不能有NULL字段
+    mysql合并查询的多行数据:group_concat, select field_1,group_concat(field_2) [as field2],group_concat(field_3) [as field3],field_4 
+    from tb_name [group by field_6]; 上述语句会将所有结果合并到一行,若需要按某个字段合并,可加上group by field_name;
+    mysql备份数据的一种方式:
+    select */fields_list from tb_name [where/order/group...] into outfile "/path/to/backup" fields terminated by "xx" 
+    lines terminated by "yy"; 
+    该备份方式数据存储在mysql server上,若为"./xxx.txt",则在/data/mysql/路径下
