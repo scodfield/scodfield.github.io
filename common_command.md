@@ -228,3 +228,7 @@
     nproc -- 最大运行进程数; as -- 地址空间限制(KB); maxlogins -- 该用户可最多登录系统次数; maxsyslogins -- 最多可登录系统次数;
     priority -- 用户进程优先级; locks -- 用户最大锁定文件数; sigpending -- 最大挂起信号数量; nice -- 最大nice值,默认为[-20,19]
     rtprio -- 最大实时优先级
+35. 内核根据进程的nice值决定进程需要多少处理器时间,nice值的取值范围是[-20,19],-20优先级最高,19最低,ps axl 命令可查看进程nice值(NI字段)
+    nice -n adjustment -adjustment --adjustment[=]Value command/process 调整/指定应用程序的优先级
+    renice [-n] priority [-p|--pid] pid 调整正在运行的进程的优先级
+    进程优先级越高,获得的cpu时间越多
