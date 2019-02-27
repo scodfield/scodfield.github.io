@@ -216,3 +216,15 @@
     hostaddr --> IPv4地址
     service --> /etc/services中的service-name,可以有多个,以逗号分隔,如:lsof -i:rje,echo
     port --> 端口号,可以有多个,同样以逗号分隔,如:lsof -i:80,8088
+34. PAM(Pluggable Authentication Modules) 可插拔认证模块
+    PAM机制采用模块化设计和插件功能,使用户可以轻易地在应用程序中插入新的认证模块或替换原先的组件,同时不必对应用程序做任何修改
+    PAM为了实现插件化和易用性,采用了分层设计思想,让各认证鉴别模块和应用程序独立,然后通过PAM API作为二者联系的纽带
+    PAM的体系: 应用程序 <---> PAM API(PAM配置文件) <---> 各PAM模块
+    pam.limit.so模块, 主要功能是限制用户会话过程中对各种系统资源的使用情况,该模块的配置文件默认在/etc/security/limits.conf
+    配置文件由4个字段组成:用户/用户组; 类型(soft/hard); 资源(resource); 值
+    可配置资源如下:
+    core -- 内核文件(core file)大小(KB); data -- 最大数据大小(KB); fsize -- 最大文件大小(KB); memlock -- 最大锁定内存地址(KB);
+    nofile -- 最大可打开文件句柄数; rss -- 最大驻留空间(KB); stack -- 最大堆栈空间(KB); CPU -- 最大cpu使用时间(Min);
+    nproc -- 最大运行进程数; as -- 地址空间限制(KB); maxlogins -- 该用户可最多登录系统次数; maxsyslogins -- 最多可登录系统次数;
+    priority -- 用户进程优先级; locks -- 用户最大锁定文件数; sigpending -- 最大挂起信号数量; nice -- 最大nice值,默认为[-20,19]
+    rtprio -- 最大实时优先级
