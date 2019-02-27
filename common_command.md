@@ -228,6 +228,10 @@
     nproc -- 最大运行进程数; as -- 地址空间限制(KB); maxlogins -- 该用户可最多登录系统次数; maxsyslogins -- 最多可登录系统次数;
     priority -- 用户进程优先级; locks -- 用户最大锁定文件数; sigpending -- 最大挂起信号数量; nice -- 最大nice值,默认为[-20,19]
     rtprio -- 最大实时优先级
+    比如针对某用户的最大文件数,先修改/etc/security/limits.conf xx soft/hard/- nofile 65535 
+    配置文件修改后,修改/etc/pam.d/login文件,添加: session required /lib64/securiy/pam_limits.so
+    可通过ulimit命令做进一步调整,之后重启机器
+    注: nofile 是基于用户层面的限制, 系统层面的限制需要修改/etc/sysctl.conf fs.max-file参数,调整之后, systcl -p 使之生效
 35. 内核根据进程的nice值决定进程需要多少处理器时间,nice值的取值范围是[-20,19],-20优先级最高,19最低,ps axl 命令可查看进程nice值(NI字段)
     nice -n adjustment -adjustment --adjustment[=]Value command/process 调整/指定应用程序的优先级
     renice [-n] priority [-p|--pid] pid 调整正在运行的进程的优先级
