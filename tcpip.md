@@ -20,6 +20,7 @@ Linux下TCP并发连接数量限制：
 2. 单进程同时打开的文件句柄上限,默认为1024,可通过ulimit -n xxx 命令进行调整
 3. 系统同时打开的文件句柄上限,可通过/etc/sysctl.conf调整
 4. 系统内核的IP_TABLES防火墙对最大跟踪的TCP连接数有限制
+linux TCP高并发参考:https://www.cnblogs.com/lemon-flm/p/7975812.html
 
 Tips to remember:
 1. TCP报文有两部分组成：头部和数据部分,头部的各字段体现了TCP的使用和功能,通信的另一端收到tcp报文后,去掉头部,组装接收到的消息
