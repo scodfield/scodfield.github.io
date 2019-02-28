@@ -165,6 +165,12 @@
     服务器在玩家登录的大概前60s,cpu一直飙高,查了下改了两个和调度器有关的启动参数:
     +sbwt none|very_short|short|medium|long|very_long  none则关闭虚拟机调度器的spinlock,可以降低cpu
     +swt low|medium|high|very_high 调度器唤醒灵敏度, high,very_high也可降低cpu,不过very_high有可能导致调度器睡死,业务大量堆积时无法唤醒
+    参数调整之后,效果不明显,再查有资料说可能是当有大量进程时,调度器消耗过大,要验证需要得到调度器的实际cpu使用率,可用recon:scheduler_usage(time)
+    调度器相关的参考资料汇总:http://blog.yufeng.info/archives/2963
+    http://highscalability.com/blog/2014/2/26/the-whatsapp-architecture-facebook-bought-for-19-billion.html
+    http://www.cnblogs.com/lulu/p/3978378.html
+    http://www.cnblogs.com/lulu/p/4032365.html
+    https://blog.csdn.net/erlib/article/details/40948557
 39. spawn(fun() -> etop:start([{sort,memory},{lines,20}]) end).  etop会阻塞进程
 40. 压测时,日志进程堆积了大量的消息,大多数进程占用的内存都在32M+(最大45M),此时的标准是2min,216条,Reds指标(reductions计数)都在14w+(最小148014)
     应该进一步调整标准,增加向日志节点写的频率,reductions初始只有2k,10w+的Reds表明进程在执行过程中会被频繁抢占,执行效率不高
