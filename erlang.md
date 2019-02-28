@@ -162,6 +162,9 @@
     没有smp支持时,VM在主线程只会运行一个scheduler,调度器从运行队列中取出可运行的进程和IO任务,此时无需对数据进行加锁
     有smp支持的VM可运行多个调度器,并且可通过"+S"参数指定调度器的数量,smp的启动和关闭可通过"-smp [enable|disable|auto]"来指定
 38. 补一篇erlang调度原理的中文翻译博客:http://www.cnblogs.com/zhengsyao/p/how_erlang_does_scheduling_translation.html
+    服务器在玩家登录的大概前60s,cpu一直飙高,查了下改了两个和调度器有关的启动参数:
+    +sbwt none|very_short|short|medium|long|very_long  none则关闭虚拟机调度器的spinlock,可以降低cpu
+    +swt low|medium|high|very_high 调度器唤醒灵敏度, high,very_high也可降低cpu,不过very_high有可能导致调度器睡死,业务大量堆积时无法唤醒
 39. spawn(fun() -> etop:start([{sort,memory},{lines,20}]) end).  etop会阻塞进程
 40. 压测时,日志进程堆积了大量的消息,大多数进程占用的内存都在32M+(最大45M),此时的标准是2min,216条,Reds指标(reductions计数)都在14w+(最小148014)
     应该进一步调整标准,增加向日志节点写的频率,reductions初始只有2k,10w+的Reds表明进程在执行过程中会被频繁抢占,执行效率不高
