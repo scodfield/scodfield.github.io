@@ -390,3 +390,12 @@
     大量玩家同时回写的另外一种情景:网络出现闪断,玩家同时下线,同时调用回写函数
 70. rebar2编译NIF的配置选项:port_specs,port_env
 71. 资源监控工具:https://www.cnblogs.com/arnoldlu/p/9462221.html
+72. 隔壁项目节点崩了,记一下erl_crash:
+    =erl_crash_dump:0.3
+    Sat Mar  2 17:38:00 2019
+    Slogan: Kernel pid terminated (application_controller) ({application_start_failure,kernel,{{shutdown,{failed_to_start_child,
+    net_sup,{shutdown,{failed_to_start_child,net_kernel,{'EXIT',nodistribution}}}}},{k
+    System version: Erlang/OTP 18 [erts-7.3] [source] [64-bit] [smp:8:8] [async-threads:10] [hipe] [kernel-poll:false]
+    Compiled: Wed Sep 14 10:27:19 2016
+    net_kernel nodistribution 这个还是第一次见,搜了一下,有一篇参考,不过貌似别人是因为错误的iptables rule引起的
+    先放下参考,后续研究下:http://erlang.2086793.n4.nabble.com/net-kernel-fails-to-start-nodistribution-td4714181.html
