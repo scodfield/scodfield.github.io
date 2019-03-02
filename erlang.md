@@ -163,7 +163,8 @@
     有smp支持的VM可运行多个调度器,并且可通过"+S"参数指定调度器的数量,smp的启动和关闭可通过"-smp [enable|disable|auto]"来指定
 38. 补一篇erlang调度原理的中文翻译博客:http://www.cnblogs.com/zhengsyao/p/how_erlang_does_scheduling_translation.html
     服务器在玩家登录的大概前60s,cpu一直飙高,查了下改了两个和调度器有关的启动参数:
-    +sbwt none|very_short|short|medium|long|very_long  none则关闭虚拟机调度器的spinlock,可以降低cpu
+    +sbwt none|very_short|short|medium|long|very_long  none则关闭虚拟机调度器的spinlock(自旋锁?),可以降低cpu,之所以降低cpu是因为
+    调度器在run out of work之后,进入sleep状态之前,有一段时间的busy wait时间,在此状态仍在会占用cpu,设置为none则会直接进入sleep;
     +swt low|medium|high|very_high 调度器唤醒灵敏度, high,very_high也可降低cpu,不过very_high有可能导致调度器睡死,业务大量堆积时无法唤醒
     参数调整之后,效果不明显,再查有资料说可能是当有大量进程时,调度器消耗过大,要验证需要得到调度器的实际cpu使用率,可用recon:scheduler_usage(time)
     压测时遇到一个坑,每次运行到某条协议时,cpu总是居高不下(即便并发量只有1k的情况下),原以为是虚高,用scheduler_usage发现利用率为1.0,
