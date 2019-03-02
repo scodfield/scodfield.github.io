@@ -166,6 +166,10 @@
     +sbwt none|very_short|short|medium|long|very_long  none则关闭虚拟机调度器的spinlock,可以降低cpu
     +swt low|medium|high|very_high 调度器唤醒灵敏度, high,very_high也可降低cpu,不过very_high有可能导致调度器睡死,业务大量堆积时无法唤醒
     参数调整之后,效果不明显,再查有资料说可能是当有大量进程时,调度器消耗过大,要验证需要得到调度器的实际cpu使用率,可用recon:scheduler_usage(time)
+    压测时遇到一个坑,每次运行到某条协议时,cpu总是居高不下(即便并发量只有1k的情况下),原以为是虚高,用scheduler_usage发现利用率为1.0,
+    简直吐血,后来用etop启动监控,发现进程卡在某个函数,然后用recon:info(Pid,location)定位调用栈,分析了一下,发现notify的split函数每次发送时
+    都要循环列表,得到不同状态的子列表,一般来说这个地方不会耗费太多时间,不过瞄了一眼测试使用的数据,列表元素没有低于300,甚至还有3600的
+    清理缓存,停服,清数据库,重新开测,登录阶段(1k,10s内)cpu在30%左右,剩余时间基本在25%左右波动,bingo
     调度器相关的参考资料汇总:http://blog.yufeng.info/archives/2963
     http://highscalability.com/blog/2014/2/26/the-whatsapp-architecture-facebook-bought-for-19-billion.html
     http://www.cnblogs.com/lulu/p/3978378.html
