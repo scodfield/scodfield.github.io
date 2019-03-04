@@ -351,3 +351,7 @@
     select */fields_list from tb_name [where/order/group...] into outfile "/path/to/backup" fields terminated by "xx" 
     lines terminated by "yy"; 
     该备份方式数据存储在mysql server上,若为"./xxx.txt",则在/data/mysql/路径下
+70. 梳理了一下初始化流程,感觉还可以再精简一下mongo读取,每个玩家可以再减少两次读取操作,那么在玩家大规模登录的时候(比如10w),节省的读取次数还是很可观的
+    首先一个要确认的就是单个文档的大小,毕竟要把其它功能模块合并到已有的模块中去,而一般在连接mongo时,若safe=False,则客户端在向数据库发送插入,删除
+    等操作时,是不需要等待数据操作结果的(成功or失败),若单个文档超过大小上限,那么客户端程序并不会报错,解决方法是开启安全验证,连接时safe=True
+    由手册可知,MongoDB目前单个文档的大小上限是16M(https://docs.mongodb.com/manual/core/document/ Document Limitations)
