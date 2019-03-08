@@ -2,8 +2,12 @@
    不变的代码实现不同的算法),每个包含虚函数的类都有一个虚函数表,表中主要是该类的虚函数的地址,也即虚函数表是一个函数指针数组
 2. GCC和G++的区别,手册:http://gcc.gnu.org/onlinedocs/gcc/G_002b_002b-and-GCC.html#G_002b_002b-and-GCC
    GCC最开始是GNU C Compiler,是开源免费的C语言编译器,后来又加入了对C++,Pascal,Objective-C等其它语言的支持,名字就变成了 GNU Compiler Collection
-   G++是GCC编译器集合中,专门用来处理C++语言的
+   g++是GCC编译器集合中的C++编译器, gcc则是GCC中的C编译器 
    GCC提供了C语言预处理器:C Preprocessor 简称CPP
+   典型的编译过程:调用预处理器,比如CPP;调用实际的编译器,比如cc,cc1;调用汇编器(assembler),比如as;调用链接器,比如ld
+   编译器是可以更换的,所以gcc调用的是C Compiler,而g++调用的是C++ Compiler
+   gcc与g++的区别包括:对于.c/.cpp文件,gcc分别当做C和cpp文件编译(c/c++语法强度不一样,c++更严谨一些),而g++则统一当做cpp文件处理;
+   编译时g++会调用gcc,但是gcc不能自动连接c++的标准库文件(STL),所以gcc编译c++文件时,需要加上-lstdc++参数,而g++可以自动连接库文件
    传统编译器的工作原理基本上是三段式的,分为前端(Front end),优化器(Optimizer),后端(Back end),前端负责解析源代码,语义检查,生成抽象语法树(Abstract
    Sytax Tree, AST),优化器对中间代码进行优化,后端负责生成机器代码,这一过程后端会最大化利用目标机器的特殊指令,以提高代码的性能
    GCC实现了很多前端,支持多种语言,但它是一个完整的可执行文件,没有给其它语言的开发提供重用中间代码的接口,也就是说GCC太重,非模块化
