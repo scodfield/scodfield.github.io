@@ -278,26 +278,7 @@
     有可能是utf-8 with BOM或者其他格式,在编辑器中save with encoding保存即可(又一个前端的坑...)
 61. 典型编译命令: gcc -fPIC -shared -o xxx.so xxx.c -I. -I/path/to/erl/include -I/path/to/lua/include -g -Wall -Werror -O3 
     -fno-strict-aliasing -lstdc++ -L/paht/to/other/lib -lother_lib_name
-    gcc常用编译参数:
-    -c 只激活预处理,编译和汇编,生成.o的目标文件
-    -S 只激活预处理和编译,生成.s的汇编代码
-    -E 只激活预处理,不会生成文件,不过可以通过重定向输出到另一个文件,如: gcc -E fight.c > fight_pre.txt 
-    -o 指定输出目标,默认为.out
-    -L 指定编译时路径,参考第60条
-    -shared 生成共享目标文件(动态库)
-    -share 尽量使用动态库
-    -static 禁止使用动态库
-    -g 指示编译器在编译的时候,产生调试信息
-    -OX X = 0,1,2,3 编译器优化选项的4个级别,0 没有优化,1 为缺省, 3 优化级别最高
-    -M 生成文件的关联信息,包含目标文件所有依赖
-    -MM 同-M, 但它会忽略由#include<file>造成的依赖
-    -MD 同-M, 生成的关联信息将会输出到.d文件里
-    -MMD 同-MM, 输出到.d文件
-    编译执行的4个步骤:
-    预处理 预处理器cpp; 
-    编译 将预处理后的文件转换成汇编代码,生成.s文件 编译器egcs; 
-    汇编 将汇编文件转换为目标代码(机器码),生成.o文件 汇编器as;
-    链接 连接目标代码,生成可执行程序 链接器ld
+    编译参数释义参考
 62. 准备给项目加上Nginx,用于客户端的热更新,Nginx的几个常用命令(手册):
     若指定--prefix=xxx,则安装后,将该目录加入PATH,直接调用nginx,即可启动服务
     nginx -s reload 重新加载nginx.conf文件
