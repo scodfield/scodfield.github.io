@@ -249,3 +249,14 @@
     -z 尝试解读压缩文件的内容
     [文件或文件列表] 要确定类型的文件列表,多个文件直接使用空格分开,可以使用shell通配符匹配多个文件
     注:魔法数字文件(magicfile),以.mgc为扩展名的文件
+37. ldd命令输出指定程序or共享对象所依赖的共享库列表,ldd:list dynamic dependencies,使用格式为:ldd [options] [object-name]
+    参数如下:
+    --version 打印指令版本号
+    -v 详细信息模式,打印所有相关信息
+    -u 打印未使用的直接依赖
+    -d 执行重定位和报告任何丢失的对象
+    -r 执行数据对象和函数的重定位,并且报告任何丢失的对象和函数
+    ldd不是一个可执行程序,只是一个shell脚本,ldd显示可执行模块的依赖,其原理是通过ld-linux.so(elf动态库的装载器)实现的,ld-linux.so模块会先于
+    可执行模块工作,并获得控制权,当下述的环境变量被设置时,ld-linux.so选择显示可执行模块的dependency,该环境变量如下:
+    LD_TRACE_LOADED_OBJECTS,LD_WARN,LD_BIND_NOW,LD_LIBRARY_VERSION,LD_VERBOSE等
+    实际上可以直接执行ld-linux.so模块:/lib64/ld-linux-x86-64.so.2 --list program_name 等价于 ldd program_name
