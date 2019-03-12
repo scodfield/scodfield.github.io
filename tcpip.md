@@ -167,3 +167,10 @@ Tips to remember:
     libevent等,应用层面的解决方案有OpenRestry,Golang,Node.js
     参考来源:https://medium.com/@chijianqiang/%E7%A8%8B%E5%BA%8F%E5%91%98%E6%80%8E%E4%B9%88%E4%BC%9A%E4%B8%8D%E7%9F%A5%E9%81%93-c10k-%E9%97%AE%E9%A2%98%E5%91%A2-d024cb7880f3
     https://my.oschina.net/xianggao/blog/664275
+19. vps上的梯子,一旦请求连接就会出现十多个处于SYN_RECV状态的连接,暂时无解,不过刚好是个机会了解下tcp相关参数的配置
+    tcp ipv4的参数位置: /proc/sys/net/ipv4/
+    针对SYN_RECV有三个相关的参数:
+    tcp_syn_retries:integer 默认为5,对于新建连接,内核要发送多少个SYN请求,才会决定放弃,对通信良好的网络可调整为2
+    tcp_synack_retries:integer 默认为5,对于客户端的连接请求SYN,服务端内核会发送SYN+ACK数据报,该值决定了内核放弃连接之前所发送的SYN+ACK报次数
+    tcp_syncookies:integer 默认为1,表示开启syn cookie功能,tcp_syncookies可有效防范SYN Flood攻击,原理是在收到客户端的SYN,并返回SYN+ACK包时
+    不分配一个专门的数据区,而是根据SYN包计算一个cookie值,收到客户端ACK包时,由cookie值检查该ACK包是否合法,如果合法再分配专门的数据区处理tcp连接
