@@ -305,6 +305,8 @@
     关于CAP的一些争论和质疑:https://blog.csdn.net/chen77716/article/details/30635543
 64. mongodb数据库备份:mongodump -h db_host[:port] -uxxx -pyyy -d db_name -o /path/to/dump , 该命令将对应的数据库实例备份到指定的本地路径
     数据恢复:mongorestore -h db_host[:port] -d db_name [--dir]/path/to/restore
+    mongodump备份的数据格式为:collection_name1.bson,collection_name1.metadata.json,...
+    mongo在当前路径恢复数据,mongorestore -h xxx db_name:port [-uyyy -pzzz] ./mongo_dump_dir/ 如果远程服务器开启了验证,需要加上-u/p参数 
 65. mongo复制集和分片 
     mongo的复制指的是数据在多个mongod实例之间的同步,它提供数据的冗余备份,提高数据的可用性和安全性,具体部署可参考上面的记录
     mongo的分片指的是将大量的数据集合分成一块块的小集合,并将这些小集合分散到多个mongod实例上
