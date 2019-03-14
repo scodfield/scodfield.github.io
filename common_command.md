@@ -263,3 +263,14 @@
     可执行模块工作,并获得控制权,当下述的环境变量被设置时,ld-linux.so选择显示可执行模块的dependency,该环境变量如下:
     LD_TRACE_LOADED_OBJECTS,LD_WARN,LD_BIND_NOW,LD_LIBRARY_VERSION,LD_VERBOSE等
     实际上可以直接执行ld-linux.so模块:/lib64/ld-linux-x86-64.so.2 --list program_name 等价于 ldd program_name
+38. 测试想在服务器上跑一下jmeter的一个脚本,需要搭个java环境
+    下载: wget --header "Cookie: oraclelicense=accept-securebackup-cookie" https://download.oracle.com/otn-pub/java/jdk/8u201-b09/42970487e3af4f5aa5bca3f542482c60/jdk-8u201-linux-x64.rpm
+    yum安装: yum localinstall jdk-8u201-linux-x64.rpm
+    配置环境变量: /etc/profile文件末尾添加如下
+    JAVA_HOME=/usr/java/jdk1.8.0_201-amd64/
+    JRE_HOME=/usr/java/jdk1.8.0_201-amd64/jre
+    CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar:$JRE_HOME/lib
+    PATH=$JAVA_HOME/bin:$PATH
+    export PATH JAVA_HOME CLASSPATH
+    保存,退出,使环境变量生效: source /etc/profile
+    查看是否安装成功: java -version
