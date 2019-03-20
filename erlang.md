@@ -380,3 +380,6 @@
     Compiled: Wed Sep 14 10:27:19 2016
     net_kernel nodistribution 这个还是第一次见,搜了一下,有一篇参考,不过貌似别人是因为错误的iptables rule引起的
     先放下参考,后续研究下:http://erlang.2086793.n4.nabble.com/net-kernel-fails-to-start-nodistribution-td4714181.html
+73. 任何线上数据库的操作,都要进行备份,另外为了防止误操作(rm -rf),一定要进行严格的权限管理
+    可采取的方案包括:首先在搭建环境的时候,使用root账户,将mysql和mongo的数据目录放在根目录的/data下;
+    其次新建普通账户,服务器搭建,程序文件更新均使用普通账户
