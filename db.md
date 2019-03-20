@@ -370,3 +370,29 @@
 72. mongo嵌套查询
     db.collection_name.find({'_id':unique_id},{'_id同层属性1.嵌套属性1':1, '_id同层属性1.嵌套属性2':0}
     1 - 表示查询结果中保留该字段;  0 - 表示查询结果中去除该字段
+73. mysql有四种类型日志
+    error log 错误日志,记录mysqld的一些错误
+    general query log 一般查询日志,记录mysqld正在做的事情,比如客户端的连接和断开,客户端每条sql statment,详细记录了客户端传给服务器的每条查询
+    该日志非常影响性能
+    slow query log 慢查询日志,记录一些查询比较慢的sql statement,常用于开发者调优
+    Binary log 二进制日志,记录一些事件,包括数据库的改动,建表,数据改动等,也包括一些潜在的改动,比如:delete from t where id = xxx;记录所有改动
+    潜在改动的sql statement,以二进制的形式保存在磁盘中,bin log 的作用:可用于查看数据库的变更历史(任何时间点的所有sql操作);数据库的增量备份和恢复;
+    (增量备份和基于时间点的恢复);mysql复制(主主,主从复制)
+    mysql默认关闭bin log,可通过修改mysql配置文件打开,linux下配置文件为my.cnf,一般在/etc/my.cnf,windows下是my.ini 或者 my-default.ini
+    开启Binlog,需要修改 log_bin[=base_name] base_name是生成的Binlog文件的前缀,没有的话,用的是pid-file选项的值
+    max_binlog_size 每个Binlog文件的大小,最小是4m,最大与默认是1G
+    log_bin_index[=file_name] mysqld为了追踪已使用过的Binlog文件,会创建一个Binlog索引文件,默认是Binlog的basename.index
+    expire_logs_day  Binlog过期清理时间
+    binlog_cache_size Binlog缓存大小
+    max_binlog_cache_size Binlog最大缓存大小
+    binlog_format=format Binlog文件的模式:
+    row level 不记录每条sql语句的上下文信息,记录的是每一行数据被修改的情况,然后在slave端对相同的数据进行修改,不会出现某些情况下的存储过程,
+    function,trigger的调用和触发无法被复制的问题,缺点是会产生大量的日志,尤其是alter table的时候
+    statement level 每一条会修改数据的sql语句会记录到Binlog文件中,优点是不需要记录每一条语句和每一行数据的变化,减少Binlog日志量,节约磁盘IO
+    slave在复制的时候sql进程会解析成和原来在master端执行过的相同的sql再次执行,确定是容易出现主从不一致,如执行sleep(),last_insert_id()等函数
+    mixed level 混合模式,结合row level和statement level的优点,一般的操作使用statement模式保存,对于statement模式无法复制的操作,使用row模式
+    Binlog相关设置更改后,重启mysqld,在mysql shell执行:show variables like '%log_bin%'; show variables like '%binlog%';
+    mysqlbinlog命令可以将Binlog日志转换成mysql语句,默认情况下Binlog日志是二进制文件
+    mysqlbinlog的参数: -d 指定数据库的Binlog; -h -u -p 指定hostname,用户和密码; -o 指定跳过前N条记录; -r 输出结果到指定文件
+    例 解析login数据的Binlog,并写入login.sql文件:mysqlbinlog -d login mysql-bin.000001 -r login.sql
+    详细参数,可mysqlbinlog --help
