@@ -174,3 +174,12 @@ Tips to remember:
     tcp_synack_retries:integer 默认为5,对于客户端的连接请求SYN,服务端内核会发送SYN+ACK数据报,该值决定了内核放弃连接之前所发送的SYN+ACK报次数
     tcp_syncookies:integer 默认为1,表示开启syn cookie功能,tcp_syncookies可有效防范SYN Flood攻击,原理是在收到客户端的SYN,并返回SYN+ACK包时
     不分配一个专门的数据区,而是根据SYN包计算一个cookie值,收到客户端ACK包时,由cookie值检查该ACK包是否合法,如果合法再分配专门的数据区处理tcp连接
+20. 客户端反映两次请求的文件长度不一致,查了一下发现由于是基于轮询的负载,两次请求返回不同的登录服地址,登录服httpd服务对应的文件的大小不一致
+    最后将连接设置为keep-alive,保证同一连接,多次请求返回同一登录服地址
+    不过,由此倒引出了http响应中的content-length字段,在content-encoding,gzip,chunked等不同情境下,content-length字段大小不一致
+    content-length 是http消息实体的传输长度,注意区分消息实体长度和消息实体传输长度,在服务器开gzip的情况下,消息实体长度是压缩前的长度,消息实体
+    传输长度是压缩后的长度,在实际的交互中,客户端获取消息长度的规则:
+    如果content-length存在且有效的情况下,则必须和消息实体的长度一致;
+    如果存在transfer-encoding,则在header中不能有content-length字段,如果有也会忽略
+    如果采用短连接,可以直接通过关闭服务器连接来确定消息的传输长度
+    参考:https://segmentfault.com/a/1190000006194778
