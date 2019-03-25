@@ -274,4 +274,18 @@
     export PATH JAVA_HOME CLASSPATH
     保存,退出,使环境变量生效: source /etc/profile
     查看是否安装成功: java -version
-   
+39. tcpdump linux系统自带的抓包工具,支持针对网络层,协议,主机,网络或端口的过滤,并提供and/or/not/!等逻辑语句帮助去除无用信息
+    tcpdump相当于命令行版的wireshark,安装: yum -y install tcpdump,常用参数如下:
+    -a 尝试将网络和广播地址转换成名称
+    -n 不把主机的网络地址转换成名称
+    -c N 指定抓取N个数据包后即停止
+    -i eth_name/any 指定网卡,any表示任意网卡
+    -w /path/to/dump 将抓取的数据重定向到指定文件(一般是xxx.cap,方便和wireshark结合分析)
+    -t 不显示时间戳
+    -s Size 抓取数据包的大小, -s 0 默认为68byte
+    port port_number 指定端口
+    host host_name 指定host_name
+    dst port_or_ip 指定目标端口或ip,与port/host结合使用
+    src port_or_ip 指定源端口或ip,与port/host结合使用
+    and/or/! 逻辑语句
+    抓取本地的100条http请求,并输入到文件: tcpdump -n -i -XvvennSs 0 -c 100 port 8080 tcp[20:2]=0x4745 or tcp[20:2]=0x4854 -w ./result.cap
