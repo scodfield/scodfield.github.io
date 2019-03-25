@@ -396,3 +396,7 @@
     mysqlbinlog的参数: -d 指定数据库的Binlog; -h -u -p 指定hostname,用户和密码; -o 指定跳过前N条记录; -r 输出结果到指定文件
     例 解析login数据的Binlog,并写入login.sql文件:mysqlbinlog -d login mysql-bin.000001 -r login.sql
     详细参数,可mysqlbinlog --help
+74. MongoDB注册windows服务,以管理员身份运行cmd,运行以下命令注册windows服务:
+    mongod --dbpath "d:\mongodb\data" --logpath "d:\mongodb\logs\error.log" --install  --auth --directoryperdb --serviceName MongoDB
+    --serviceDisplayName MongoDB 
+    服务创建完成后,默认是停止状态,需要手动打开服务,接着运行:net start MongoDB (如果还不生效,打开任务管理器,找到服务,手动打开)
