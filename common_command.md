@@ -289,3 +289,8 @@
     src port_or_ip 指定源端口或ip,与port/host结合使用
     and/or/! 逻辑语句
     抓取本地的100条http请求,并输入到文件: tcpdump -n -i -XvvennSs 0 -c 100 port 8080 tcp[20:2]=0x4745 or tcp[20:2]=0x4854 -w ./result.cap
+    tcpdump和wireshark结合,wireshark 文件 --> 打开 --> 导入xxx.cap文件即可
+    -w 和重定向'>'的区别, -w是将抓取的包直接写入文件,重定向是将显示结果写入文件,而不是原始的包 
+    shell> tcpdump -n -i tcp -c 20 port 8090 -w ./result.cap 报'syntax error'
+    正确为shell> tcpdump -n tcp -c 20 and port 8090 -w ./result.cap,or shell> tcpdump -n tcp -c 20 'port 8090' -w ./result.cap
+    tcpdump命令行参数中的表达式可以被单引号括起来,shell> tcpdump -n tcp -c 20 'port 8090' -i any -w ./result.cap
