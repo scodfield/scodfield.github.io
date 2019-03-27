@@ -294,3 +294,13 @@
     shell> tcpdump -n -i tcp -c 20 port 8090 -w ./result.cap 报'syntax error'
     正确为shell> tcpdump -n tcp -c 20 and port 8090 -w ./result.cap,or shell> tcpdump -n tcp -c 20 'port 8090' -w ./result.cap
     tcpdump命令行参数中的表达式可以被单引号括起来,shell> tcpdump -n tcp -c 20 'port 8090' -i any -w ./result.cap
+40. Linux Kernel OOM(Out Of Memory),系统内存不足时的自我保护机制,内存不足时,唤醒oom_killer,找到/proc/<pid>/oom_score最大者,将该进程kill掉
+    为了保护重要进程不被kill,可以通过: echo -17 > /proc/<pid>/oom_obj ,'-17'表示禁用OOM
+    系统日志一般在/var/log/messages(个别情况下可能没有),可参考下面的几种方法查找日志:
+    dmesg | egrep -i -B100 'killed process' % 查找被系统直接kill掉的日志,尤其适用于/var/log/下没有messages的情况
+    egrep -i 'killed process' /var/log/messages
+    egrep -i -r 'killed process' /var/log
+    归档上述命令主要是因为,某次启动日志服时,在写回mysql时,直接崩掉了,erl_crash.dump都没留下,error.log也没有任何信息,查了下系统日志,
+    最后两条就是: 
+    [39994236.283140] Out of memory: Kill process xxx (beam.smp) score 727 or sacrifice child
+    [39994236.284751] Killed process xxx (beam.smp) total-vm:10094180kB, anon-rss:5992724kB, file-rss:0kB, shmem-rss:0kB
