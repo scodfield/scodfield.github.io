@@ -304,3 +304,6 @@
     最后两条就是: 
     [39994236.283140] Out of memory: Kill process xxx (beam.smp) score 727 or sacrifice child
     [39994236.284751] Killed process xxx (beam.smp) total-vm:10094180kB, anon-rss:5992724kB, file-rss:0kB, shmem-rss:0kB
+    整个系统禁用OOM,执行一下两条命令: sysctl -w vm.panic_on_oom = 1 (默认为0,表示开启); sysctl -p
+    注: 进程使用的虚拟内存大小是total-vm,部分内容实际映射到RAM,这就是RSS,部分RSS分配到实际的内存块中,这就是匿名内存(anon-rss),还有一些RSS映射
+    到设备和文件,这就是file-rss,参考:https://stackoverflow.com/questions/18845857/what-does-anon-rss-and-total-vm-mean
