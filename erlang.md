@@ -383,3 +383,6 @@
 73. 任何线上数据库的操作,都要进行备份,另外为了防止误操作(rm -rf),一定要进行严格的权限管理
     可采取的方案包括:首先在搭建环境的时候,使用root账户,将mysql和mongo的数据目录放在根目录的/data下;
     其次新建普通账户,服务器搭建,程序文件更新均使用普通账户
+74. erlang:process_info(Pid,Item_or_Itemlist).
+    第一个参数Pid,必须在本地,原因嘛就是: erl_bif_info.c(line.1006) process_info_2函数有一个判断,is_not_internal_pid(pid)
+    当Pid为外部节点进程时,返回:BIF_ERROR(BIF_P, BADARG);
