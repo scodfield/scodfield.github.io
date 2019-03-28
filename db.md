@@ -400,3 +400,7 @@
     mongod --dbpath "d:\mongodb\data" --logpath "d:\mongodb\logs\error.log" --install  --auth --directoryperdb --serviceName MongoDB
     --serviceDisplayName MongoDB 
     服务创建完成后,默认是停止状态,需要手动打开服务,接着运行:net start MongoDB (如果还不生效,打开任务管理器,找到服务,手动打开)
+74. mysql清除表数据,truncate vs delete
+    truncate 整体删除,速度比delete快,不写服务器log,truncate不激活触发器(trigger),会重置identity(标识列,自增字段)
+    delete 逐条删除,写服务器log,不会重置identity
+    如果只删除部分数据,只能使用delete配合where条件语句
