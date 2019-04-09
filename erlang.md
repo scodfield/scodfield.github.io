@@ -404,3 +404,9 @@
     mnesia.hrl --> ?ets_insert/2宏定义调用的是ets:insert/2(#line.27)
     由上述流程可知,mnesia:dirty_write/1,在写入本地节点的时候,最后调用的是ets:insert/2函数,那么问题来了,为什么在间隔超过20s以上的情况下
     3/4两条插入语句还能执行,或者为什么,插入语句没有读到已插入的第一条数据?
+76. 接75,上述问题也有可能是dirty_read的时候返回undefined,导致顺利执行3/4两条插入语句
+    mnesia:dirty_read/1 --> mnesia:dirty_rpc/4 参数是(Tab, mnesia_lib, db_get, [Tab,Key]) --> mnesia_lib:db_get/2
+    mnesia_lib:db_get/2 --> db_get(ram_copies, Tab, Key) -> ?ets_lookup(Tab, Key);
+    mnesia.hrl --> ?ets_insert/2宏定义调用的是ets:lookup/2(#line.25)
+    dirty_read/1的实现更加的简洁明了,貌似不太可能出问题,那么是dirty_write/1在某些情况下不稳定,会丢失数据?
+    要么mnesia的实现机制有隐藏的bug,在某些情况下会导致read/write操作不稳定?
