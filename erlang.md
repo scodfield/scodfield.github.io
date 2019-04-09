@@ -386,3 +386,21 @@
 74. erlang:process_info(Pid,Item_or_Itemlist).
     第一个参数Pid,必须在本地,原因嘛就是: erl_bif_info.c(line.1006) process_info_2函数有一个判断,is_not_internal_pid(pid)
     当Pid为外部节点进程时,返回:BIF_ERROR(BIF_P, BADARG);
+75. 遇到一个奇怪的问题,和mnesia:dirty_write/1有关,问题描述如下:
+    mnesia:dirty_write({t1,k1,v1}); mnesia:dirty_write({t1,k2,v1}); mnesia:dirty_write({t1,k1,v2}); mnesia:dirty_write({t1,k3,v2});
+    第1/2条语句执行之后,第3/4条语句执行之前,一般至少间隔1-2s,更长时间也会有几十s(87s)会依次执行下面两条查询语句:
+    mnesia:dirty_read({t1,k3); mnesia:dirty_read({t1,k1}), 若两条查询都为空,才会执行3/4的insert函数
+    现在的问题是,在上述流程走完之后,只剩下后边3个插入的数据:{t1,k2,v1}, {t1,k1,v2}, {t1,k3,v2}, 缺失第一条插入的数据{t1,k1,v1}
+    按照手册 mnesia:dirty_write/1 --> mnesia_tm:dirty/2 protocol默认为async_dirty,在提交数据之前,dirty函数调用mnesia_tm:prepare_items
+    返回的是一个名为prep的record,主要用的是#prep.records这个数组,包含的是需要同步数据的节点,然后调用mnesia_tm:async_send_dirty/4
+    async_send_dirty/4函数首先会判断第一个send_node是不是本地&where_to_read_node,如果满足这两个条件则调用mnesia_tm:do_dirty/2函数
+    do_dirty/2函数调用mnesia_log:log/1;mnesia_tm:do_commit/3,提交本地node
+    若不同时满足上述两个条件,则进入第二个判断,send_node是否等于where_to_read_node,如果是则向read_node发送同步消息:{sync_dirty, _, _,_}
+    对其余节点发送异步消息:{async_dirty, _, _,_}
+    还有就是若要同步数据的node == node() == where_to_read_node,mnesia_tm:async_dirty/2的返回结果就是mnesia_tm:do_commit/3的返回结果
+    do_commit/3 依次调用:do_snmp/2; 三次do_update/4,参数区别是ram_copies,disc_copies,disc_only_copies; do_update_ext/3;
+    返回结果则是上述函数调用的返回结果,因为本地表为ram_copies,且为dirty_write,重点关注一下do_update/4 --> do_update_op/3(#line.1814)
+    do_update_op/3 --> mnesia_lib:db_put/3 --> mnesia_lib:db_put(ram_copies, Tab, Val) -> ?ets_insert(Tab, Val), ok;
+    mnesia.hrl --> ?ets_insert/2宏定义调用的是ets:insert/2(#line.27)
+    由上述流程可知,mnesia:dirty_write/1,在写入本地节点的时候,最后调用的是ets:insert/2函数,那么问题来了,为什么在间隔超过20s以上的情况下
+    3/4两条插入语句还能执行,或者为什么,插入语句没有读到已插入的第一条数据?
