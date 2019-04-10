@@ -14,3 +14,8 @@
    Unable to connect to a repository atu URL "xxxxxxx" Access to '/svn/xxx' forbidden
    在网上查了一下,SVN --> Settings --> Saved Data --> 几个相关的clear按钮点一下,之后重新checkout,bingo...
    参考:https://blog.csdn.net/wx_lanyu/article/details/84207303
+4. 记录两个sublime的快捷键
+    一个是常用的Ctrl+D,选中文本,当有多个的时候,或者想只选中其中的几个的时候,常用的是该快捷键,如果想对所有文本进行操作,一个一个选显然太low,
+    可替代的就是先选中文本,再Alt+F3,即可选中全部文本;
+    另一个是列操作,常用的是Ctrl+Alt+上下箭头,后边遇到个情况,需要多从mysql中导出的1w多条记录进行列操作,这时候一直按箭头显然也不现实,
+    可替代的是先Ctrl+A选中所有的记录,再Ctrl+Shift+L ('L'大小写均可)
