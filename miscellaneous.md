@@ -10,4 +10,7 @@
    正则中的限定符,表示表达式中的一个组件,必须要出现多少次才能满足匹配,除了*/+/?之外,还包括{n},{n,},{n,m}
    注: * + 限定符都是贪婪的,它们会尽可能多的匹配字符,只有在它们后面加上'?',就可以实现非贪婪或者最小匹配
    正则中的定位符,用来描述字符串或单词的边界, ^/$ 表示字符串的开始和结束; \b 描述单词的前/后边界; \B 非单词边界
-   
+3. 需要在另外一台电脑上checkout一些文件,输入地址&账号&密码后,TortoiseSVN提示:
+   Unable to connect to a repository atu URL "xxxxxxx" Access to '/svn/xxx' forbidden
+   在网上查了一下,SVN --> Settings --> Saved Data --> 几个相关的clear按钮点一下,之后重新checkout,bingo...
+   参考:https://blog.csdn.net/wx_lanyu/article/details/84207303
