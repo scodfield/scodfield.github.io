@@ -47,3 +47,22 @@
    然后再组装成int,而如果变量自然对齐,则只需要读一次内存即可
    对于标准数据类型,它的地址只需要是长度(sizeof(type_name))的整数倍就行了,对于自定义数据类型或数组,对齐规则如下:
    数组 按照存储的元素数据类型对齐即可; 联合体(union) 按其包含的长度最大的数据类型对齐; 结构体 结构体中每个数据类型都要对齐
+   GCC默认是4字节对齐,定义如下结构体: struct role{ char sex; int age; char name[10];}; struct role william;
+   sizeof(william) = 20byte, GCC会在sex和name后面分别补齐3byte和2byte
+   我们可以使用__attribute__ 属性来自定义字节对齐方式,使用方式如下:
+   struct role{ char sex; int age; char name[10];}__attribute__ ((aligned (1))); struct role william;
+   上述表示对role结构体1字节对齐,sizeof(william) = 15byte
+   另外一种1字节对齐方法(也就是取消字节对齐)是:__attribute__ ((packed)) 
+   第三种对齐or取消对齐的方法是使用伪指令#pragma pack ([n]),含义如下:
+   #pragma pack (n) 按n字节对齐
+   #pragma pack () 设定对齐方式为上一次对齐方式
+   #pragma pack (push [n]) 保存当前对齐方式,并设置对齐方式为n字节
+   #pragma pack (pop) 恢复最近一次保存的对齐方式
+   #pragma 使用方式如下:
+   #pragma pack(1)
+   struct role{ char sex; int age; char name[10];}william;
+   #pragma pack () or #pragma pack (pop)
+   struct role2{ char sex; int age; char name[10];}george;
+   sizeof(william) = 15byte  sizeof(george) = 20byte
+   关于__attribute__ 可以参考简书:https://www.jianshu.com/p/29eb7b5c8b2d
+   gcc编译参数-fpack-struct可以在编译时指定结构体的对齐方式,不带"=n"时,默认为4byte对齐,gcc -fpack-struct=1 -o echo -c echo.c
