@@ -413,3 +413,5 @@
 77. 咨询了一下隔壁大佬,高并发情况下,多个进程同时去读mnesia时,有可能会读到脏数据,这种情况,他们也遇到过
     mnesia的write操作肯定能成功,但是read操作不能保证不会读到脏数据,尤其是在高并发和服务器压力比较大的情况下
     算又是一个坑吧,后边这种还是要交个公共进程来处理,免得读到脏数据
+78. 接入远程节点,一般都是通过remote shell, erl -remsh xxx@yyy,今天发现windows下observer也可以连接远程节点
+    在windows上启动werl,设置和远程节点相同的cookie(如果有的话),observer窗口的标题栏 --> Nodes --> Connect Node --> 输入远程节点名即可
