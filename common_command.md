@@ -307,3 +307,20 @@
     整个系统禁用OOM,执行一下两条命令: sysctl -w vm.panic_on_oom = 1 (默认为0,表示开启); sysctl -p
     注: 进程使用的虚拟内存大小是total-vm,部分内容实际映射到RAM,这就是RSS,部分RSS分配到实际的内存块中,这就是匿名内存(anon-rss),还有一些RSS映射
     到设备和文件,这就是file-rss,参考:https://stackoverflow.com/questions/18845857/what-does-anon-rss-and-total-vm-mean
+41. 小记一下shell编程中的case语句用法:
+    case语句以case开头,esac结尾;
+    case行以单词"in"结尾,每个模式以右括号")"结束,匹配模式中可以用方括号"[]"表示一个连续范围,可以使用竖杠符号"|"表示或
+    "*)" 表示最后的默认匹配,双分号";;"表示命令序列的结束
+    示例:
+      #!/bin/sh
+      case $1 in
+         [0-9])
+            echo "parameter is number."
+            ;;
+         [a-z]|[A-Z])
+            echo "parameter is character."
+            ;;
+         *) 
+            echo "other type of parameters."
+            ;;
+      esac
