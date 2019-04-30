@@ -324,3 +324,12 @@
             echo "other type of parameters."
             ;;
       esac
+42. lscpu命令,参数如下:
+    -a -all 显示包含上线和下线的cpu数量
+    -b -online 只显示上线的cpu数量
+    -c -offline 只显示离线的cpu数量
+    输出如下:
+    Architecture 架构; CPU(s) 逻辑cpu个数; Thread(s) per core 每个核的硬件线程数,即超线程; Core(s) per socket 每个插槽上的cpu核数;
+    Socket(s) 主板上的cpu插槽数,所以逻辑cpu的个数=插槽决定的物理cpu个数 * 每个物理cpu的核数,如果有超线程技术,则再乘以2; Vendor ID cpu厂商ID;
+    cpu family cpu系列; Model 型号ID; Model name 型号名; L1d cache 一级缓存(数据缓存); L1i cache 一级缓存(指令缓存); L2 cache 二级缓存;
+    Virtualization cpu支持的虚拟化技术
