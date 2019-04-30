@@ -158,6 +158,25 @@
     堆的垃圾回收,存取ETS及发送消息,开发者确保每一步操作都会消耗reduction,reduction消耗完,进程被调度器放回运行队列,接着调用队列中下一个进程,
     因此erlang可以说是真正实现了抢占式多任务并能做到软实时的少数语言之一,相比于吞吐量,erlang更看重的是低延迟,当erlang系统负载较高时,可对耗时
     的任务实现自动降级(计算过程中,更多的被抢占),参考来源:http://jlouisramblings.blogspot.com/2013/01/how-erlang-does-scheduling.html
+    调度器绑定,启动虚拟机的时候有两个启动参数可用来指定调度器以什么方式绑定cpu,分别是+sbt,+stbt,这两个参数的区别主要在于如何处理以下两种情况:
+    a> 在某些不支持绑定cpu的平台上绑定调度器到cpu; b> 没有可用的cpu拓扑,运行时系统无法检测到cpu拓扑,我们也没有设置自定义的拓扑
+    当发生上述情况时,如果适用+sbt参数,则运行时系统会打印错误消息,并拒绝启动,如果是+stbt,则运行时系统会忽略此错误,并以调度器不绑定cpu的方式启动
+    当前有效的绑定类型如下:
+    u: unbound的首字母,调度器不绑定到某个cpu上,由操作系统决定调度器在哪个cpu上执行,以及何时迁移到别的cpu上
+    ns: no_spread,标识符相近的调度器,尽可能的绑定在相近的cpu上
+    ts: thread_spread,低标识符的调度器优先绑定到cpu的第一个线程上,然后再绑定到第二个线程(超线程?)
+    ps: processor_spread,和ts一样,只不过会跨物理处理器核间隔地绑定
+    s: spread,调度器尽可能的绑定到cpu上,与ns一样
+    nnts: no_node_thread_spread,与ts方式类似,但如果有多个NUMA(一种cpu架构,参考miscellaneous.md)节点,调度器会先把一个NUMA节点内的cpu全部绑定
+    然后再绑定其它的NUMA节点
+    nnps: no_node_processor_spread,与ps类似,但如果有多个NUMA节点,会先将一个NUMA节点的cpu绑定完,再绑定下一个NUMA节点的cpu线程
+    tnnps: thread_no_node_processor_spread,ts和nnps的组合,调度器会在NUMA节点间顺序绑定,但是会先在一个NUMA节点内的同类cpu绑定完再绑定下一个NUMA
+    db: default_bind,调度器默认绑定cpu的方式,目前是tnnps
+    erlang查询cpu拓扑结构及调度器绑定函数:
+    erlang:system_info(cpu_topology).
+    erlang:system_info(scheduler_bind_type). 
+    erlang:system_info(scheduler_bindings).
+    参考:https://szpzs.oschina.io/2018/03/23/erlang-scheduler-binding-cpu/
 37. SMP (Symmetrical Multi Processor)对称多处理器
     没有smp支持时,VM在主线程只会运行一个scheduler,调度器从运行队列中取出可运行的进程和IO任务,此时无需对数据进行加锁
     有smp支持的VM可运行多个调度器,并且可通过"+S"参数指定调度器的数量,smp的启动和关闭可通过"-smp [enable|disable|auto]"来指定
