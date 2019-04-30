@@ -333,3 +333,19 @@
     Socket(s) 主板上的cpu插槽数,所以逻辑cpu的个数=插槽决定的物理cpu个数 * 每个物理cpu的核数,如果有超线程技术,则再乘以2; Vendor ID cpu厂商ID;
     cpu family cpu系列; Model 型号ID; Model name 型号名; L1d cache 一级缓存(数据缓存); L1i cache 一级缓存(指令缓存); L2 cache 二级缓存;
     Virtualization cpu支持的虚拟化技术
+43. mpstat(Multi processor Statistics)用以监控系统cpu的使用率,mpstat命令将每个可用cpu的统计数据输出到标准输出,语法如下:
+    mpstat [-P {cpu_index|ALL}] [internal [count]]
+    -P 表示监控哪个cpu, ALL表示所有, cpu_index 在 0 -- (cpu个数-1)
+    internal 相邻两次采样的间隔时间(s)
+    count 采样次数
+    示例: mpstat -P ALL 3 10  # 每隔3s显示所有cpu状态,共采样4次
+    输出如下:
+    %user 采样时间段内(下同),用户态执行时的cpu利用率(百分比,下同)
+    %nice 拥有nice优先级的用户态执行时的cpu利用率
+    %sys 系统级别执行时的cpu利用率
+    %iowait I/O等待时间(cpu空闲时间)百分比
+    %irq 响应硬件终端所用时间百分比
+    %soft 响应软件终端所用时间百分比
+    %steal 虚拟机管理器在服务另一个虚拟处理器时,虚拟cpu非自愿等待花费时间百分比
+    %guest 运行虚拟cpu花费时间百分比
+    %idle 除去等待磁盘I/O外的其它原因导致的cpu空闲时间百分比
