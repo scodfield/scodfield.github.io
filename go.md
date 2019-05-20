@@ -1,4 +1,4 @@
-1. 新的数据类型interface,channel,channel的运算符'<-'
+1. 新的数据类型interface,channel,channel的运算符'<-',defer,recover与panic
 2. select语句的case必须是一个通信操作,select随机选一个可运行的case,如果没有则阻塞,直到有case可运行,比较感兴趣的是如果有多个可运行的case,将会如何选
    能保证公平嘛，有优先级取舍嘛
 3. 函数的形参就像定义在函数体内部的局部变量,这样就很好理解值传递,在调用函数时,将实际参数值复制一份赋值给形参,传递到函数中,所以值传递时对形参的修改不会
@@ -28,3 +28,4 @@
    切片append()时,如果cap不足会扩大,新的cap计算方式:ceil((cap+len(arr))/2) * 2, 
    例:slice1 := []int {0,1,2,3} slice2 := slice1[2:] 
       slice2 = append(slice2,4,5,6,7,8)  // slice2.cap = ceil((slice2.cap + len([4,5,6,7,8])/2) * 2
+5. go并发,通过go关键字开启goroutine线程,goroutine是轻量级线程,由go运行时进行管理,goroutine语法格式: go f_name(parameters)
