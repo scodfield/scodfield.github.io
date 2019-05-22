@@ -34,4 +34,9 @@
    通道允许发送端的数据发送和接收端的数据获取处于异步状态,也就是说带缓冲区的通道,可以先将数据放在缓冲区,等待接收端接收数据,如果不带缓冲区,发送方
    会阻塞直到接收端从通道接收数据,如果带缓冲,发送方会阻塞直到被发送的值被拷贝到缓冲区,缓冲区已满,则发送方会一直阻塞,直到接收方接收数据
    close()函数关闭通道
-6. go的map深度解析:https://mp.weixin.qq.com/s/2CDpE5wfoiNXm1agMAq4wA
+6. 参考系列
+   a> 深度解密Go语言之map https://mp.weixin.qq.com/s/2CDpE5wfoiNXm1agMAq4wA
+   b> [译] 我是如何在大型代码库上使用 pprof 调查 Go 中的内存泄漏 https://juejin.im/post/5ce11d1ee51d4510601117fd
+   c> Golang 多版本管理器 https://github.com/voidint/g
+   d> Go面试必考题目之method篇 https://mp.weixin.qq.com/s/US7MnIJfekJRazioxyWQhg
+   e> 异常检测的N种方法，阿里工程师都盘出来了 https://mp.weixin.qq.com/s/w7SbAHxZsmHqFtTG8ZAXNg
