@@ -434,3 +434,4 @@
     算又是一个坑吧,后边这种还是要交个公共进程来处理,免得读到脏数据
 78. 接入远程节点,一般都是通过remote shell, erl -remsh xxx@yyy,今天发现windows下observer也可以连接远程节点
     在windows上启动werl,设置和远程节点相同的cookie(如果有的话),observer窗口的标题栏 --> Nodes --> Connect Node --> 输入远程节点名即可
+79. 关于如何理解erlang的let it crash,参考:https://m.sohu.com/a/125397394_473282/?pvid=000115_3w_a
