@@ -32,3 +32,6 @@
    每个SMP节点只访问自己的本地资源,是一种完全无共享的结构,在MPP系统中,每个SMP节点也可以运行自己的内存,总线,操作系统和数据库等,
    与NUMA不同的是,MPP不存在访问其它节点内存的问题,节点之间的信息交互是通过互联网络实现的,这个过程一般称之为数据重分配(Data Redistribution)
    参考:http://www.elecfans.com/baike/computer/fuwuqi/20171023568144.html
+6. Protocol buff编码格式及sxxx的zigzag编码:
+   https://www.cnblogs.com/cobbliu/archive/2013/03/02/2940074.html
+   https://izualzhy.cn/protobuf-encode-varint-and-zigzag#4-zigzag%E7%BC%96%E7%A0%81
