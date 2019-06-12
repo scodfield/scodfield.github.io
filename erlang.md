@@ -435,3 +435,9 @@
 78. 接入远程节点,一般都是通过remote shell, erl -remsh xxx@yyy,今天发现windows下observer也可以连接远程节点
     在windows上启动werl,设置和远程节点相同的cookie(如果有的话),observer窗口的标题栏 --> Nodes --> Connect Node --> 输入远程节点名即可
 79. 关于如何理解erlang的let it crash,参考:https://m.sohu.com/a/125397394_473282/?pvid=000115_3w_a
+80. 在erlang的guard模式下,有以下两种表达方式:
+    a> , 和 ;
+    b> andalso 和 orelse
+    这两种方式区别:如果条件语句是这样的 X >= N; N >= 0 当前半句出现异常,后面半句还是会执行,而且结果可能是true; 如果条件语句是 X >= N orelse 
+    N >= 0 当前半句出现异常的时候,后半句会被跳过,返回的结果就是异常,另外在when之后的表达式中,不能出现自定义function,会产生副作用,所以一般都是
+    build
