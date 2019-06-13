@@ -35,3 +35,10 @@
 6. Protocol buff编码格式及sxxx的zigzag编码:
    https://www.cnblogs.com/cobbliu/archive/2013/03/02/2940074.html
    https://izualzhy.cn/protobuf-encode-varint-and-zigzag#4-zigzag%E7%BC%96%E7%A0%81
+   protocol buff的数据类型:
+   VARIINT 可变长度整型,该类型数据使用varint编码对所传入的数据进行压缩存储,int32/64,uint32/64,sint32/64,bool,enum属该类型
+   FIXED32/64 固定长度整型,不会对传入的数据进行varint压缩,只存储原始数据,fixed32,sfixed32,float属FIXED32,fixed64,sfixed64,double属FIXED64
+   LENGTH_DELIMITED 长度界定型数据,主要针对string,bytes,embedded messages,packed repeated field,简言之就是针对string类型,repeated和嵌套
+   类型,对这些类型数据进行编码时需要保存它们的长度信息
+   START_GROUP 组的开始标志,组也可以是repeated或嵌套类型
+   END_GROUP 组的结束标志,其余同上
