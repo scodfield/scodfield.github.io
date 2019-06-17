@@ -51,3 +51,19 @@
   摩尔投票法先假定第一个元素过半数,计数器设为1,比较下一个数和次数是否相同,若相同则计数器+1,反之-1,之后判断计数器是否为0,若为0,则将下一个数设为候选
   众数,以此类推,直至遍历完整个数组,当前候选即为要求的众数
   摩尔投票参考:https://www.zhihu.com/question/49973163
+3. 搜索二维矩阵ii,由于行列均满足有序,最开始的想法是每一行执行二分查找,或者将二维数据归并排序,合并成一维数组,再执行二分查找,时间复杂度不符合'高效'的
+   要求,基于从左到右,从上到下升序的前提,可以从左下角开始比较,若当前值等于目标值,则返回true,若当前值小于目标值,则右移,反之则左移,直到矩阵的右上角
+   以下为golang版本的实现:
+   func searchMatrix(matrix [][]int, target int) bool {
+	for row, col := len(matrix) - 1, 0; row >= 0 && col <= len(matrix[0]) -1; {
+		if matrix[row][col] == target {
+			return true
+		} else if matrix[row][col] > target {
+			row -= 1
+		} else {
+			col += 1
+		}
+	}
+
+	return false
+    }
