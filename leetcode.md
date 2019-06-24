@@ -67,3 +67,28 @@
 
 	return false
     }
+4. 两数之和,常规思路是双层循环,找到目标之后直接返回,时间复杂度高,其次是借助使用hash结构的数据类型缓存中间计算结果,一下为使用map的golang版本:
+	func twoSum(nums []int, target int) []int {
+    var result []int
+    var diffs map[int]int
+    diffs = make(map[int]int)
+
+    for i := 0; i < len(nums); i++ {
+    	diff := target - nums[i]
+    	if index, ok := diffs[diff]; ok {
+    		if index > i {
+    			result = append(result,i)
+    			result = append(result,index)
+    			return result
+    		} else {
+    			result = append(result,index)
+    			result = append(result,i)
+    			return result
+    		}
+    	}
+
+    	diffs[nums[i]] = i
+     }
+    
+      return result
+   }
