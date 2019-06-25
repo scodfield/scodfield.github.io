@@ -92,3 +92,46 @@
     
       return result
    }
+5. 两数相加,常规思路是先判断两个链表是否为nil,循环两个不为空的链表,最后在判断进位是否大于0,大于0则需要多一个节点,另一种思路是用递归来实现
+   以下代码为golang版的递归实现:
+   func addTwoNumbers2(l1 *ListNode, l2 *ListNode) *ListNode { 
+    return addtwo(l1,l2,0)
+   }
+
+   func addtwo(l1 *ListNode, l2 *ListNode, carry int) *ListNode {
+	x, y := 0, 0
+	if l1 != nil {
+		x = l1.Val
+	}
+
+	if l2 != nil {
+		y = l2.Val
+	}
+
+	sum := x + y + carry
+
+       var newNode ListNode
+       newNode.Val = sum % 10
+       carry = sum / 10
+       if l1.Next == nil || l2.Next == nil {
+    	   if l1.Next != nil {
+    		var l2Node ListNode
+    		l2Node.Val = 0
+    		l2.Next = &l2Node
+    		newNode.Next = addtwo(l1.Next,l2.Next,carry)
+    	   } else if l2.Next != nil {
+    		var l1Node ListNode
+    		l1Node.Val = 0
+    		l1.Next = &l1Node
+    		newNode.Next = addtwo(l1.Next,l2.Next,carry)
+    	   } else if carry > 0 {
+    		var lastNode ListNode
+    		lastNode.Val = carry
+    		newNode.Next = &lastNode
+    	   }
+       } else {
+    	  newNode.Next = addtwo(l1.Next,l2.Next,carry)
+       }
+
+      return &newNode
+   }
