@@ -135,3 +135,55 @@
 
       return &newNode
    }
+6. 无重复字符的最长子串,常规思路还是双层循环,统计每个字符可以构造的最长无重复子串,最后返回最长子串的长度即可,贴一个自己的实现:
+    func lengthOfLongestSubstring(s string) int {
+    var result int = 0
+
+    if s == "" {
+    	return 0
+    } else if len(s) == 1 {
+    	return 1
+    }
+
+    var count int = 1
+    for i := 0; i < len(s) - 1; i++ {
+    	temp := make(map[uint8]int)
+    	temp[s[i]] = 1
+    	count = 1
+    	for j := i+1; j < len(s); j++ {
+    		_, ok := temp[s[j]]
+    		if ok {
+    			break
+    		} else {
+    			count ++
+    			temp[s[j]] = 1
+    		}
+    	 }
+
+    	 if result < count {
+    		result = count
+    	 }
+      }
+
+      return result
+   }
+     上述代码提交后,发现不关是时间还是空间都很垃圾,参考了评论,发现有更好的思路,代码如下:
+     func lengthOfLongestSubstring(s string) int {
+	i, j, max := 0, 0, 0
+
+	for ; i < len(s); i++ {
+		for x := j; x < i; x++ {
+			if s[x] == s[i] {
+				j = x + 1
+				break
+			}
+		}
+		fmt.Println("i: ",i,", j: ",j)
+		if i-j+1 > max {
+			max = i - j + 1
+		}
+	}
+	return max
+     }
+     由代码可知解题思路为求当前下标到最大下标之间的不重复子串,一旦出现重复字符,则当前子串查找结束,判断是否是当前最长,更新max的值,同时更改当前下标
+     为当前重复字符的下一个下标值,i,j,max初始值及相关计算方式可以兼顾到s的不同情况(为空或者只有一个字符等)
