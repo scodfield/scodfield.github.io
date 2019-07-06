@@ -66,3 +66,11 @@
    sizeof(william) = 15byte  sizeof(george) = 20byte
    关于__attribute__ 可以参考简书:https://www.jianshu.com/p/29eb7b5c8b2d
    gcc编译参数-fpack-struct可以在编译时指定结构体的对齐方式,不带"=n"时,默认为4byte对齐,gcc -fpack-struct=1 -o echo -c echo.c
+5. c++野指针vs悬挂(悬垂)指针:
+   野指针 wild pointer,是指未初始化指针变量,此时指针指向的是内存中的任意地址,直接使用会造成严重后果
+   悬挂指针 dangling pointer,是指指针变量最初指向的内存已被释放,指针被free/delete掉,或者指针指向的栈上分配的临时变量已被系统回收
+   注:free只是释放指针指向的内存,而不是指针,指针是一个变量,只有程序结束时,才会被销毁,释放后指针指向的内存不再有效,
+   会被系统当做垃圾内存进行回收,但是并没有改变指针变量的指向,正确的做法是释放内存之后,将指针指向NULL,防止指针后边不小心又被解引用
+   https://blog.csdn.net/eszrdxtfcygv/article/details/38523659
+   https://blog.csdn.net/wj3319/article/details/6871957
+   https://www.cnblogs.com/idorax/p/6475941.html
