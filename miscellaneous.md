@@ -42,3 +42,4 @@
    类型,对这些类型数据进行编码时需要保存它们的长度信息
    START_GROUP 组的开始标志,组也可以是repeated或嵌套类型
    END_GROUP 组的结束标志,其余同上
+7. 待挖掘的: https://www.jianshu.com/u/38eb16b24cb9 
