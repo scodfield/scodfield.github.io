@@ -187,3 +187,43 @@
      }
      由代码可知解题思路为求当前下标到最大下标之间的不重复子串,一旦出现重复字符,则当前子串查找结束,判断是否是当前最长,更新max的值,同时更改当前下标
      为当前重复字符的下一个下标值,i,j,max初始值及相关计算方式可以兼顾到s的不同情况(为空或者只有一个字符等)
+7. 寻找两个有序数组的中位数,题目要去log(m+n),目前只实现了m+n的时间复杂度,首先合并两个有序数组,再根据奇偶计算中位数,实现如下:
+   func findMedianSortedArrays(nums1 []int, nums2 []int) float64 {
+    // nums3 := merge(nums1,len(nums1),nums2,len(nums2))
+    nums3 := merge_sorted(nums1,nums2)
+    fmt.Println("median nums3",nums3)
+    if len(nums3) % 2 == 0 {
+    		return float64(nums3[len(nums3)/2] + nums3[len(nums3)/2-1]) / float64(2)
+    	} else {
+    		return float64(nums3[len(nums3)/2])
+    	}
+   }
+
+   func merge_sorted(nums1 []int, nums2 []int) []int {
+	var nums3 []int
+	i, j := 0, 0
+
+	for i < len(nums1) && j < len(nums2) {
+		if nums1[i] < nums2[j] {
+			nums3 = append(nums3,nums1[i])
+			i++
+		} else if nums1[i] > nums2[j] {
+			nums3 = append(nums3,nums2[j])
+			j++
+		} else {
+			nums3 = append(nums3,nums2[j])
+			nums3 = append(nums3,nums2[j])
+			i++
+			j++
+		}
+	}
+
+	for ; i < len(nums1); i++ {
+		nums3 = append(nums3,nums1[i])
+	}
+	for ; j < len(nums2); j++ {
+		nums3 = append(nums3,nums2[j])
+	}
+
+	return nums3
+    }
