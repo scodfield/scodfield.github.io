@@ -43,3 +43,6 @@
    START_GROUP 组的开始标志,组也可以是repeated或嵌套类型
    END_GROUP 组的结束标志,其余同上
 7. 待挖掘的: https://www.jianshu.com/u/38eb16b24cb9 
+8. SIMD(Single Instruction Multiple Data)
+9. 栈帧(Stack Frame)
+10. 必看书籍:深入理解计算机系统,程序员的自我修养
