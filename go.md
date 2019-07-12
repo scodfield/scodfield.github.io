@@ -46,3 +46,4 @@
    前,指针变量可能指向任意地址,也就是野指针,另一个就是go是自动回收内存,不需要c/c++中手动回收,手动回收造成的问题包括,忘了回收导致内存泄漏,释放后未将
    指针赋值为NULL,导致悬空指针,以及多次释放导致的程序崩溃,由此可知,c/c++中指针的问题主要还是指针运算(越界访问,缓冲区溢出)和释放
    参考:http://c.biancheng.net/view/21.html
+9. Go unsafe:https://mp.weixin.qq.com/s/JpHRe_XN9cqrP3KC8dOMqA
