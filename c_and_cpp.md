@@ -71,9 +71,12 @@
    悬挂指针 dangling pointer,是指指针变量最初指向的内存已被释放,指针被free/delete掉,或者指针指向的栈上分配的临时变量已被系统回收
    注:free只是释放指针指向的内存,而不是指针,指针是一个变量,只有程序结束时,才会被销毁,释放后指针指向的内存不再有效,
    会被系统当做垃圾内存进行回收,但是并没有改变指针变量的指向,正确的做法是释放内存之后,将指针指向NULL,防止指针后边不小心又被解引用
-   https://blog.csdn.net/eszrdxtfcygv/article/details/38523659
-   https://blog.csdn.net/wj3319/article/details/6871957
-   https://www.cnblogs.com/idorax/p/6475941.html
+   养成在定义指针之后,使用指针之前赋值的习惯可以有效避免使用野指针
+   对于悬空指针除了在释放指针后,将指针置为NULL之外,一些操作系统还提供了检测访问已释放掉内存的技术,比如Solaris系统提供的ADI(Application
+   Data Integrity)技术,SPARC M7/M8/S7/T7/T8服务器也支持ADI特性,另外一种间接避免使用悬空指针的方法就是使用智能指针(smart pointer),其
+   本质是使用引用计数(reference counting)来延迟对指针的释放(erlang的垃圾回收也使用了引用计数)
+   https://blog.csdn.net/eszrdxtfcygv/article/details/38523659; https://blog.csdn.net/wj3319/article/details/6871957
+   https://www.cnblogs.com/idorax/p/6475941.html; 
 6. 两次释放内存,多次释放内存将会导致程序崩溃或未定义行为
    c++将内存分为三个逻辑区域:堆,栈和静态存储区
    栈区:一般存放局部变量或对象,存储栈中的变量,生命周期从定义点开始,函数返回时结束,此外,几乎所有的临时对象都在栈中,临时对象包括函数值传递及
