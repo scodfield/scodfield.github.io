@@ -47,3 +47,10 @@
    指针赋值为NULL,导致悬空指针,以及多次释放导致的程序崩溃,由此可知,c/c++中指针的问题主要还是指针运算(越界访问,缓冲区溢出)和释放
    参考:http://c.biancheng.net/view/21.html
 9. Go unsafe:https://mp.weixin.qq.com/s/JpHRe_XN9cqrP3KC8dOMqA
+10. Go反射,反射是go的高级主题之一,反射就是程序能够在运行时检查变量和值,求出它们的类型,reflect包实现了运行时反射,reflect包会帮助识别interface{}变量
+    的底层具体类型和值,reflect包的几个具体类型和方法如下:
+    reflect.Type,reflect.Value表示interface{}变量的具体类型和值,对应的方法是reflect.TypeOf()和reflect.ValueOf();
+    reflect.Kind 与reflect.Type类似,不同之处在于Type表示interface{}的实际类型,而Kind表示该类型的特定类别;
+    reflect.NumField()方法返回结构体中字段的数量,reflect.Field(i int)方法返回字段i的reflect.Value;
+    Int()和String()方法可以分别取出reflect.Value的特定数据类型
+    参考: https://studygolang.com/articles/13178
