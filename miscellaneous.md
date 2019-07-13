@@ -69,6 +69,9 @@
         2> 将当前栈顶保存的前栈帧ebp弹出并装入ebp寄存器
         3> 将当前栈顶的返回地址(要执行的下一条指令地址)弹给EIP寄存器(此时esp又回到了函数调用前的位置)
     c> 跳转,按照函数返回地址跳回母函数中继续执行
+    esp(extended stack pointer)栈指针寄存器,该指针永远指向系统栈最上面一个栈帧(当前运行函数的栈帧)的顶部
+    ebp(extended base pointer)基址指针寄存器,同esp,永远指向系统栈最上面一个栈帧的底部
+    eip(extended instruction pointer)指令寄存器,该指针永远指向下一条待执行的指令地址,控制了eip就控制了进程,eip的内容决定了cpu会去哪里执行命令
     参考:
       https://www.cnblogs.com/dwlsxj/p/Stack.html
       https://blog.csdn.net/SKI_12/article/details/80554677
