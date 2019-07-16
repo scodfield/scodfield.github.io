@@ -54,3 +54,7 @@
     reflect.NumField()方法返回结构体中字段的数量,reflect.Field(i int)方法返回字段i的reflect.Value;
     Int()和String()方法可以分别取出reflect.Value的特定数据类型
     参考: https://studygolang.com/articles/13178
+11. Go包(package)用于组织go源代码,提供了更好的可重用性,可读性和可维护性,所有可执行的go程序都必须包含一个main函数,main函数应该放置于main包中
+    package packagename 这一行代码指定了该源文件属于哪一个包,放在每一个源文件的第一行,go install dir_name 编译dir_name命名的程序,会在dir_name
+    中寻找包含main函数的文件,并生成dir_name命名的二进制或可执行文件,属于某一个包的源文件都应该放置于一个单独的文件夹内,例如dir_name程序里的一个工具
+    类的源文件,在dir_name文件夹内创建util文件夹,并在新util内创建util.go(./dir_name/util/util.go),util.go的第一句就是:package util
