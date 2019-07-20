@@ -96,3 +96,20 @@
     缓冲信道的重要应用之一就是工作池,工作池就是一组等待任务分配的线程,一旦完成所分配的任务,就可以继续等待分配任务
     select,select语句用于在多个发送/接收信道操作中进行选择,select语句会一直阻塞,直到有发送/接收操作准备就绪,如果有多个信道操作准备完毕,select会
     随机选择其中的一个执行,select语法与switch相似,只不过每个case语句都是信道操作,使用default语句执行默认操作,防止select语句一直阻塞;
+14. Go Runtime,go的运行时管理着调度(scheduler),垃圾回收(gc)和goroutine的运行环境
+    go运行时负责运行goroutine,并把它们映射到操作系统线程上,每个goroutine由一个G结构体来表示,结构体字段用来维护此goroutine的栈和状态,运行时管理G
+    并把它们映射到Logical Processor(P),P可以看做是是一个抽象的资源或者上下文,操作系统线程(M)获取P以便运行G
+    当使用go命令创建goroutine时,P会先将创建的G放入local queue(由P维护),如果local queue已满,则将G放入global queue(schedt结构体),为了运行G,M需要
+    持有P,M从P的queue中弹出一个goroutine并执行,当M执行一些G之后,如果local queue为空,它会随机选择一个P,并从它的queue中取走一半G到自己的queue中
+    继续执行,当goroutine执行阻塞的系统调用时,如果P中还有一些G等待执行,则运行时会把P从这个阻塞线程中摘除(detach),唤醒一个空闲的M或者创建一个
+    新M来服务于这个P,当阻塞的M继续的时候,goroutine放入global queue中等待调用,M则park它自己(休眠),加入到空闲线程中,运行时会在以下情况下阻塞并切换
+    新的goroutine:blocking syscall(eg. file operation); newwork input; channel operations; primitives in the sync package(eg. waitGroup?)
+    Go通过GODEBUG环境变量来跟踪运行时的调度器,eg: GODEBUG=scheddetail=1,schedtrace=1000 ./program ,GODEBUG输出主要包括M,P,G的概念及相关状态
+    Go还有一个图形化的工具go tool trace 用于查看程序和运行时的状况
+    goroutine的执行是可以被抢占的,运行时在启动程序时,会自动创建一个系统线程运行sysmon()函数,sysmon()在整个程序声明周期一直运行,负责监视各个go协程
+    的运行状态,判断是否需要垃圾回收等,sysmon()调用retake()函数,retake()会遍历所有的P,如果一个P处于执行状态,并已经连续执行很长时间,就会被抢占,
+    retake()调用preemptone()将P的stackguard0置为stackPreempt,这将导致P中正在执行的G在下一次函数调用时,栈空间检查失败,进而触发morestack()等一
+    系列函数调用,morestack() --> newstack() --> gopreempt_m() --> goschedImpl() --> schedule(), goschedImpl()函数中会调用dropg()函数
+    将G与P和M解除绑定,再调用globrunqput()将G放入global queue,最后调用schedule()为P设置新的可执行G
+    参考:
+      https://studygolang.com/articles/10094; https://studygolang.com/articles/10095
