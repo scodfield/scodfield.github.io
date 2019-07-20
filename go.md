@@ -111,5 +111,11 @@
     retake()调用preemptone()将P的stackguard0置为stackPreempt,这将导致P中正在执行的G在下一次函数调用时,栈空间检查失败,进而触发morestack()等一
     系列函数调用,morestack() --> newstack() --> gopreempt_m() --> goschedImpl() --> schedule(), goschedImpl()函数中会调用dropg()函数
     将G与P和M解除绑定,再调用globrunqput()将G放入global queue,最后调用schedule()为P设置新的可执行G
-    参考:
-      https://studygolang.com/articles/10094; https://studygolang.com/articles/10095
+    Go调度器的schedule()和findrunnable()函数,goroutine调度是在P中进行的,每当运行时需要调度时会调用schedule()函数(proc1.go),schedul()函数先调用
+    runqget()从当前P的local queue中取一个可执行的G,如果队列为空,继续调用findrunnable()函数,findrunnable()按照以下顺序取得G:调用runqget()函数
+    从当前P的队列中取一个可执行G(与schedule()相同); 调用globrunqget()从全局队列中取可执行的G; 调用netpoll()取异步调用结束的G,该次为非阻塞调用,
+    立即返回; 调用runqsteal()从其它P的队列中偷(类似与erlang的迁移) , 如果以上四步还未成功,继续执行以下低优先级的工作:如果处于垃圾回收的标记阶段,则
+    进行垃圾回收标记工作; 再次调用globrunqget()从全局队列取可执行的G; 再次调用netpoll()取异步调用结束的G,该次调用未阻塞调用 , 如果还没有获得G,当前
+    M停止执行,返回runnable()函数从头开始执行,如果findrunnable()正常返回一个可执行的G,schedule()函数会调用execute()函数执行该G,execute()函数调用
+    gogo()函数,gogo()从G.sched结构体中恢复出G上次被调度器暂停时的寄存器现场(SP,PC),然后继续执行
+    参考: https://studygolang.com/articles/10094; https://studygolang.com/articles/10095
