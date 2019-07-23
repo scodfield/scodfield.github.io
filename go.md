@@ -1,5 +1,10 @@
 1. 新的数据类型interface,channel,channel的运算符'<-',defer,recover与panic
    go的数据类型中,只有切片slice,字典map和信道channel是引用类型,其它都是值类型
+   defer延迟调用函数,含有defer语句的函数,在函数返回前,调用另一个函数,main() {defer hello() xxx },在main()函数返回前调用hello()函数,不仅适用于
+   函数,还可以延迟调用(结构体)方法,defer语句的实参取值是在执行defer语句的时候,而非在调用延迟函数的时候,main() { a := 5 defer printA(a)
+   a = 10 fmt.Println("before defer a:" a)} func printA(a int) { fmt.Println("in defer a:",a) },上述延迟调用结果:"in defer a 5"
+   defer栈,当在一个函数内多次调用defer语句时,Go会把defer调用放入一个栈中,再按照LIFO的顺序执行(可以实现字符串逆序输出)
+   当一个函数应该在与当前代码流无关的环境下调用时,可以使用defer
 2. select语句的case必须是一个通信操作,select随机选一个可运行的case,如果没有则阻塞,直到有case可运行,比较感兴趣的是如果有多个可运行的case,将会如何选
    能保证公平嘛，有优先级取舍嘛
 3. 函数的形参就像定义在函数体内部的局部变量,这样就很好理解值传递,在调用函数时,将实际参数值复制一份赋值给形参,传递到函数中,所以值传递时对形参的修改不会
