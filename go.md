@@ -126,6 +126,11 @@
     进行垃圾回收标记工作; 再次调用globrunqget()从全局队列取可执行的G; 再次调用netpoll()取异步调用结束的G,该次调用未阻塞调用 , 如果还没有获得G,当前
     M停止执行,返回runnable()函数从头开始执行,如果findrunnable()正常返回一个可执行的G,schedule()函数会调用execute()函数执行该G,execute()函数调用
     gogo()函数,gogo()从G.sched结构体中恢复出G上次被调度器暂停时的寄存器现场(SP,PC),然后继续执行
+    另外一种关于G长时间占用M的说法:
+      go启动时启动sysmon,记录P中G的计数schedtick,schedtick会在每执行一个G之后递增; 如果检查到schedtick一直没有递增,说明这个P一直在执行同一个G,
+      如果超过10ms(协程的切换时间片),就在这个G的栈里加一个tag标记; G在执行的时候,如果遇到非内联函数调用,就会检查一次这个标记,中断自己,把自己放到
+      队列末尾,执行下一个G; 如果没有遇到非内联函数调用,就会一直执行这个G,直到结束,如果是死循环,且GOMAXPROCS=1,那么只有一个P&M,队列中的其它G不会
+      执行,如果GOMAXPROCS大于1,则会新建M,并将P迁移到新的M,继续执行下一个G
     参考: https://studygolang.com/articles/10094; https://studygolang.com/articles/10095;
          GC: GC:https://studygolang.com/articles/7516; goroutine调度: https://studygolang.com/articles/10115
     
