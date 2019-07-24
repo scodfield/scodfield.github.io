@@ -4,7 +4,10 @@
    函数,还可以延迟调用(结构体)方法,defer语句的实参取值是在执行defer语句的时候,而非在调用延迟函数的时候,main() { a := 5 defer printA(a)
    a = 10 fmt.Println("before defer a:" a)} func printA(a int) { fmt.Println("in defer a:",a) },上述延迟调用结果:"in defer a 5"
    defer栈,当在一个函数内多次调用defer语句时,Go会把defer调用放入一个栈中,再按照LIFO的顺序执行(可以实现字符串逆序输出)
-   当一个函数应该在与当前代码流无关的环境下调用时,可以使用defer
+   当一个函数应该在与当前代码流无关的环境下调用时,可以使用defer,比如用到sync.WaitGroup的地方,在协程函数内声明一个: defer wg.Done()
+   mutex 是sync包中的一个结构体类型,它主要定义了Lock()和Unlock()这两个方法,用于在Go中提供了一种处理竟态条件(race confition)的加锁机制(locking 
+   mechanism),可确保在某时刻只有一个协程在临界区(critical section)运行,防止出现竟态条件,如果有协程持有了锁(Lock()),当其它协程试图获得该锁时,这些
+   协程会被阻塞,知道mutex变量解锁锁定(Unlock())为止,另外一种实现加锁的方法是使用非缓冲信道,在操作临界区前发送数据,操作后接收数据即可
 2. select语句的case必须是一个通信操作,select随机选一个可运行的case,如果没有则阻塞,直到有case可运行,比较感兴趣的是如果有多个可运行的case,将会如何选
    能保证公平嘛，有优先级取舍嘛
 3. 函数的形参就像定义在函数体内部的局部变量,这样就很好理解值传递,在调用函数时,将实际参数值复制一份赋值给形参,传递到函数中,所以值传递时对形参的修改不会
