@@ -126,4 +126,6 @@
     进行垃圾回收标记工作; 再次调用globrunqget()从全局队列取可执行的G; 再次调用netpoll()取异步调用结束的G,该次调用未阻塞调用 , 如果还没有获得G,当前
     M停止执行,返回runnable()函数从头开始执行,如果findrunnable()正常返回一个可执行的G,schedule()函数会调用execute()函数执行该G,execute()函数调用
     gogo()函数,gogo()从G.sched结构体中恢复出G上次被调度器暂停时的寄存器现场(SP,PC),然后继续执行
-    参考: https://studygolang.com/articles/10094; https://studygolang.com/articles/10095
+    参考: https://studygolang.com/articles/10094; https://studygolang.com/articles/10095;
+         GC: GC:https://studygolang.com/articles/7516; goroutine调度: https://studygolang.com/articles/10115
+    
