@@ -1,13 +1,23 @@
 1. 新的数据类型interface,channel,channel的运算符'<-',defer,recover与panic
-   go的数据类型中,只有切片slice,字典map和信道channel是引用类型,其它都是值类型
-   defer延迟调用函数,含有defer语句的函数,在函数返回前,调用另一个函数,main() {defer hello() xxx },在main()函数返回前调用hello()函数,不仅适用于
+   a> go的数据类型中,只有切片slice,字典map和信道channel是引用类型,其它都是值类型
+   b> defer延迟调用函数,含有defer语句的函数,在函数返回前,调用另一个函数,main() {defer hello() xxx },在main()函数返回前调用hello()函数,不仅适用于
    函数,还可以延迟调用(结构体)方法,defer语句的实参取值是在执行defer语句的时候,而非在调用延迟函数的时候,main() { a := 5 defer printA(a)
    a = 10 fmt.Println("before defer a:" a)} func printA(a int) { fmt.Println("in defer a:",a) },上述延迟调用结果:"in defer a 5"
    defer栈,当在一个函数内多次调用defer语句时,Go会把defer调用放入一个栈中,再按照LIFO的顺序执行(可以实现字符串逆序输出)
    当一个函数应该在与当前代码流无关的环境下调用时,可以使用defer,比如用到sync.WaitGroup的地方,在协程函数内声明一个: defer wg.Done()
-   mutex 是sync包中的一个结构体类型,它主要定义了Lock()和Unlock()这两个方法,用于在Go中提供了一种处理竟态条件(race confition)的加锁机制(locking 
+   c> mutex 是sync包中的一个结构体类型,它主要定义了Lock()和Unlock()这两个方法,用于在Go中提供了一种处理竟态条件(race confition)的加锁机制(locking 
    mechanism),可确保在某时刻只有一个协程在临界区(critical section)运行,防止出现竟态条件,如果有协程持有了锁(Lock()),当其它协程试图获得该锁时,这些
    协程会被阻塞,知道mutex变量解锁锁定(Unlock())为止,另外一种实现加锁的方法是使用非缓冲信道,在操作临界区前发送数据,操作后接收数据即可
+   d> func panic(interface{})会终止程序的执行,并在延迟defer函数(如果定义了延迟函数)执行完之后,程序控制返回执行该panic()函数调用的调用方,退出过程
+   一直进行直到当前协程的所有函数都退出,然后打印panic信息,接着打印堆栈跟踪(stack trace),发生panic时,recover可重新获得对该程序的控制,
+   panic-recover与其它语言的try-catch-finally类似,调用panic的两种场景:发生不能恢复的错误,程序无法在继续运行下去(如,端口被其它程序占用,导致
+   当前web应用绑定端口失败);发生了一个编程上的错误(如,一个非空的参数,在实际调用时为nil),上述退出过程会一直持续到main()(主协程)退出为止,跟踪堆栈
+   则是从当前调用panic的协程函数开始直到main(),运行时错误(如,数组越界)也会导致panic,等价于调用了内置函数panic,其参数由接口类型runtime.Error给出
+   e> func recover()interface{} 也是内建函数,用于重新获得panic协程的控制,只有在延迟函数内部,调用recover才有用,在延迟函数内调用recover,可以取到
+   panic的错误信息,停止panic续发事件(panicking sequence),程序恢复正常运行,如果在defer外部调用recover,不能停止panic续发事件,只有在同一个go协程
+   中调用recover才行,recover不能恢复一个不同协程的panic,recover恢复panic之后,堆栈跟踪就被释放,但是可以通过runtime/debug.PrintStack()函数打印
+   堆栈跟踪,导入debug包,并在defer的recover函数里调用即可:import "runtime/debug" defer recov()   func recov(){if r := recover(); r != nil
+     fmt.Println("recovered: ", r) debug.PrintStack()}
 2. select语句的case必须是一个通信操作,select随机选一个可运行的case,如果没有则阻塞,直到有case可运行,比较感兴趣的是如果有多个可运行的case,将会如何选
    能保证公平嘛，有优先级取舍嘛
 3. 函数的形参就像定义在函数体内部的局部变量,这样就很好理解值传递,在调用函数时,将实际参数值复制一份赋值给形参,传递到函数中,所以值传递时对形参的修改不会
