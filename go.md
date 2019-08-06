@@ -18,6 +18,12 @@
    中调用recover才行,recover不能恢复一个不同协程的panic,recover恢复panic之后,堆栈跟踪就被释放,但是可以通过runtime/debug.PrintStack()函数打印
    堆栈跟踪,导入debug包,并在defer的recover函数里调用即可:import "runtime/debug" defer recov()   func recov(){if r := recover(); r != nil
      fmt.Println("recovered: ", r) debug.PrintStack()}
+   在Printf()函数中,使用'%T'格式说明符,可以打印出变量的类型,unsafe包提供了一个Sizeof()函数,该函数接收变量并返回它的字节大小,不过unsafe包可能会带来
+   可移植性问题,因此需要小心使用
+   go有着非常严格的强类型特征,没有自动类型提升/转换,比如在C语言中,整型可以和浮点型变量相加,但go中会报错(invalid operation),操作符两侧的变量类型
+   必须一致,类型转换为T(v),其中v为变量,T为系统变量类型(int,string,float),类型转换举例:i := int(56.78)
+   go中字符串是字节的切片,'+'操作符可用于拼接字符串,go中的字符串兼容unicode编码,并使用utf-8编码
+   rune是go内建类型,int32的别称,rune表示一个代码点,代码点无论占用多少个字节,都可以用一个rune来表示
 2. select语句的case必须是一个通信操作,select随机选一个可运行的case,如果没有则阻塞,直到有case可运行,比较感兴趣的是如果有多个可运行的case,将会如何选
    能保证公平嘛，有优先级取舍嘛
 3. 函数的形参就像定义在函数体内部的局部变量,这样就很好理解值传递,在调用函数时,将实际参数值复制一份赋值给形参,传递到函数中,所以值传递时对形参的修改不会
