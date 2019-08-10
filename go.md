@@ -44,7 +44,8 @@
    (b int) {}  func main() {},则编译报错:cannot define new methods on non-local type int,这是因为add方法的定义和int这个系统类型的定义不在同
    一个包中,解决办法是在当前包中,为内置类型int创建一个类型别名,创建以该类型别名为接收器的方法:type myInt int func (a myInt) add(b myInt) myInt{]
 2. a> select语句的case必须是一个通信操作,select随机选一个可运行的case,如果没有则阻塞,直到有case可运行,比较感兴趣的是如果有多个可运行
-   的case,将会如何选择,能保证公平嘛，有优先级取舍嘛
+   的case,将会如何选择,能保证公平嘛，有优先级取舍嘛,由以下解析可知,go底层将所有case语句打乱顺序,一个一个循环检测是否channel是否可读或可写,
+   select底层解析:https://mp.weixin.qq.com/s?__biz=MzUzMjk0ODI0OA==&mid=2247483766&idx=1&sn=eb605a64bed0b2066a12083f26fb04b6&chksm=faaa3501cdddbc177121ba14a6604743d5ea881ca8299d5609ac8eb9b6eca4f2a142ad5aabfd&token=1212449367&lang=zh_CN&scene=21#wechat_redirect
    b> 若协程阻塞,比如一个RPC请求阻塞了goroutine的执行,此时go运行时会新建M,继续运行P中的其它协程,那么对于一个大型系统来说,若RPC调用量非常的大,
    此时改如何控制生成的M的数量,大量系统线程的生成和回收会对系统性能及go的GC造成很大压力
 3. 函数的形参就像定义在函数体内部的局部变量,这样就很好理解值传递,在调用函数时,将实际参数值复制一份赋值给形参,传递到函数中,所以值传递时对形参
@@ -174,4 +175,5 @@
       执行,如果GOMAXPROCS大于1,则会新建M,并将P迁移到新的M,继续执行下一个G
     参考: https://studygolang.com/articles/10094; https://studygolang.com/articles/10095;
          GC: GC:https://studygolang.com/articles/7516; goroutine调度: https://studygolang.com/articles/10115
-    
+15. Go的垃圾回收
+    参考:https://mp.weixin.qq.com/s?__biz=MzU4ODczMDg5Ng==&mid=2247483688&idx=1&sn=46742e533886fe8b2fb91d79cf5144eb&scene=21#wechat_redirect
