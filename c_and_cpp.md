@@ -91,3 +91,4 @@
    典型的比如递归函数,如果在递归函数中定义一个非静态变量,则会产生较大的栈开销(不断的创建和销毁)
    注:c++中的new,delete并不是字面意义上的新建和删除,new表示申请内存,delete表示释放内存,归还给系统
    参考:https://blog.csdn.net/wj3319/article/details/6871957
+7. c++内存模型:https://www.cnblogs.com/yunlambert/p/9876491.html
