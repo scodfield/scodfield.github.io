@@ -175,5 +175,7 @@
       执行,如果GOMAXPROCS大于1,则会新建M,并将P迁移到新的M,继续执行下一个G
     参考: https://studygolang.com/articles/10094; https://studygolang.com/articles/10095;
          GC: GC:https://studygolang.com/articles/7516; goroutine调度: https://studygolang.com/articles/10115
-15. Go的垃圾回收
-    参考:https://mp.weixin.qq.com/s?__biz=MzU4ODczMDg5Ng==&mid=2247483688&idx=1&sn=46742e533886fe8b2fb91d79cf5144eb&scene=21#wechat_redirect
+15. Go的垃圾回收,笔记参见miscellaneous.md
+    参考:
+    https://segmentfault.com/a/1190000012597428
+    https://mp.weixin.qq.com/s?__biz=MzU4ODczMDg5Ng==&mid=2247483688&idx=1&sn=46742e533886fe8b2fb91d79cf5144eb&scene=21#wechat_redirect
