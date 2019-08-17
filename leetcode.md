@@ -254,6 +254,27 @@
     	  first,second = second.Next,second.Next
        }
        pre.Next = first
-
+       
        return dummy.Next
+    }
+11. 分隔链表,构造一个以目标x为Val的节点,遍历原始链表,重新构造链表,结果符合题目要求,但是不给过,代码如下:
+    func partition(head *ListNode, x int) *ListNode {
+      var mid,front,tail,temp *ListNode
+      mid = &ListNode{x,nil}
+      front,tail = mid,mid
+
+      for head != nil {
+    	  temp = head.Next
+    	  if head.Val < x {
+    		head.Next = front
+    		front = head
+    	  } else if head.Val > x {
+    		tail.Next = head
+    		tail = head
+    	  }
+    	  head = temp
+      }
+      tail.Next = nil
+
+      return front
     }
