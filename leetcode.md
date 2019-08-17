@@ -237,3 +237,23 @@
    看了下官方题解,通过双指针来实现只遍历一次,且时间复杂度为O(L),空间复杂度为O(1)
    上述双指针单次遍历题解中,除了双指针这个点,还有一个点是引入了一个哑节点,哑节点的引入极大的简化了一些极端情况,比如只有链表一个节点或者删除链表
    头部节点,上述自己实现的常规思路解法,还需要特殊处理这些极端情况,代码很不整洁
+10. 删除排序链表中的重复元素II,基于三指针&哑指针,实现删除链表中重复元素,引入哑指针后,可有效处理[1,1],[1,2,2]等特殊情况,代码如下:
+    func deleteDuplicates(head *ListNode) *ListNode {
+      var dummy,pre,first,second *ListNode
+      dummy = &ListNode{0,nil}
+      pre,first,second = dummy,head,head
+
+      for second != nil {
+    	  for (second.Next != nil) && (second.Next.Val == first.Val) {
+    		second = second.Next
+          }
+    	  if second == first {
+    	    pre.Next = first
+    	    pre = first
+    	  } 
+    	  first,second = second.Next,second.Next
+       }
+       pre.Next = first
+
+       return dummy.Next
+    }
