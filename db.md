@@ -104,6 +104,15 @@
         mongod --shutdown
       use CTRL-C 以交互模式(interactive mode)运行mongod实例时适用此方法
       use kill linux command line,键入 kill mongod_process_id 或者 kill -2 mongod_processed_id (决不能使用kill -9) 
+    IT又一次直接重启内网,按照上述步骤之后,提示:child process failed,exist with error number 100, 参考下面的资料,以repair的方式重启,还是提示100
+    在系统上找了找mongod.log启动日志,在最新的启动日志发现如下提示:
+    exception in initAndListen: 72 Requested option conflicts with current storage engine option for directoryPerDB;
+    you requested false but the current server storage is already set to true and cannot be changed, terminating
+    ok, 在/etc/mongod.conf文件的storage项下面加入:directoryPerDB true, 保存退出,再次以repair方式启动:mongod -f /etc/mongod.conf --repair
+    参照下面的资料,再执行:mongod -f /etc/mongod.conf, 一切正常,按照上面正常退出mongod的方法,杀掉mongod进程之后,
+    再以mongod --dbpath xxx --logpath yyy --fork --auth --directoryperdb 命令启动,启动游戏服务器,连接成功
+    注:如果以上解决100的方法还不行,可以考虑终极方法,删除整个mongo的数据和日志,重启
+    参考:https://blog.csdn.net/sinat_30397435/article/details/50774175
 35. mongo首次运行时并未开启验证,登录后需要首先创建一个超级管理员用户,用于管理其他用户
     由手册可知,mongo3.0以后,在admin中创建(As of MongoDB 3.0, with the localhost exception, you can only create users 
     on the admin database),创建命令为db.createUser({user:"xxx", pwd:"yyy", roles:[{},...]})
