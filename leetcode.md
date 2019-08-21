@@ -278,3 +278,39 @@
 
       return front
     }
+12. 最长回文子串,最开始的想法是这个问题和求字符串的最长不重复子串类似,所以考虑使用动态规划,如果一个子串str[i,j](以i,j开始&结尾)为回文,那么
+    str[i+1,j-1]肯定也是回文,设定p[i,j]=0表示子串[i,j]不是回文子串,p[i,j]=1表示子串[i,j]为回文,则状态转移方程为: p[i,j] = p[i+1,j-1] 
+    (str[i] == str[j]); p[i,j] = 0 (str[i] != str[j]), 实现代码如下:
+    func longestPalindrome(s string) string {
+	    var mem [20][20]int
+	    left,right := 0,0
+
+	    if len(s) == 0 {
+		return ""
+	    } else if len(s) == 1 {
+		return s
+	    }
+
+	    for i := 0; i < len(s); i++ {
+		mem[i][i] = 1
+		if (i < len(s)-1) && (s[i] == s[i+1]) {
+			mem[i][i+1] = 1
+			left,right = i,i+1
+		}
+	    }
+
+	    j := 0
+	    for l := 3; l <= len(s); l++ {
+		for i := 0; i+l-1 < len(s); i++ {
+			j = i+l-1
+			if (s[i]==s[j]) && (mem[i+1][j-1]==1) {
+				mem[i][j] = 1
+				left,right = i,j
+			}
+		}
+	    }
+
+	    return s[left:right+1]
+	}
+    动态规划算法求解最长回文子串,时间复杂度为O(N^2),同时需要借助二维数组保存中间计算结果,空间复杂度为O(N^2),从复杂度上看,该求解算法效率并不高
+    看了下官方题解,有时间复杂度为O(N^2),空间复杂度为O(1)的中心扩展法,也有复杂度为O(N)的Manacher算法
