@@ -300,6 +300,9 @@
     查看当前用户权限, mysql> show grants;  
     查看某用户权限, mysql> show grants for 'xx'@'yyyy';
     回收权限, mysql> revoke privilege on *.* from 'xx'@'yyyy';
+    为了安全起见,mysql的root用户默认是不开远程访问权限的,在mysql系统库的user表,select user,host from user; 可以查看所有用户的的用户名及访问地址
+    此时若要修改某个用户的访问地址,update user set host ='%'/'ip_addr' where user = 'xxx'; flush privileges; mysql远程访问除了设置用户的访问
+    地址之外,还需要mysql位于公网,及设置mysql所在服务器防火墙
 62. 导入.frm,.myd,.myi文件
     .frm 描述了表的结构, .myd 为表的数据记录, .myi 则是表的索引数据
     mysql> create database new_db;
