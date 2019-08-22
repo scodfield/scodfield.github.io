@@ -112,3 +112,4 @@
        随着不断promote,新生代在堆中的占比不会特别大,gc回收主要集中在新生代,回收的效率也会比较高,STW的时间更短,新生代的回收频率要比老年代高
        erlang采用该算法进行垃圾回收,同时基于erlang线程避免了STW,erlang:garbage_collect/0/1/2对当前or指定进程进行垃圾回收,可以通过环境变量
        ERL_FULLSWEEP_AFTER及erlang:system_flag(fullsweep_after,Number)设置Number次浅扫描后,触发深度扫描
+12. HTTP缓存:https://mp.weixin.qq.com/s?__biz=MzUzMjk0ODI0OA==&mid=2247483754&idx=1&sn=5882213a4c48c6938ce5029f9b267a27&chksm=faaa351dcdddbc0bd3a6eb69f9e1fe6711a39320737c1db6035296037fc8a9b677b4c98a62dd&token=1212449367&lang=zh_CN&scene=21#wechat_redirect
