@@ -189,12 +189,30 @@
        var nonSlice []func()
        strSlice := []string {"1","3","5","7"}
        for _, str := range strSlice {
+           // temp := str
            nonSlice = append(nonSlice, func() { fmt.Println(str) })
+           // nonSlice = append(nonSlice, func() { fmt.Println(temp) })
        }
        for _, val := range nonSlice {
            val()
        } 
        输出结果为:7 7 7 7
+       有另外一种情况:
+       var wg sync.WaitGroup
+       for i := 0; i < 5; i++ {
+         wg.Add(1)
+         go func() {
+            fmt.Println("loop i: ",i)
+            wg.Done()
+         }()
+         time.Sleep(1 * time.Second)
+       }
+       wg.Wait()
+       在注释掉time.Sleep(1 * time.Second)的场景下,输出为: 5 5 5 5 5; 加上time.Sleep()后输出为: 0 1 2 3 4 5
+       对于这种并发中的闭包,由于其共享变量i,且主goroutine并不会等待子goroutine,在不等待的同时,由于goroutine的启动需要时间,导致子goroutine在
+       运行时,主goroutine的for循环已结束,此时i=5,则子goroutine打印5,加上sleep之后,子goroutine启动,此时共享变量i=0,1,2,3,4,则打印出来的就是
+       0 1 2 3 4,如果是上述非并发情况下,如何实现打印:0 1 2 3 4,可在:nonSlice = append(xxx) 之前加一个: temp := str , 用temp执行append操作
+       的参数(最终结果如上注释部分),这样在每次循环的时候,都会申请一个临时变量,闭包绑定这个临时变量,再次打印就是: 1 3 5 7
     c> 数组长度是数组类型的一部分,比如[3]int和[4]int是两种不同类型的int数组
     d> 数组可以通过指定索引和对应的值来初始化,如: var array1 := [...]int {0:1,3:4} // 声明并初始化一个长度(len(arrayA)=4)为4的int数组
        数组的长度和最后一个索引的值相关,比如: var array2 := [...]int{99:-1} // 声明一个长度为100的int数组,最后一个元素为-1,其余为0
