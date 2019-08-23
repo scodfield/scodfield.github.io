@@ -57,7 +57,9 @@
    方法示例: 
       type Circle struct {radius float64}  // 声明一个结构体
       func (c Circle) get_area() float64 { return 3.14* c.radius * c.radius } // 声明一个方法,可由Circle对象调用
-4. 如何理解go语言中的闭包
+4. 如何理解go语言中的闭包,闭包是匿名函数与匿名函数所引用的环境的组合,这种特性使得匿名函数不用通过参数传递的方式,就可以直接引用外部变量,类似于常规
+   函数直接引用全局变量,闭包同时保存有一个中间状态,当闭包作为函数返回值,并赋值给一个变量时,该变量不仅保存了匿名函数的地址,同时还有整个闭包的状态,
+   状态会一直保存在这个被赋值的变量中,直到变量被销毁,整个闭包也被销毁
 5. go中的切片是对数组的抽象,数组在声明时已确定大小,切片则不同,可以认为切片是动态数组,它的长度是不固定的,可以追加元素,追加元素时切片的容量会扩大
    可以通过声明一个未指定大小的数组来定义切片,或通过make()来创建切片,定义方式如下:
    var slice1 []type;  // 未指定大小的数组
@@ -179,3 +181,15 @@
     参考:
     https://segmentfault.com/a/1190000012597428
     https://mp.weixin.qq.com/s?__biz=MzU4ODczMDg5Ng==&mid=2247483688&idx=1&sn=46742e533886fe8b2fb91d79cf5144eb&scene=21#wechat_redirect
+16. some worthy tips
+    a> go中,函数是一等公民,函数和其它类型一样,可以被赋值,传递给函数或者从函数中返回,但函数两点需要注意: 函数值类型不能作为map的key(可以作为value);
+       函数值之间不能比较,只能和nil比较,函数类型的零值是nil
+    b> 匿名函数赋值给变量,中间状态也被保存在变量中,那么在对匿名函数遍历的时候(创建了一个匿名函数slice或数组),匿名函数访问的外部变量是遍历结束后最终
+       的变量值,因为多个闭包共享这个中间状态
+    c> 数组长度是数组类型的一部分,比如[3]int和[4]int是两种不同类型的int数组
+    d> 数组可以通过指定索引和对应的值来初始化,如: var array1 := [...]int {0:1,3:4} // 声明并初始化一个长度(len(arrayA)=4)为4的int数组
+       数组的长度和最后一个索引的值相关,比如: var array2 := [...]int{99:-1} // 声明一个长度为100的int数组,最后一个元素为-1,其余为0
+    e> 不能对map中的元素取地址操作,如: addr = &mapVar["wu"] // compile error: cannot take address of map element 
+        原因可能是map类型随着元素的增加map可能会重新分配地址,这将导致原来的地址失效
+    f> map为nil时不能添加值,如: var mapVar [string]string  mapVar["wu"] = "xxx" // panic: assignment to entry in nil map
+       必须使用make或者将map初始化后才能添加元素, var mapVar map[string]string   mapVar = map[string]string {"wu": "xxx"} 
