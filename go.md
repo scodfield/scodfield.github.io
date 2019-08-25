@@ -220,3 +220,29 @@
         原因可能是map类型随着元素的增加map可能会重新分配地址,这将导致原来的地址失效
     f> map为nil时不能添加值,如: var mapVar [string]string  mapVar["wu"] = "xxx" // panic: assignment to entry in nil map
        必须使用make或者将map初始化后才能添加元素, var mapVar map[string]string   mapVar = map[string]string {"wu": "xxx"} 
+    g> &var.field和(&var).field的区别,&var.field相当于&(var.field),取的是field字段的内存地址,(&var).field取的是field字段的值,另:若直接
+       对结构体变量取地址操作,发现打印出来的是:&{field1_val,field2_val,field3_val,...}
+    h> go中函数返回值类型的时候,不能赋值,如下代码所示:
+       type Employee struct { ID int Name string Addr string} 
+       func EmployeeById(id int) Employee { return Employee{ID:id} }
+       func main() {
+           EmployeeById(1).Addr = "cdtf"
+           // var xiaoming = EmployeeById(1)
+           // var.Addr = "cdtf"
+       }
+       上述输出报错:cannot assign to EmployeeById(1).Addr,函数EmployeeById返回的是值类型(右值?),值类型不能被赋值,正确的做法是声明变量接收
+       函数返回的值类型,而变量可以被赋值
+   i> 在声明方法时,如果一个类型名称本身就是一个指针,则不允许出现在方法的接收器中,示例如下:
+      type employee * Employee
+      func(this employee) changeName(name string) { this.Name = name }
+      编译报错:invalid reciever type employee(employee is a pointer type), Go中规定只有类型(Type)和指向类型的指针(* Type)才是合法的接收器
+      为了避免歧义,如果一个类型本身就是一个指针的话,不允许出现在接收器声明
+   j> 值类型变量赋值nil时,编译报错:cannot use nil as type Employee assignment
+      对nil指针赋值,运行时报错:panic runtime error: invalid memory address or nil pointer dereference
+   k> Go的时间格式化方法比较少见,与一般用YMD hms不同,示例如下:
+      time := time.Now()
+      time.Format("20060102") // YMD
+      time.Format("2006-01-02") // Y-M-D
+      time.Format("2006-01-02 15:04:05") // Y-M-D H-M-S
+      time.Format("2006-01-02 00:00:00") // Y-M-D 00:00:00
+      "2006-01-02 15:04:05"这个时间点,据说是Golang的诞生时间
