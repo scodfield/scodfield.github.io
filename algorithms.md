@@ -5,3 +5,4 @@
    b> 有重叠子问题,即子问题直接不是独立的,一个子问题在下一阶段决策中可能被多次用到,比如求解fibo(6),fibo(3)会被多次调用
    DP算法理解参考:https://www.zhihu.com/question/23995189; https://segmentfault.com/a/1190000004498566
 2. KMP算法
+3. 数据挖掘必读书+面试题:https://developer.aliyun.com/article/716005?utm_content=g_1000073970
