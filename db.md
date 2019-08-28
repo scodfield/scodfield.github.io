@@ -421,3 +421,4 @@
     truncate 整体删除,速度比delete快,不写服务器log,truncate不激活触发器(trigger),会重置identity(标识列,自增字段)
     delete 逐条删除,写服务器log,不会重置identity
     如果只删除部分数据,只能使用delete配合where条件语句
+75. mysql的几个模糊查询:like + 通配符; field in (xxx); where find_in_set(filed,strlist); where field REGEXP 'reg_exp'
