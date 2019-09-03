@@ -128,3 +128,21 @@
        访问内存请求,可将地址和数据等新号放到总线上,在C2周期中,如果cpu有访问内存请求,同样将地址,数据等新号放到总线上
     注: 常规的数据拷贝需要cpu参与,其流程是先从源地址读取到cpu中,再从cpu写到目的地址(和架构也有关系,cisc架构的X86系统也有内存到内存的指令,不需要
         借助寄存器,而risc架构的ARM没有这类指令),DMA则是通过总线直接从源到目的地址
+14. REST(Representational State Transfer) 表述/表征性状态迁移,是一组架构约束条件和规范,符合该规范的架构称之为RESTful架构
+    表述性状态迁移/转化缺少主语,这个主语就是资源,所以准确的说法是(web)资源表述性状态迁移,在web应用中,资源是一个被引用的实体或者信息,一段文字,一张
+    图片,一段音视频等等都是资源,一个资源能被引用/识别,需要一个唯一的标识,在web中就是URI(Uniform Resource Identifier,统一资源定位符),URI的设计
+    应该遵循可寻址性,自描述性
+    资源是信息实体,资源具体的呈现形式叫representation,比如文本可以是txt格式,也可以是html,json,xml等其它格式,URI只代表资源实体,不表示格式,严格说
+    地址后面的.html后缀是可省略的,后缀只表示格式,属于representation,而URI只描述资源的位置,representation在http请求的头信息中使用Accept和
+    Content-Type字段指定
+    http协议是一个无状态协议,如果客户端想要操作服务器,必须通过某种手段让服务器数据和状态发生转化,而这种转化是建立在表现层上的,所以是表现/表征状态
+    转化,具体到http协议,有四种操作用来实现这种转化:GET 获取资源; POST 新建/更新资源; PUT 更新资源; DELETE 删除资源
+    RESTful典型设计误区: 
+    URI包含动词,因为资源表示一种实体,所以应该是名词,URI不应该有动词,动词应该放在http协议,比如汇款操作
+      POST /account/1/transfer/500/to/2
+    正确的做法是把动词transfer变为名词transaction,资源也可以是抽象的一种服务,正确的一种示例如下:
+      POST /transaction HTTP/1.1
+      HOST: 127.0.0.1
+      from=1&to=2&amount=500.00
+    另一个设计误区是URI中加入版本号,不同的版本可以理解为资源的不同表现形式,版本号可以在accept字段中进行区分
+    参考:http://www.ruanyifeng.com/blog/2011/09/restful.html
