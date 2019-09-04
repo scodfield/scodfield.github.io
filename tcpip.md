@@ -60,6 +60,19 @@ Tips to remember:
       仅在标志位URG=1时有效,指定了本报文段中紧急数据的字节数
       紧急数据在报文段数据部分的首部,其后是普通数据,即当URG=1时,TCP报文:头部+数据(紧急+普通)
 2. TCP连接建立（三次握手）由内核协议栈实现,连接建立后socket状态转为established,并被放入icsk_accept_queue，accept()被唤醒,返回socket
+   TCP是可靠协议,可靠的保证机制包括:ack确认,超时重传,滑动窗口
+   前两个很好理解,对于滑动窗口需要先了解tcp流中的数据分类,以下是发送方数据分类: 
+   a> sent and acknowledged 发送且已被确认的数据,这部分数据是在窗口外的
+   b> send buy not yet acknowledged 已发送但未被确认的数据,这部分属于窗口内的数据
+   c> not sent, recipient ready to receive 未发送但是接收方可以接受的数据,这部分是已加载到发送缓存中,等待发送的数据,也在窗口中
+   d> not sent, recipient not ready to receive 未发送且接收方也不允许发送的数据,该部分数据超出了接收方的缓存
+   以下是接收方数据分类:
+   e> received and ack, not send to process 已成功接收但还未被上层应用程序接收
+   f> received not ack 已接收,还未恢复ack
+   g> not received 有空位,还没有被接收的数据
+   对于发送方来说,窗口包含两部分,一个是发送窗口(已发送,还未收到ack),一个是可用窗口(可以发送且接收方可接受),发送端窗口(两个部分)的大小根据
+   接收端的接收情况,进行动态调整,接收端Ack表明已成功接收的字节序,发送端的发送窗口向右移动,至于可用窗口的大小,根据接收端报文头部的window_size
+   字段进行调整,如果接收端发送的win_size=0,则发送方进入零窗口,在此期间停止发送数据
 3. listen()开启监听队列,客户端SYN包到来,创建新sock,sock为状态TCP_SYN_RECV,并被存入半连接队列syn_table中
    socket编程服务器端socket流程:
    a> socket_create 创建socket,一般需要指定网络协议(AF_INET-ipv4,AF_INET6-ipv6,AF_UNIX等),套接字流类型(tcp/udp等套接字),
