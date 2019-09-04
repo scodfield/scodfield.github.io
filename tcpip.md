@@ -59,9 +59,17 @@ Tips to remember:
    j> 紧急指针 Urgent Pointer 2byte
       仅在标志位URG=1时有效,指定了本报文段中紧急数据的字节数
       紧急数据在报文段数据部分的首部,其后是普通数据,即当URG=1时,TCP报文:头部+数据(紧急+普通)
-   
 2. TCP连接建立（三次握手）由内核协议栈实现,连接建立后socket状态转为established,并被放入icsk_accept_queue，accept()被唤醒,返回socket
 3. listen()开启监听队列,客户端SYN包到来,创建新sock,sock为状态TCP_SYN_RECV,并被存入半连接队列syn_table中
+   socket编程服务器端socket流程:
+   a> socket_create 创建socket,一般需要指定网络协议(AF_INET-ipv4,AF_INET6-ipv6,AF_UNIX等),套接字流类型(tcp/udp等套接字),
+      协议类型(和上一个参数相关,为对应流类型的tcp/udp协议)
+   b> socket_bind 绑定套接字,参数一般包括socket和ip以及port,将创建的socket套接字绑定到(ip,port)构成的这个地址,如果有其它socket需要连接
+      这个socket,那么指定(ip,port)构造的地址就可以找到该socket
+   c> socket_listen 监听套接字,参数就是上述创建的socket,默认创建的套接字是可以主动connect其它套接字的主动套接字,listen告诉内核某个套接字
+      可以接受其它socket的连接请求,把默认的主动套接字变为被动套接字
+   d> socket_accept 等待套接字的连接请求,参数为listen返回的被动套接字,accept函数从处于监听状态的socket的连接请求队列中,取出一个请求,创建
+      一个新的套接字,与客户端套接字建立连接通道,如果连接成功,返回新创建的套接字fd,失败则返回invalid_socket
 4. SYN攻击:客户端伪造大量IP地址,不间断的向服务器发送SYN包,塞满服务端半连接队列,导致正常的SYN请求被丢弃,SYN攻击是DDos攻击的一种,检测SYN攻击
    netstat + awk '/^tcp/' 查看SYN_RECV状态的tcp连接即可
 5. 在进行本地压测的时候,出现一个情形,首次启动客户机没有任何问题,加机器人再次启动客户机时,日志报:connrefused
@@ -94,6 +102,12 @@ Tips to remember:
 9. HTTP/1.0 短连接,每次request都会建立一个单独的连接,因此请求较多时,连接的建立和释放会占用大量的系统资源
    HTTP/1.1 支持长连接,管线处理,在一个连接上可以传送多个请求和响应,并且客户端可以在上一个请求未返回前再次发送请求,不过服务器则需要保证
    按客户端请求的顺序,返回响应,1.1还新增了一些请求/响应头域来扩展功能,比如:status code, request method(options,put,delete..),host域
+   HTTP状态码, 1xx 消息,服务端已收到请求,需要请求者继续执行操作; 2xx 成功,请求收到并被处理; 3xx 重定向,需要进一步操作完成请求; 4xx 客户端
+   错误,语法错误或找不到请求的资源; 5xx 服务端错误,服务器在处理请求的过程中出现错误
+   常见状态码:
+    200 ok 请求成功; 305 use proxy 请求的资源必须通过代理访问; 400 bad request 客户端语法or请求参数有误; 401 unauthorized 请求需要用户
+    认证; 403 forbidden 服务器理解请求,但拒绝执行; 404 not found 服务器未找到请求的资源; 500 internal server error 服务器内部错误; 501 
+    not implemented 服务器不支持请求的功能; 502 bad gateway 网关or代理服务器尝试发送请求时,从上游服务器收到一个无效的响应
 10. 服务器在httpc:request/4时报错:inet eaddrinuse, 同时:erl -sname test  也会报同样的错误,POSIX Error Codes说是address被占用
     通过对比其他资料,这个address应该就是需要占用的端口,httpc申请的是动态端口,那么很有可能是动态端口不够用
     /proc/sys/net/ipv4/ip_local_port_range 查看本地TCP/UDP端口范围
