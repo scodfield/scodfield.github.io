@@ -426,3 +426,7 @@
     delete 逐条删除,写服务器log,不会重置identity
     如果只删除部分数据,只能使用delete配合where条件语句
 75. mysql的几个模糊查询:like + 通配符; field in (xxx); where find_in_set(filed,strlist); where field REGEXP 'reg_exp'
+76. mysql与mongo或者关系型数据库与非关系型数据库的缺点:
+    a> 事务，mongo4.0引入了事务,但还是有局限性
+    b> 关系完整性(外键),如果数据之间有关系,mongo需要借助应用程序
+    c> 数据结构,mongo在结构方面提供了极大的灵活性,但是为了保证数据的可用性，应用程序需要做大量的维护
