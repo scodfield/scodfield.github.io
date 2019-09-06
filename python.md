@@ -34,5 +34,35 @@
    不过单双引号字符串通常都写在一行,如需换行,需在行尾加换行符"\",同时单双引号相互嵌套时,需在转义字符
    而三引号字符串可以由多行组成,无需显式使用换行符,同时三引号可以字符串内可以直接使用单双引号,而无需转义
    最后,三引号内还可以包含注释
-4. Python以下划线开头的标识符有特殊意义,以单下划线开头的标识不能直接访问的类属性,需通过类提供的接口访问,也不能通过from xximport * 导入;
-   以双下划线开头的代表类的私有成员;以双下划线开头和结尾的是Python里特殊方法专用的标识,比如__init__() 标识类的构造函数
+4. some tips to remeber:
+   a> Python以下划线开头的标识符有特殊意义,以单下划线开头的表示不能直接访问的类属性,需通过类提供的接口访问,也不能
+      通过from xximport * 导入; 以双下划线开头的代表类的私有成员;
+      以双下划线开头和结尾的是Python里特殊方法专用的标识,比如__init__()表示类的构造函数
+   b> 当函数的参数不确定时,可以使用* args和 ** kwargs,* args 没有key值,** kwargs有key值,主要用于函数定义,用于传递不定数量
+      的参数,其实并不是必须写成args和kwargs,也可以用var和kwvar,只有* 才是必须的
+      * args用来发送一个非键值对的可变数量的位置参数列表给函数,实际存储类型是一个tuple,如下示例:
+      def var_args(fixed_arg,* argv):
+          print("fixed arg: ", fixedZ_arg)
+          for arg in argv :
+              print("another args through * argv: ", arg)
+      var_args("apple","banana","orange") 
+      ** kwargs 允许将不定长度的键值对,作为关键字参数传递给函数,实际存储类型是一个dictionary,示例如下:
+      def kw_args(** kwargs):
+          for key,value in kwargs.items():
+              print("{0} --> {1}".format(key,value))
+      kw_args(name="thd") // name --> thd
+      * args 和 ** kwargs的使用示例:
+      def var_args_kwargs(arg1,arg2,arg3):
+          print("arg1: ", arg1)
+          print("arg3: ", arg3)
+          print("arg3: ", arg3)
+      // * args
+      args ("f23",23,"f3r") // arg1: f23  arg2: 23 arg3:f3r
+      var_args_kwargs(* args)
+      // ** kwargs
+      kwargs = {"arg3":"34t","arg2":"2f3","arg1":67}
+      var_args_kwargs(** kwargs) // arg1: 67 arg2: 2f3 arg3: 34t
+      如果想在函数中同时使用这三种参数,定义顺序为: def fun_name(stand_args, * args, ** kwargs)
+   c> global语句声明全局唯一变量,一般在函数内为函数外定义的变量赋值时,需要再次声明一下,表明这个变量是在语句块以外定义的
+   d> async/await是python在3.5版本中引入的关于协程的语法糖,主要用于异步编程
+   python进阶: https://docs.pythontab.com/interpy/
