@@ -81,6 +81,10 @@
       slice2 = append(slice2,4,5,6,7,8)  // slice2.cap = ceil((slice2.cap + len([4,5,6,7,8])/2) * 2
    切片持有对底层数组的引用,只有切片在内存中,数组就不会被垃圾回收,如果有一个较大的数据,但我们只处理其中的一部分数据,由该数组创建切片时,只要仍在使用
    切片,数组就不会被回收,解决办法是使用func copy(dst, src []T)int函数来生成一个切片副本,这样可以使用新切片,原始数组被垃圾回收
+   记一个小坑:在爬取豆瓣电影top250的时候,解析函数parseUrl有一个slice参数,在外层调用声明:var results []Result,解析后在外层调用时,发现results为空,
+   按说切片是地址传递,为啥最后还是空呢,这是因为在parseUrl函数中调用了append函数,在添加元素的时候,切片的空间不够,分配了新的空间,在外层调用函数中
+   results还是指向原来的地址,所以正确的做法是在外层调用函数中:results = parseUrl(url,results),相应的parseUrl/2函数要将最后新的results返回,具
+   体实现参见douban_top250.go
 5. go并发,通过go关键字开启goroutine线程,goroutine是轻量级线程,由go运行时进行管理,goroutine语法格式: go f_name(parameters), 通道channel可用于
    两个goroutine之间的通信,通道可由关键字chan和make()函数创建,例: ch := make(chan int),默认情况下通道是没有缓冲区的,发送端发送数据,同时必须有
    接收端接收数据,(经过测试,貌似没有缓冲区的通道,存储数据的部分是个栈结构,带缓冲区的是个队列),通道可通过make的第二个参数设置缓冲区大小,带缓冲区的
