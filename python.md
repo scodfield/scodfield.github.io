@@ -30,10 +30,19 @@
 2. 安装pyInstaller时,下载某些依赖时提示time out,只好直接下载whl文件
    whl文件的安装方法很简单,下载之后,在whl文件目录开启gitbash,执行:pip install xxx.whl即可
    自动安装到python安装目录的Lib/site-packages/xxx
-3. 单引号'',双引号"",三引号'''...''',"""...""" 均可表示字符串,使用时没有任何区别
-   不过单双引号字符串通常都写在一行,如需换行,需在行尾加换行符"\",同时单双引号相互嵌套时,需在转义字符
-   而三引号字符串可以由多行组成,无需显式使用换行符,同时三引号可以字符串内可以直接使用单双引号,而无需转义
-   最后,三引号内还可以包含注释
+3. tips about syntax:
+   a> python中的字符串类型是str,在内存中以unicode表示,一个字符对应若干个字节,但是如果要在网络中传输或者保存到磁盘上,就需要把str变为以字节为
+      单位的bytes(类似于go中的字节数组?),bytes类型的数据以带'b'前缀的单引号或双引号表示(x=b'ABC'),要注意区分'ABC'和b'ABC',两者在显示上是一
+      样的,但是bytes每个字符只占用一个字节,在内存中以unicode表示的str可以通过encode()方法,编码为指定的bytes,如:'ABC'.encode('ascii')  
+      '中文'.encode('utf-8'), 反过来,从磁盘或网络读取到的是bytes字节流,Python通过decode()方法把bytes转换为str,如:b'ABC'.decode('ascii')
+      如果bytes中含有无法解码的字节,decode会报错,如:b'\xe4\xb8\xad\xff'.decode('utf-8')  // UnicodeDecodeError:cannot decode '0xff' in 
+      position 3 invalid start byte, 如果bytes中只有一小部分的无效字节,可以通过传入errors='ignore'忽略错误的字节,如: 
+      b'\xe4\xb8\xad\xff'.decode('utf-8',errors='ignore') // '中' 
+      注:len()函数计算的是str的字符个数,如需要计算字节,转为bytes后再调用len()就是计算的字节数
+   d> 单引号'',双引号"",三引号'''...''',"""...""" 均可表示字符串,使用时没有任何区别
+      不过单双引号字符串通常都写在一行,如需换行,需在行尾加换行符"\",同时单双引号相互嵌套时,需在转义字符
+      而三引号字符串可以由多行组成,无需显式使用换行符,同时三引号可以字符串内可以直接使用单双引号,而无需转义
+      最后,三引号内还可以包含注释
 4. some tips to remeber:
    a> Python以下划线开头的标识符有特殊意义,以单下划线开头的表示不能直接访问的类属性,需通过类提供的接口访问,也不能
       通过from xximport * 导入; 以双下划线开头的代表类的私有成员;
