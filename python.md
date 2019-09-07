@@ -140,8 +140,29 @@
       isinstance(iter([]),Iterator) // True
       注:为什么list,str不是Iterator,因为Iterator对象表示的是一个数据流,一个有序序列,但是我们不能提前知道序列的长度,只能不断通过next()函数
       按需计算下一个值,Iterator的计算是惰性的,只有在需要返回下一个值时才会进行计算,所以Iterator可以看做是一个惰性计算序列
+   m> 假设我们要增加函数的功能,比如在函数调用前后打印调用日志,但又不希望改动函数原有的定义,这种在代码运行期间动态增加功能的方式,
+      称之为装饰器Decorator,本质上Decorator就是一个返回函数的高阶函数,示例:
+        def log(func):
+            def wrapper(*args,**kw):
+                print('call %s():' % func.__name__)   // __name__ 函数对象的属性,可以得到函数的名字
+                return func(*args,**kw)
+            return wrapper
+      log()函数就是一个Decorator,它接受一个函数,并返回一个函数,我们需要借助Python的@语法,将Decorator置于函数的定义出
+        @log
+        def now():
+            print('2019-8-1')
+      调用now()函数时,不仅会运行now本身,还会在运行now函数前打印一行调用日志:
+      >>> now()   // call now():  2019-8-1
+      把@log放到now()函数的定义处,相当于执行了:now = log(now), 由于log是装饰器,所以它返回一个函数,因此原来的now()函数还在,新的now()函数
+      指向返回的新函数,于是调用now()将执行新函数,也就是返回的wrapper()函数,wrapper函数参数为(*args,**kw),它可以接受任意参数的调用,在
+      wrapper函数内,首先打印日志,紧接着调用原始的now函数
+   n> functools.partial帮助我们创建一个偏函数,示例:
+        >>> import functools
+        >>> int2 = functools.partial(int,base=2)
+        >>> int2('1000000')  // 64
+      functools.partial的作用是,把一个函数的某些参数固定住(设置默认值),返回一个新函数,方便新函数的创建和调用
 4. some tips to remeber:
-   a> Python以下划线开头的标识符有特殊意义,以单下划线开头的表示不能直接访问的类属性,需通过类提供的接口访问,也不能
+   a> Python以下划线开头的标识符有特殊意义,以单下划线开头的表示不能直接访问的类属性(私有属性,只能在模块内引用),需通过类提供的接口访问,也不能
       通过from xximport * 导入; 以双下划线开头的代表类的私有成员;
       以双下划线开头和结尾的是Python里特殊方法专用的标识,比如__init__()表示类的构造函数
    b> 当函数的参数不确定时,可以使用* args和 ** kwargs,* args 没有key值,** kwargs有key值,主要用于函数定义,用于传递不定数量
@@ -171,4 +192,11 @@
       如果想在函数中同时使用这三种参数,定义顺序为: def fun_name(stand_args, * args, ** kwargs)
    c> global语句声明全局唯一变量,一般在函数内为函数外定义的变量赋值时,需要再次声明一下,表明这个变量是在语句块以外定义的
    d> async/await是python在3.5版本中引入的关于协程的语法糖,主要用于异步编程
+   g> python的包就是包含各个.py模块的文件夹,通过包来组织模块,避免模块冲突,要注意的是每一个包目录下面都一个__init__.py的文件,这个文件是必须
+      存在的否则Python会把这个目录当成普通目录,而不是一个包,__init__.py可以是空文件,也可以有Python代码,__init__.py本身就是一个模块,模块名
+      就是包名,类似的,也可以有多级目录,组成多层次的包结构
+      注:当我们在命令行运行模块时,Python解释器会把一个特殊变量'__name__'置为'__main__',常见用法如下:
+          if __name__ == '__main__':
+              test_code()
+      如果在其它地方导入该模块时,if 判断将失败,因此上述用法可以让模块通过命令行运行时,执行一些代码,常用于运行测试
    python进阶: https://docs.pythontab.com/interpy/
