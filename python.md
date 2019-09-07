@@ -75,6 +75,71 @@
       不过单双引号字符串通常都写在一行,如需换行,需在行尾加换行符"\",同时单双引号相互嵌套时,需在转义字符
       而三引号字符串可以由多行组成,无需显式使用换行符,同时三引号可以字符串内可以直接使用单双引号,而无需转义
       最后,三引号内还可以包含注释
+   g> 递归函数定义简单,逻辑清晰,但是要防止出现栈溢出,由于函数调用是借助栈帧这种数据结构实现的,每次调用都会增加一个栈帧,返回时再减一个,所以在栈
+      大小一定的情况下,递归调用的次数过多时,会导致栈溢出,解决栈溢出的方法是尾递归优化,尾递归指的是函数返回(return)时调用自身,它要求返回语句不能
+      包含表达式,这样编译器或者解释器就可以做尾递归优化,无论递归调用多少次,都只占用一个栈帧,不会出现栈溢出的情况,示例如下:
+      def fact_no_wei(n):
+          if n == 1:
+              return 1
+          return n * fact_no_wei(n-1)
+      // 尾递归优化
+      def fact(n):
+          return fact_tail_recursion(n,1)
+      def fact_tail_recursion(n,res):
+          if n == 1:
+              return res
+          return fact_tail_recursion(n-1,n * res)
+      可以看到: return fact_tail_recursion(n-1,n * res)只返回了递归函数本身, n-1 & n * res会在函数调用前就计算好,不影响函数调用
+      注:上述代码的优化并不一定能实现尾递归调用,最终还是要看该语言的编译器or解释器是否针对尾递归做优化,python标准解释器貌似没有做相关的优化,
+      不过erlang虚拟机已对尾递归进行了优化,所以erlang的尾递归不会出现栈溢出
+  h> Python中的切片操作下标是左闭右开,切片的[start:end:step],第一个':'前后是起始&结束下标,第二个':'的右边是切片时的步长
+     list,tuple,str都可以应用切片操作,操作结果还是对应的数据类型
+  i> 任何可迭代对象都可以用for...in来迭代
+     对于dict来说,默认迭代的是key, for k in var_dict: , 如果迭代values,可以用for v in var_dict.values(): ,如果同时迭代key和values,
+     可以用for k,v in var_dict.items(): ,
+     那么如何判断一个对象是不是可迭代对象,可以通过collections模块的Iterable类型来判断,示例:
+     from collections import Iterable
+     isinstance('abc',Iterable) // True
+     isinstance([2,3,4,6],Iterable) // True
+     isinstance(100,Iterable) // False
+     注:如果想对list进行下标循环,Python内置的enumerate()函数把list变成索引-元素对,这样就可以在for循环找中同时迭代索引和元素本身,示例:
+        for i,v in enumerate(['a','b','c','d']):
+            print(i,v)
+  j> Python的列表生成式语法,[var_express for var in var_list],生成元素的表达式放到最前面,后面跟for...in循环,for循环后面还可以加上if判断
+     [var_express for var in var_list if var_bool_express], 还可以使用双层循环,构造全排列,示例:
+     [a+b for a in 'abc' for b in 'efg']
+     erlang也有列表生成式,语法稍有不同([express || var <- var_list,var_bool_express])
+  k> 通过列表生成式可以很方便的生成一个list,但是创建一个很大的列表,不仅浪费空间,有时候也并不会访问全部的元素,因此,如果列表的元素可以按照
+     某种算法推算出来,那么我们就可以在循环中不断推算出后续元素,这样就不必创建完整的list,从而节省大量的空间,Python中这种一边循环一边计算
+     的机制,称之为生成器generator
+     创建生成器的方法有多种,第一种方法最简单,只有把一个列表生成式的'[]',改成'()'即可,示例:
+     L = [x * x for x in [1,2,3,4]]  // 1 4 9 16
+     G = (x * x for x in [1,2,3,4])  // <generator object <genexpr> at 0x00001B5D56D3>
+     生成器创建之后,可以通过next()函数获得generator的下一个返回值,每次调用next(G)就计算G的下一个元素,直到抛出StopIteration错误,由于生成器
+     也是可迭代对象,所以也可以用for循环,事实上大多数情况下都是用for循环来迭代生成器
+     需要注意的是,调用next()或for循环迭代生成器G之后,再次调用时next()会抛出StopIteration错误,for循环则不再打印任何元素,可知迭代结束后,生
+     成器会保持结束状态
+     生成器定义的另一种方法是:函数定义中包含yield关键字,那么这个函数就不再是一个普通函数,而是一个generator,示例:
+       def fibo(tar):
+           n,a,b = 0,0,1
+           while n < tar:
+               yield b
+               a,b = b, a+b
+               n = n + 1
+           return 'done'
+       f = fibo(6) // <generator object fibo at 0x00001D4C6BD5>
+       next(f)  // 1
+       next(f)  // 1
+       next(f)  // 2
+       next(f)  // 3
+     generator函数每次调用next()时执行,遇到yield语句返回,再次调用next()时,从上次返回的yield处继续执行,同样的,多数情况下也不会用next()函数
+     返回下一个值,而是直接使用for...in循环,for n in fibo(6): print(n)  // 1 1 2 3 5 8
+   l> 可以被next()函数调用并不断返回下一个值的对象称为迭代器Iterator,通过isinstance()和collections模块的Iterator类型,可以判断一个对象是不是
+      迭代器对象,生成器都是Iterator对象,list,dict,tuple,str虽然是Iterable,却不是Iterator,list,str等Iterable可以变成Iterator,通过iter()函数
+      isinstance([],Iterator) // False
+      isinstance(iter([]),Iterator) // True
+      注:为什么list,str不是Iterator,因为Iterator对象表示的是一个数据流,一个有序序列,但是我们不能提前知道序列的长度,只能不断通过next()函数
+      按需计算下一个值,Iterator的计算是惰性的,只有在需要返回下一个值时才会进行计算,所以Iterator可以看做是一个惰性计算序列
 4. some tips to remeber:
    a> Python以下划线开头的标识符有特殊意义,以单下划线开头的表示不能直接访问的类属性,需通过类提供的接口访问,也不能
       通过from xximport * 导入; 以双下划线开头的代表类的私有成员;
