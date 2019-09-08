@@ -200,3 +200,24 @@
               test_code()
       如果在其它地方导入该模块时,if 判断将失败,因此上述用法可以让模块通过命令行运行时,执行一些代码,常用于运行测试
    python进阶: https://docs.pythontab.com/interpy/
+5. asyncio编程模型就是一个消息循环,类似于erlang中的gen_server:loop函数,不断的循环处理可以执行的coroutine
+   具体说就是从asyncio模块获取一个EventLoop的引用,然后把需要执行的coroutine扔到EventLoop循环中,这样就可以实现异步IO
+   python的协程是由yield定义的generator实现的,@asyncio.coroutine可以把一个generator标记为coroutine类型,使用示例:
+   import threading,asyncio
+   @asyncio.coroutine
+   def hello():
+       print("hello, %s" % threading.currentThread())
+       yield from asyncio.sleep(1)
+       print("hello again, %s" % threading.currentThread())
+   loop = asyncio.get_event_loop()  // 获取EventLoop
+   tasks = [hello(), hello()]
+   loop.run_until_complete(asyncio.wait(tasks)) // 等待所有的task执行完毕
+   loop.close()
+   从上述演示代码可知,通过@asyncio.coroutine把一个generator标记为coroutine,然后再coroutine内部通过yield from来调用另一个coroutine实现
+   异步操作,asyncio是python3.4引入的对异步IO的支持,为了更好的标识异步IO,python3.5引入了新的语法async/await,可以让coroutine更简洁易读,
+   使用新语法,只需要做两个简单的替换即可: @asyncio.coroutine替换为async; yield from 替换为await; 新语法代码如下示:
+   async def hello():
+       print("hello, %s" % threading.currentThread())
+       await asyncio.sleep(1)
+       print("hello again, %s" % threading.currentThread())
+   注:yield from 语句可以方便的调用另一个generator,并拿到返回的值
