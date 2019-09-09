@@ -318,3 +318,11 @@
    l> Flask处理文件上传非常简单,只需要一个html表单,并将其enctype属性设置为'multipart/form-data',url规则对应的处理函数从request.files[]
       对象中提取文件,并保存到指定位置,可在Flask应用的配置文件中设置默认的上传路径及文件的最大大小(字节),字段为'UPLOAD_PATH','MAX_CONTENT_PATH'
       比如,form表单中的<input type='file' name='up_file' />, 则提取文件为: file = request.files['up_file']
+   m> Flask SQLAlchemy是一个Flask模块扩展,提供强大的OR Mapper
+      object Relation Mapping(ORM)对象关系映射,是将对象参数映射到底层RDBMS表结构的技术,ORM API提供了执行CRUD操作的方法,而不必编写原始sql语句
+   n> Flask Sijax, Sijax指 Simple Ajax,是一个python/jQuery库,旨在将Ajax引入应用程序,要使响应函数能够处理Sijax请求,需使用@app.route('/url',
+      methods=[\'GET\', \'POST\']),或者使用@flask_sijax.route()辅助装饰器,如:@flask_sijax.route(app,'/hello')
+      使用ajax除了安装导入以外,app还需要以下两个配置: SIJAX_STATIC_PATH 默认位置是static/js/sijax,此文件夹中要保留sijax.js和json2.js文件;
+      SIJAX_JSON_URI json2.js的路径,检测是否是Sijax请求,还需导入flask.g, g.sijax.is_sijax_request()会在服务器上检测到Sijax请求,使用
+      g.sijax.register_callbakc()注册的函数,都会公开,以便从浏览器进行调用,使用g.sijax.process_request()会告诉Sijax执行先去注册的函数,并
+      将相应返回给浏览器
