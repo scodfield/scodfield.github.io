@@ -221,3 +221,100 @@
        await asyncio.sleep(1)
        print("hello again, %s" % threading.currentThread())
    注:yield from 语句可以方便的调用另一个generator,并拿到返回的值
+6. tips about Flask:
+   a> Flask()构造函数使用当前模块(__name__)的名称作为参数,创建一个Flask类对象,一个对象就是一个WSGI应用程序
+      from flask import Flask
+      app = Flask(__name__)
+   b> flask类的route()函数是一个装饰器,告诉应用程序,哪个url由那个函数处理,示例:
+      @app.route('/hello')
+      def hello():
+          return 'Hello Flask!'
+      application对象的add_url_rule()方法也可以用于将url与函数绑定,如:app.add_url_rule('/','hello',hello)
+   c> Flask类的run()方法,在本地开发服务器上运行应用程序,app.run(host,port,debug,options),所有参数均可选
+      host 默认为127.0.0.1,设置为'0.0.0.0'可使服务器外部可用
+      port 默认为5000
+      debug 默认为False,设置为True,则提供调试信息
+      options 要转发到底层的Werkzeug服务器
+   d> 通过向url rule参数添加变量部分,可用动态构建url,变量标记为:<var_name>,变量名作为关键字参数传递给与url规则绑定的函数,示例:
+      @app.route('/hello/<name>')
+      def hello(name):
+          return 'Hello %s' % name
+      如果在浏览器中输入: http://localhost:5000/hello/thd, 则'thd'将作为参数传递给hell()函数,除了默认字符串变量外,还可以添加
+      int,float,path等类型变量,示例:
+      app.route('/thd/ver/11')   app.route('/thd/sub_ver/1.1')  app.route('/thd/flask/')
+      定义'/thd/flask/'和'/thd/flask', 这两个url规则有些不同,第一个规则是规范的,使用'/thd/flask/'和'/thd/flask'返回相同的输出,但是
+      如果定义的是第二个规则,使用'/thd/flask/'访问,会返回404错误
+   e> url_for()函数用于动态构建特定函数的url,需要从flask导入redirect和url_for,示例:
+      @app.route('/hello_admin')
+      def hello_admin(): 
+          return 'Hello admin'
+      @app.route('/guest/')
+      def hello_guest(name):
+          return 'Hello guest, %s!' % name
+      @app.route('/user/')
+      def hello_user(user):
+          if user == 'admin':
+              return redirect(url_for('hello_admin'))
+          else:
+              return redirect(url_for('hello_guest',name = user))
+      http://localhost:5000/user/admin // Hello admin
+      http://localhost:5000/user/thd // Hello guest, thd!
+      hello_user()函数接受来自url的参数的值,赋给user变量,通过与'admin'等比较,使用url_for()函数重定向到hello_amin或hello_guest函数
+   f> Flask HTTP方法:GET 以未加密方式将数据发送到服务器; HEAD 与GET方法相同,但没有响应体; POST 将html表单数据发送到服务器; PUT 用上传
+      的内容,替换目标资源的所有当前表示; DELETE 删除由url给出的目标资源的所有当前表示
+      Flask路由默认响应GET请求,但是可以通过为route()方法提供参数来更改默认选项,示例:
+      <form action = "/login", method = "post"> xxx </form> 
+      @app.route('/regist', methods = ['GET','POST'])
+      def regist():
+          if request.method == 'POST':
+              name = request.form['name']
+              pwd  = request.form['pwd']
+          else:
+              name = request.args.get('name')
+              pwd  = request.args.get('pwd')
+          return redirect(url_for('login',name=name,pwd=pwd))
+   g> Flask模板,绑定url的函数可以以html的形式返回,但是从Python代码生成具体甚至是负责的html内容将会非常麻烦,可以利用Flask基于的jinjia2模板
+      引擎,返回html,需导入render_template(),示例:
+      from flask import render_template
+      @app.route('/hello')
+      def hello():
+          return render_template('hello.html')
+      Flask将尝试从应用程序的templates/文件夹中找到hello.html
+      web模板系统(web templating system)指的是设计一系列html脚本,其中可以动态插入变量数据,模板系统包括模板引擎,数据源和模板处理器
+      jinja2引擎使用以下分隔符从html转义:{% ... %} 用于if,for等语句,结束语句则是:{% endif %}, {% endfor %}; {{ ... }} 用于表达式输出到
+      模板,比如:{{ var_name }}, 用于显示在render_template()函数中指定的关键字参数; {# ... #} 未包含在模板输出中的注释; # ... # 行语句
+   h> Flask静态文件,在应用程序的static/文件夹下,包括支持html显示的css,js文件以及图片等,html中的script标签指定js脚本文件,示例:
+      <script type = "text/javascript" src = " {{ url_for('static', filename='xxx.js') }}"></script>
+   i> Flask Request对象,来自客户端网页的数据作为全局请求对象(上述示例中的request变量)发送到服务器,Request对象包含以下属性: form 一个字典
+      对象,包含表单参数及其值; args 解析查询字符串,url中'?'之后的那部分; cookies 字典对象,包含cookies的键值; files 与上传文件有关的数据;
+      method 当前请求方法
+   j> cookie以文本文件的形式存储在客户端的计算机上,目的是记住和跟踪与客户使用相关的数据,Flask Request对象包含cookie属性,如果对Respond
+      响应对象设置cookie,需要先通过resp = make_response('resp_xxx.html')函数的返回值来获取响应对象,再通过响应对象的set_cookie函数来
+      存储cookie,resp.set_cookie('userID',1001),最后再:return resp,返回响应,上述不带cookie的返回是直接:return(render_template('xx'))
+      与cookie不同,session(会话)数据保存在服务器上,会话是客户端登录服务器,并注销的时间间隔,需要在会话期间保存的数据存储在服务器上的临时目录
+      为每个客户端的会话分配一个会话ID,会话数据存储在cookie的顶部,服务器以加密方式对其进行签名,对于此加密,Flask需要定义一个SECRET_KEY,session
+      对象也是一个全局的字典对象,保存会话变量及其值,比如,提示玩家登录:
+      @app.route('/')
+      def index():
+          if 'username' in session:
+              username = session['username']
+              return render_template('succ_login.html',username=username)
+          return render_template('login.html')
+      当然我们需要在'/login'规则绑定的login()函数中,设置该session变量: session['username'] = request.form['username']
+      以及在'/logou'规则绑定的logout()函数中,删除该session变量: session.pop('username',None)
+      实现上述session的前提是包含以下操作:
+      from flask import session
+      app.secret_key = 'my_random_key'
+   k> Flask消息闪现,类似桌面系统的消息框,或js使用的警报,Flask模块提供flash(message, category)方法,它将消息传递给下一个请求,通常是一个模板
+      message参数是要闪现的消息,category参数可选,可以是'error','info'或'warning',为了从会话中删除消息,模板调用get_flashed_messages()
+      以下示例在模板中接收消息:
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          {% for message in messages %}
+            {{ message }}
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+   l> Flask处理文件上传非常简单,只需要一个html表单,并将其enctype属性设置为'multipart/form-data',url规则对应的处理函数从request.files[]
+      对象中提取文件,并保存到指定位置,可在Flask应用的配置文件中设置默认的上传路径及文件的最大大小(字节),字段为'UPLOAD_PATH','MAX_CONTENT_PATH'
+      比如,form表单中的<input type='file' name='up_file' />, 则提取文件为: file = request.files['up_file']
