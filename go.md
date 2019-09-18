@@ -296,3 +296,11 @@
     e> go test命令会自动测试每一个指定的代码包,前提是指定的代码包中存在测试源码文件,测试源码文件是以"_ test.go"为后缀的,内含若干测试函数的源码
        文件,这种测试以代码包为单位,go test在执行完代码包中的测试文件之后,会以代码包为单位打印出测试概要信息(测试时不同代码包以空格分隔),第一列
        为测试结果(是否通过),第三列为测试用时(以秒为单位)
+18. tips about Beego框架之bee(类似erlang的rebar),bee工具是一个为了协助快速开发beego项目而创建的项目,通过bee可以快速创建项目,实现热编译,开发
+    测试以及项目打包/发布,通过以下命令创建bee工具:go get github.com/beego/bee, 安装后默认在$GOPATH/bin,常用命令如下:
+    a> new命令,新建一个web项目,在$GOPATH/src路径下,shell/cmd命令行执行:bee new thd 创建一个名为thd的新项目
+    b> api命令,new新建web项目,api命令创建API应用,该命令还支持一些自定义参数自动连接数据库,创建相关的model和controller,如:
+       bee api thd_api -table="xxx" -driver=mysql/tidb... -conn=root:xx@tcp(db_ip:port)/table_name
+    c> run命令,监控beego项目,通过fsnotify监控文件系统,可以实时看到项目修改之后的效果,可以实时监控项目中controller相关的.go文件的更改,自动build
+       及restart整个项目,只需刷新浏览器即可看到最新的效果,无需再手动编译运行
+    d> test命令,基于go test封装的一个命令,执行beego项目test/下的测试用例
