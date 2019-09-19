@@ -251,6 +251,9 @@
       time.Format("2006-01-02 15:04:05") // Y-M-D H-M-S
       time.Format("2006-01-02 00:00:00") // Y-M-D 00:00:00
       "2006-01-02 15:04:05"这个时间点,据说是Golang的诞生时间
+   l> 给一个nil chan发送or接收数据,报:fatal error, all goroutines are asleep - deadlock,所以var a_chan chan type之后,必须调用make()函数
+      对chan变量进行初始化,给一个已关闭的chan发送数据(在close(chan_var)之后再次发送数据),会报:panic, send on closed channel,而从一个已关闭
+      的chan接收数据,不会报错,返回的是一个chan类型的零值
 17. Go Command
     a> go build命令用于编译指定的源码或代码包及它们的依赖,如果执行go build命令时不跟代码包,则命令将会尝试编译当前目录所对应的代码包
        go中的源码文件有三大类,命令源码文件,库源码文件和测试源码文件,命令源码文件作为可执行的程序入口,库源码文件一般用于集中放置各种待被使用的
