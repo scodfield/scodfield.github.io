@@ -304,3 +304,24 @@
     c> run命令,监控beego项目,通过fsnotify监控文件系统,可以实时看到项目修改之后的效果,可以实时监控项目中controller相关的.go文件的更改,自动build
        及restart整个项目,只需刷新浏览器即可看到最新的效果,无需再手动编译运行
     d> test命令,基于go test封装的一个命令,执行beego项目test/下的测试用例
+    e> pack命令,用来发布应用的时候打包,会把项目打包成zip文件
+    f> generate命令自动生成代码,参数如下:
+       bee generate model [model_name] [-fields="xxx"] 基于fields一键生成RESTful model, -fields是一系列table字段,
+          格式为:field:type,如: -fields="id:int,name:string,title:string",-fields参数下同
+       bee generate controller [controllerfile] 生成RESTful controller
+       bee generate view [viewpath] 在指定viewpath生成CRUD view
+       bee genearte scaffold [scaffold_name] [-fields="xxx"] [-driver=mysql] [-conn="root:@tcp(ip:port)/table_name] 
+       bee generate migration [migrationfile] [-fields="xxx"] 生成数据库架构更新迁移文件
+       bee generate test [routerfile] 生成router文件的测试用例
+       bee generate appcode [-tables="xxx"] [-driver=mysql] [-conn="root:@tcp(ip:port)/table_name] [-level=3] 
+          基于已创建的database自动生成appcode,-tables是一列以逗号分隔的表名,默认为空,表示database中的所有表, -driver [mysql|postgres|sqllist]
+          默认是mysql, -conn driver使用的连接数据库信息,-level 1|2|3 1-models 2-models,controllers 3-models,controllers,router
+    g> migrate命令,用于项目的数据库迁移,每次项目升级,降级的sql管理
+       bee migrate [-driver=mysql] [-conn="xxx"] 运行all migrations
+       bee migrate rollback [-driver=xxx] [-conn="xxx] 回滚上一次migration操作
+       bee migrate reset [-driver=xxx] [-conn="xxx"] 回滚all migration操作
+       bee migrate refresh [-driver=xx] [-conn="xxx"] 回滚all migration 并再次重新运行
+    bee安装目录下有一个bee.json文件,为bee工具的配置文件,有几个常见的配置项
+       "watch_ext" : [] 可用于监控其它类型的文件,默认只监控.go的文件
+       "cmd_args" : [] 如果需要在每次启动时加入启动参数,可使用该配置项
+       "envs" : [] 如果需要在每次启动时设置临时环境变量参数,可使用该配置项
