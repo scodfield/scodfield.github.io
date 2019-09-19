@@ -339,3 +339,23 @@
       }
       return curMax
    }
+14. 买卖股票的最佳时机ii,扩展买卖股票的最佳时机i的解法,因为可以多次交易,所以记录当前这一手交易的当前最大获利&最低股价,
+    若第i天出手交易获利小于当前已获得的最大获利,则当前这一手交易结束,从第i天开始新的一手交易,重置新的当前获利&最低股价,代码如下:
+    func maxProfit(prices []int) int {
+      if len(prices) <= 1 {
+ 		return 0   		
+      }
+      var profit,curMaxProfit,min,i int
+      profit,curMaxProfit,min,i = 0,0,prices[0],1
+      for ; i < len(prices); i++ {
+ 	temp := prices[i] - min
+ 	if temp >= curMaxProfit {
+ 		curMaxProfit = temp
+ 	} else {
+ 		profit = profit + curMaxProfit
+ 		curMaxProfit = 0
+ 		min = prices[i]
+ 	}
+      }
+      return profit + curMaxProfit
+    }
