@@ -316,3 +316,26 @@
     看了下官方题解,有时间复杂度为O(N^2),空间复杂度为O(1)的中心扩展法,也有复杂度为O(N)的Manacher算法
     Manacher算法可参考:https://segmentfault.com/a/1190000003914228; https://cloud.tencent.com/developer/news/312855
 13. N皇后
+14. 最大子序和,典型的动态规划,代码如下:
+    func maxSubArray(nums []int) int {
+      if len(nums) <= 0 {
+    	  return 0
+      }
+      if len(nums) <= 1 {
+    	  return nums[0]
+      }
+      var curMax,preMax,i int
+      curMax,preMax,i = nums[0],nums[0],1
+      for ; i < len(nums); i++ {
+    	  temp := preMax + nums[i]
+    	  if temp > nums[i] {
+    	  	preMax = temp
+    	  } else {
+    		preMax = nums[i]
+    	  }
+    	  if preMax > curMax {
+    		curMax = preMax
+    	  }
+      }
+      return curMax
+   }
