@@ -13,7 +13,18 @@
 	1) 增加冗余备份,提高可用性
 	2) 一主多从或多主多从,减轻单一节点压力,实现负载均衡,提升系统性能
 	主从结构存在的问题是主从之间异步复制导致的数据不一致,既主从间的数据延迟问题
-11. 数据量很大？ rownumber ranknumber？？
+11. a> mysql5.7.8引入json类型,且使用的是内部的二进制格式而非字符串,支持对文档的快速查询
+    b> mysql8.0支持窗口函数(window functions),按官网定义窗口函数对查询结果做聚合类操作(A window function performs an aggregate-like 
+       operation on a set of query rows),聚合操作一般是对组数据(group by)操作,输出单个值,比如求每个student的平均分:
+       select id,name,avg(score) as avg_score from scores group by stu_id order by avg_score,窗口函数后一般跟over子句(over clause),
+       over子句格式为OVER(window_spec),聚合函数窗口函数后都可跟over子句,比如: avg(score) as avg_score OVER(partition by stu_id) from scores
+       order by avg_score, window_spec包括4个部分,常用的是下面两个:partition_clause,partition by xxx 指定如何对query rows分组; 
+       order_clause order by xxx asc|desc 指定如何排序及排序方向;
+       窗口函数中和排序相关的有以下四种:
+       row_number() 连续排序,相同的值序号不一样,select row_number() over(order by s.score) as rank,s.stu_id,s.name,s.score from scores s
+       rank() 跳跃排序,相同的值归为一组且序号一样,select rank() over(同上) 同上....
+       dense_rank() 连续排序,相同的值归为一组且序号一样,select dense_rank() over(同上) 同上....
+       ntile(group_num) 将所有记录分为group_num个组,每组中各个元素的序号都一样,select ntile(4) over(同上) 同上....,将学生按成绩分成分四档
 12. 两个索引是不是一定用得上？
 	不一定，包含但不限于下列情况索引将会失效：
 	1) 查询子句的条件字段使用了函数
