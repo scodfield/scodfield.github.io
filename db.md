@@ -1,4 +1,23 @@
-1. Redis不存在表的概念，一个Redis实例中，直接存储5大数据类型：字符串(string)、列表(list)、哈希(hash)、集合(set)、有序集合(zset)
+1. a> Redis不存在表的概念，一个Redis实例中，直接存储5大数据类型：字符串(string)、列表(list)、哈希(hash)、集合(set)、有序集合(zset)
+   b> Redis expire命令用于设置key的过期时间,以秒为单位,过期后key将不再可用(被自动删除),示例:expire key_name time_in_seconds,另一个设置
+      过期的命令是expireat,以Unix时间戳(unix timestamp)的格式设置key的过期时间,示例:expireat key_name time_in_unix_timestamp
+   c> string类型除了最常用的get/set命令,还有一个incr命令,将key中存储的数字值加一,与之对应还有一个incrby xxx命令,key中存储的数字值增加指定的
+      增量值,执行两个命令时,如果key不存在,那么key的值会先被初始化为0,再执行incr/incrby命令,如果key对应的值包含错误类型,或者字符串类型的值不能
+      表示为数字,会返回一个错误,但是Redis没有数字类型,所以key存储的字符串会被解释为十进制的64位有符号整数来执行incr/incrby操作
+      除了上述操作,string类型的getset,decr/decrby命令可加减key对应的数值
+   d> 组合使用string类型的incr&expire命令可以实现在规定时间内的计数器,比如我们游戏中日常副本每天只能挑战三次,那么每次玩家请求挑战的时候,执行:
+      newcount = eredis.incr(role_1001_daily_chapter_xx),返回最新的挑战次数newcount,如果newcount > 3,则当天挑战次数已用完,不能再请求挑战,
+      至于role_1001_daily_chapter_xx这个key的过期时间,可通过eredis.expire(role_1001_daily_chapter_xx,seconds_to_next_zero)来设置为零点
+      过期,这个时间可以通过明日零点的unixstamp减去当前时间得到,也可以通过eredis.expireat()命令直接设置为明日的零点时间,这样服务端程序就无需再
+      每日零点刷新,即可实现记录副本的每日挑战次数
+   e> Redis set集合也可以用来做计数器,比如我想统计网站的UV(unique visitor,独立访客),那么对于每个请求,parse出ip之后,通过:sadd s_name member
+      命令将访客ip添加到uv_counter这个集合中,最后再通过:scard s_name取出uv_counter这个set中成员的数量,得到UV数据,但是set类型是通过hash表实现
+      的,所以当统计的量比较大的时候,就非常浪费空间,而Redis提供的Hyperloglog这种数据结构就是用来解决这类统计问题的
+   f> Redis Hyperloglog 是一种巧妙的近似估计海量数据基数的算法,所谓基数就是数据集中不重复元素的个数,比如数据集:{1,2,5,7,5,7,},那么基数集就是
+      {1,2,5,7},基数就是4,基数估计就是在误差可接受的范围内,快速计算基数,Hyperloglog内部维护了16384个桶(bucket),用来记录每个桶内的元素数量,
+      当一个元素到来时,它会散列到其中的一个桶,以一定的概率影响这个桶的计数值(每个桶有一个count,记录散列到该桶的数值的个数),将所有的桶的计数值
+      进行调合均值累加,结果会非常接近真实的计数值,Hyperloglog主要提供了一下三个命令:pfadd key element 添加元素到指定的key中; pfcount key 获取
+      给定key的基数估计值; pfmerge destkey sourcekye [sourcekey...] 将多个Hyperloglog key合并为到一个key中
 2. Redis并没有数字类型，转换成了字符串，包括有序集合(zset)中的score
 3. Redis保证单个命令的原子性，而Redis的事务并没有作任何原子性的保证，且事务中各个指令互不影响，既不会回滚，也不会终止后续指令的执行，感觉Redis事务更像批处理
 4. Redis的save/bgsave命令备份当前数据库数据到dump.rdb文件，恢复操作是将该文件copy到Redis安装目录，直接启动服务(如果需要多个Redis服务怎么办。。。)
