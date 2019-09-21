@@ -19,7 +19,15 @@
       进行调合均值累加,结果会非常接近真实的计数值,Hyperloglog主要提供了一下三个命令:pfadd key element 添加元素到指定的key中; pfcount key 获取
       给定key的基数估计值; pfmerge destkey sourcekye [sourcekey...] 将多个Hyperloglog key合并为到一个key中
       Hyperloglog的每个key只占用12k的内存,16384个桶(2^14),每个桶占用6bits,最大可表示的值为63,所以占用的内存:(16384 * 6)/(8 * 1024) = 12kb
-2. Redis并没有数字类型，转换成了字符串，包括有序集合(zset)中的score
+2. Redis应用:
+   a> 位图bitmap,位图并不是一种特殊的数据结构,本质上是二进制字符串,也可以看作是byte数组(go的底层文件/socket存储就是字节数组),redis string类型
+      中有几个操作bit位的命令,get/set可以直接获取和设置整个位图的内容,也有单独的bit位操作命令getbit/setbit等,这些命令将byte数组看成bit数组来
+      处理,常用命令如下:setbit key offset value 对key所存储的字符串,设定or清除指定偏移bit上的值,setbit online 1001 1; getbit key offset
+      对key所存储的字符串,获取指定偏移bit上的值,getbit online 1001; bitcount key [start] [end] 计算key存储的字符串中,被设置为1的bit位的
+      数量,set online no_one_online, bitcount online; bitop operation destkey key [otherkeys...] 对一个或多个bitmap进行位操作,并将结果
+      保存到destkey上,位操作operation,可以是AND,OR,NOT,XOR这四种操作中的任意一种
+      位图基于bit位,非常节省空间,设置的时候时间复杂度为O(1),读取的时候时间复杂度为O(N),二进制计算速度非常快,基于上述优点,位图适用于各类的统计,
+      比如游戏中玩家是否在线,统计当前在线玩家人数,记录并统计玩家当月的签到情况等等
 3. Redis保证单个命令的原子性，而Redis的事务并没有作任何原子性的保证，且事务中各个指令互不影响，既不会回滚，也不会终止后续指令的执行，感觉Redis
    事务更像批处理
 4. Redis的save/bgsave命令备份当前数据库数据到dump.rdb文件，恢复操作是将该文件copy到Redis安装目录，直接启动服务(如果需要多个Redis服务怎么办。。。)
