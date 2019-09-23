@@ -57,6 +57,13 @@
 5. Redis分区是将数据放到多个实例中(好奇Redis的集群和分区的区别),Redis集群可以在运行时进行动态的伸缩性调整，灵活性比较高
 6. Redis Hash是一个string类型的field和value的映射表,适于存储对象,同时Redis set是一个string类型的无序集合,且set是通过哈希表实现的,那么也少不了
    映射,则Redis的哈希用的是哪个哈希算法,有无用到一致性哈希,一致性哈希又用到了哪些地方?
+   redis底层数据结构:
+   typedef strutc redisobj {
+       unsigned type;
+       unsigned encoding;
+       void * ptr;
+   }
+   其中type:string,list,hash,set,zset; encoding:REDIS_ENCODING_INT/EMBSTR/RAW/ZIPLIST/LINKEDLIST/HT/INTSET/SKIPLIST
 7. 非关系型数据库方便处理相互之间没有耦合性的非结构化数据
 8. MongoDB的读写性能(只能达到1kqps??)
 9. 分区和索引哪个优先执行？
