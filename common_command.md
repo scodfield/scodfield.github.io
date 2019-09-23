@@ -1,7 +1,19 @@
-1. awk '{pattern + action}' 
+1. awk '{pattern + action}' 是一个强大的文本处理工具
    {} 非必需
    pattern 前后带斜杠的正则表达式（/^[abc]/）
    action 匹配后执行的命令
+   awk命令有几个常见的参数:
+   -F xx or --field-separator xx 'xx'是一个字符串或一个正则表达式,指定文件的分隔符
+   -v var=xxx or --asign var=xxx 给一个用户自定义变量赋值
+   -f scriptfile or --file scriptefile 从指定的脚本文件读取awk命令
+   awk命令默认按空格或TAB分割文件的每一行,可以使用$1,$2打印分割出来的各列,各列下标从1开始,比如以','分割,并打印第1,4项:
+   awk -F, '{print $1,$4}' error_log.txt
+   使用多个分隔符,比如先以','分割,然后再对结果使用':'分割,并打印第1,2,5项:
+   awk -f '[,:]' '{print $1,$2,$5}' json_format.txt
+   使用变量示例,比如对分割的第一列加上1:
+   awk -vadd=1 '{print $1,$1+add}' zero_index.txt
+   从文件读取awk命令:
+   awk -f statis.awk error_log.txt
 2. telnet (选项) (参数)
    telnet命令用于登录远程主机,采用明文传输,为应用层协议
    选项如下:
@@ -349,3 +361,19 @@
     %steal 虚拟机管理器在服务另一个虚拟处理器时,虚拟cpu非自愿等待花费时间百分比
     %guest 运行虚拟cpu花费时间百分比
     %idle 除去等待磁盘I/O外的其它原因导致的cpu空闲时间百分比
+44. 常用统计命令:
+    uname 显示操作系统相关命令, -a 显示所有信息; -m 显示处理器架构(x86_64); -r 显示内核版本
+    env 查看环境变量
+    hostname 查看计算机名
+    free -m 查看系统内存使用量和交换分区使用量
+    df 查看文件系统磁盘空间的使用情况, -h 显示已挂载的分区使用情况
+    du -sh dir_name 查看指定目录已经使用的磁盘空间大小
+    uptime 查看系统运行时间,用户数,负载
+    cat /proc/loadavg 查看系统负载情况
+    fdisk 磁盘分区命令,适用于2TB以下磁盘分区, -l 查看所有磁盘分区
+    ifconfig 查看所有网络接口命令
+    iptables -L 查看防火墙设置
+    route -n 查看本地路由表
+    netstat 查看网络状态, -lntp 查看所有监听端口; -antp 查看所有已建立的连接; -s 查看以ip,icmp,tcp,udp为分类的网络统计情况
+    chkconfig --list 列出所有服务(not include native systemd services),systemctl list-unit-files 列出系统服务
+    
