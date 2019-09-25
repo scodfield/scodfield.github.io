@@ -120,7 +120,7 @@
 13. mysql分区类型：range分区(partition by range())、list分区(partition by list(),与range分区类似,区别是list分区的列的值是某列表中的一个,而range的值是连续的)、hash分区(partition by hash(),确保要分区的数据平均分布到各个分区)、key分区(partition by key(),与hash分区类似,区别是hash函数为mysql提供)
 14. mysql创建分区时自动对分区表从0开始编号
 15. mysql delimiter设置分隔符,默认为分号,可以通过delimiter重新设置,与存储过程并无必然联系,一般在执行含分号的多条语句时使用,比如自定义函数、存储过程或者触发器(慎用,太消耗资源)
-16. mysql存储过程是一组完成特定功能的sql语句块,经过预编译保存在进程字典中,常用语批量处理一些重复性高的操作;
+16. mysql存储过程是一组完成特定功能的sql语句块,经过预编译保存在进程字典中,常用于批量处理一些重复性高的操作;
     mysql5.7中information_schema.routines表查看存储过程信息
     create procedure proc_name(parameters)
     begin
@@ -180,8 +180,30 @@
 	c) 锁超时被自动释放,若有多个进程同时申请锁,且都得到锁(在高负载的情况下,很容易出现)
 31. watch命令锁住Redis的整个键(与mysql锁表相同),因此频繁操作时影响执行的性能,但这并不是说粗粒度锁一无是处,
     因为使用多个细粒度锁时,也会引发死锁风险
-32. mongod启动
-    mongod --dbpath xxx --logpath yyy --fork --auth --bind_ip zzz
+32. a> mongod启动: mongod --dbpath xxx --logpath yyy --fork --auth --bind_ip zzz
+    b> mogodb支持多种类型的索引,包括单字段索引,复合索引,多key索引和文本索引,索引可以提高查询的效率,但mongodb的索引不能被以下
+       查询利用:正则表达式及非操作,如$nin,$not等; 算术运算符,如$mod等; $where子句(这几个限制倒和mysql差不多,除了where子句),
+       按手册,MongoDB索引还有以下限制:额外开销,每个索引占据一定的存储空间,在插入,更新和删除操作时也需要对索引进行操作;内存(RAM)
+       使用,索引是存储在内存中的,如果索引大小超过内存限制,MongoDB会删除一些索引,这将导致性能下降;一些范围限制,集合中索引不能
+       超过64个,索引名的长度不能超过125字节,一个复合索引最多可以有31个字段
+    c> single field index 单字段索引,db.t_name.ensureIndex({key:1/-1}),对t_name表的key字段创建索引,1代表升序,-1代表降序
+       '_ id'是创建表的时候自动创建的索引,此索引不能被删除,当系统已有大量数据时,创建索引是个非常耗时的操作,因此可以将该操作
+       放到后台进行,只需指定ensureIndex()的可选参数background,如:db.t_name.ensureIndex({key1:1}, {background:true}),常用的
+       可选参数除了这个用于后台创建索引的background,还有unique,用法同background
+       更多ensureIndex的可选参数及用法可参考手册:https://www.mongodb.org.cn/tutorial/18.html
+    d> compound index 复合索引,ensureIndex()方法中可以同时使用多个字段创建复合索引,如:db.blog.ensureIndex({"title":1,"desc":-1},
+       {unique:true}),上述语句创建一个复合索引,同时还是一个唯一索引,针对多个字段的复合索引,先按第一个字段排序,第一个字段相同的文档
+       按第二个字段排序,依次类推
+    c> multikey index 多key索引,当建立索引的字段为数组时,创建出的索引称为多key索引,比如有以下结构:
+       {"title" : "some tips about mongodb", "tags": ["grammer", "index", "sharding"]}, 我们针对"tags"字段创建数组索引:
+       db.blog.ensureIndex({"tags":1}), 当使用以下语句检索时,加上explain()命令查看是否使用了索引:
+       db.blog.find({"tags":"index"}).explain()
+    d> 还可以针对子文档字段简历索引,比如有以下结构:
+       {"author" : {"id":1001,"name":"thd","rank":100}, "title" : "some tips about mongo", "tags" : ["grammer","index","sharding"]}
+       我们可以针对author这个子文档的三个字段简历索引:db.blog.ensureIndex({"author.id":1,"author.name":1,"author.rank":1}), 创建
+       之后,我们可以针对子文档字段来检索数据:db.blog.find({"author.rank":{$lt:1000}}), 查询排名前一千的玩家blog,针对该类型索引的查询
+       表达式必须遵循创建索引时字段的顺序,如果顺序不同,则不会使用索引,比如:db.blog.find({"author.name":"xte","author.id":1001})
+    e> 更多MongoDB索引,可参考手册:https://docs.mongodb.com/manual/indexes/
 33. mongo连接远程数据库
 	mongo ip
 	mongo ip:port
@@ -198,12 +220,12 @@
         mongod --shutdown
       use CTRL-C 以交互模式(interactive mode)运行mongod实例时适用此方法
       use kill linux command line,键入 kill mongod_process_id 或者 kill -2 mongod_processed_id (决不能使用kill -9) 
-    IT又一次直接重启内网,按照上述步骤之后,提示:child process failed,exist with error number 100, 参考下面的资料,以repair的方式重启,还是提示100
-    在系统上找了找mongod.log启动日志,在最新的启动日志发现如下提示:
+    IT又一次直接重启内网,按照上述步骤之后,提示:child process failed,exist with error number 100, 参考下面的资料,以repair的方式重启,
+    还是提示100,在系统上找了找mongod.log启动日志,在最新的启动日志发现如下提示:
     exception in initAndListen: 72 Requested option conflicts with current storage engine option for directoryPerDB;
     you requested false but the current server storage is already set to true and cannot be changed, terminating
-    ok, 在/etc/mongod.conf文件的storage项下面加入:directoryPerDB true, 保存退出,再次以repair方式启动:mongod -f /etc/mongod.conf --repair
-    参照下面的资料,再执行:mongod -f /etc/mongod.conf, 一切正常,按照上面正常退出mongod的方法,杀掉mongod进程之后,
+    ok, 在/etc/mongod.conf文件的storage项下面加入:directoryPerDB true, 保存退出,再次以repair方式启动:mongod -f /etc/mongod.conf 
+    --repair, 参照下面的资料,再执行:mongod -f /etc/mongod.conf, 一切正常,按照上面正常退出mongod的方法,杀掉mongod进程之后,
     再以mongod --dbpath xxx --logpath yyy --fork --auth --directoryperdb 命令启动,启动游戏服务器,连接成功
     注:如果以上解决100的方法还不行,可以考虑终极方法,删除整个mongo的数据和日志,重启
     参考:https://blog.csdn.net/sinat_30397435/article/details/50774175
@@ -211,8 +233,8 @@
     由手册可知,mongo3.0以后,在admin中创建(As of MongoDB 3.0, with the localhost exception, you can only create users 
     on the admin database),创建命令为db.createUser({user:"xxx", pwd:"yyy", roles:[{},...]})
     createUser的roles选项,指定了被创建用户的"角色",包括内置角色和自定义角色,mongo采用基于角色授权的方式管理对数据库的相关操作
-    为了便于管理,首个超级管理员账号,可以选择内置角色中属于superuser roles的root角色,root拥有所有权限(provides full privileges on all resources)
-    localhost exception which allows you to create a user administrator in the admin database
+    为了便于管理,首个超级管理员账号,可以选择内置角色中属于superuser roles的root角色,root拥有所有权限(provides full privileges
+    on all resources) localhost exception which allows you to create a user administrator in the admin database
     管理员的创建流程可参考mongodb doc的Enable Auth(https://docs.mongodb.com/manual/tutorial/enable-authentication/)
 36. 为project创建database和user时,可选择内置角色中属于Database Administration Roles的dbAdmin,dbOwner
     可由db.createRole()自定义角色类型,db.createRole({role,writeConcern})
