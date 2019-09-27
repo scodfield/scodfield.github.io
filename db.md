@@ -65,7 +65,21 @@
    }
    其中type:string,list,hash,set,zset; encoding:REDIS_ENCODING_INT/EMBSTR/RAW/ZIPLIST/LINKEDLIST/HT/INTSET/SKIPLIST
 7. 非关系型数据库方便处理相互之间没有耦合性的非结构化数据
-8. MongoDB的读写性能(只能达到1kqps??)
+8. a> MongoDB的读写性能(只能达到1kqps??)
+   b> MongoDB进程启动后,除了和普通进程一样加载binary,依赖的各种library到内存之外,作为一个DBMS,还需要管理客户端连接,处理请求,维护数据库
+      元数据和存储引擎等很多工作,这些工作都设计内存的分配和释放,默认情况下MongoDB使用Google的tcmalloc作为内存分配器,内存占用的大头主要
+      包括存储引擎,客户端连接及请求的处理; 
+      MongoDB3.2.0以后,默认使用的存储引擎是WiredTiger,可通过cacheSizeGB字段来配置WiredTiger引擎使用内存的上限,默认配置为系统可用内存
+      的60%,为了控制内存的使用,WiredTiger在内存使用接近一定阈值的时候开始做淘汰eviction,目前有4个参数来支持WiredTiger引擎的eviction策略
+      eviction_target 默认为80(百分比),当cache used超过eviction_target(阈值计算为:0.8 * cacheSizeGB),后台evic线程开始淘汰clean page;
+      eviction_trigger 默认为95(同上),当cache used超过eviction_trigger(阈值计算同上),用户线程也开始淘汰clean page;
+      eviction_dirty_target 默认为5(同上),当cache dirty超过eviction_dirty_target,后台evic线程开始淘汰dirty page;
+      eviction_dirty_trigger 默认为20(同上),当cache dirty超过eviction_dirty_trigger,用户线程也开始淘汰dirty page;
+      需要注意的是当used >= 95%或者dirty >= 20%,并一直持续,说明内存淘汰压力比较大,用户的请求线程会被阻塞,参与到page淘汰,这时候客户端请
+      求时延增加,可以考虑增加内存,或更好更快的磁盘以提高IO能力;
+      TCP连接及请求处理,tcp协议栈除了为连接维护socket元数据之外,每个连接会有一个read buffer和write buffer,除了协议栈,mongod进程针对每
+      个连接起一个线程,专门负责处理这个连接上的请求,该线程的线程栈通常只有十几k,但mongod为线程栈配置的上限是1MB,可通过proc查看线程的具体
+      开销,上述协议栈的read/write buff可通过ss -m命令查看每个连接的buff信息(具体命令参考common_commands.md)
 9. 分区和索引哪个优先执行？
 	查询条件子句中含有分区条件，则先过滤分区，再在对应分区执行索引操作，否则在所有分区执行索引操作。因此，在实践中尽量避免分区列和索引列的不匹配，或者条件子句中包含过滤分区的条件
 10. 如何实现读写分离？
