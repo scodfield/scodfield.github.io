@@ -80,6 +80,10 @@
       TCP连接及请求处理,tcp协议栈除了为连接维护socket元数据之外,每个连接会有一个read buffer和write buffer,除了协议栈,mongod进程针对每
       个连接起一个线程,专门负责处理这个连接上的请求,该线程的线程栈通常只有十几k,但mongod为线程栈配置的上限是1MB,可通过proc查看线程的具体
       开销,上述协议栈的read/write buff可通过ss -m命令查看每个连接的buff信息(具体命令参考common_commands.md)
+      综上,对MongoDB内存的控制,可以通过合理配置cacheSizeGB的大小,以及控制并发连接数来实现,mongod可以通过配置net.maxIncomingConnections
+      配置项来限制最大的并发连接数,防止数据库压力过载,另外就是系统的交换空间swap配置,当系统配置swap时,内存压力大的时候,MongoDB会利用swap
+      空间来缓解内存压力,如果系统未开启swap时,如果整体内存超过系统内存上限,会触发OOM Killer把mongod进程干掉
+   c> lldb调试mongod
 9. 分区和索引哪个优先执行？
 	查询条件子句中含有分区条件，则先过滤分区，再在对应分区执行索引操作，否则在所有分区执行索引操作。因此，在实践中尽量避免分区列和索引列的不匹配，或者条件子句中包含过滤分区的条件
 10. 如何实现读写分离？
