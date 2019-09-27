@@ -56,15 +56,22 @@
    权限标识: r 读权限,数字4表示; w 写权限,数字2表示; x 执行权限,数字1表示; - 不具有任何权限,数字0表示
    文字设定操作符: + 表示增加权限; - 表示取消权限; = 表示赋予限定的权限,并取消其它剩余的权限
 7. svn commit的时候,提示:changing file 'xxxxx' is forbidden for the server,查了一下说是用户没有相应权限
-8. netstat 查看网络状态,参数如下
-   -a 显示所有选项
-   -t 显示tcp协议的连接状态
-   -u 显示udp协议的连接状态
-   -n 不显示列名
-   -l 显示处于listen状态的连接
-   -s 按各协议(ip,icmp,tcp,udp等)显示统计信息
-   -p 显示建立连接的程序名(PID/program_name)
-   -r 显示本地路由信息
+8. a> netstat 查看网络状态,参数如下
+      -a 显示所有选项
+      -t 显示tcp协议的连接状态
+      -u 显示udp协议的连接状态
+      -n 不显示列名
+      -l 显示处于listen状态的连接
+      -s 按各协议(ip,icmp,tcp,udp等)显示统计信息
+      -p 显示建立连接的程序名(PID/program_name)
+      -r 显示本地路由信息
+   b> ss 是socket statistics的缩写,用来获取socket统计信息,显示的内容和netstat类似,但它能够显示更多更详细的有关tcp和连接状态的信息
+      当服务器的连接数量非常大时(1w+),无论是netstat还是直接cat /proc/net/tcp,执行速度都会很慢,但是ss命令的速度很快,原因在于其利用
+      了tcp协议栈中的tcp_diag,tcp_diag是一个用于分析统计的模块,可以获得内核中的第一手消息,netstat命令是net-tools工具集中的一员,
+      ss则是iproute工具集中的一员,如果无法使用ss,需要安装一下iproute: yum install iproute iproute-doc,常用参数如下:
+      -a 列出所有网络连接,-ta 查看tcp sockets; -ua 查看udp sockets; -wa 查看raw sockets; -xa 查看Unix sockets
+      -s 查看当前服务器的网络连接统计
+      -l 查看所有打开的网络端口, -pl 会列出具体的程序名称
 9. shell编程反引号表示执行命令
    if判断,[] 与变量之间加空格
    可由$dir1/$dir2 or $dir1"/"$dir2 拼接路径
