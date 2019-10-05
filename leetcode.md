@@ -359,3 +359,13 @@
       }
       return profit + curMaxProfit
     }
+14. 颠倒二进制位,与"只出现一次的数"中的位运算解法类似,本题也可以用位运算解决,代码如下:
+    func reverseBits(num uint32) uint32 {
+      var result uint32
+      for i := 0; i < 32; i++ {
+    	 result <<= 1
+    	 result |= (num & 1)
+    	 num >>= 1
+      }
+      return result
+    }
