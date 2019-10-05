@@ -150,13 +150,20 @@
        首先依照旧表的结构(包括索引)创建一个临时的新表; 给新表加上新的字段(索引); 复制旧表数据; 删除旧表,重命名新表的名字为旧表的名字
        上述思路存在一个问题,就是在copy数据的过程中,旧表仍然会执行insert/update等操作,这样会造成数据差异,最稳妥的方法当然是停机操作,
        如果不能停机,并且每行记录都有写入时间字段,那还可以考虑在copy之后,将copy开始之后新插入的这部分字段,再导入新表;
-       除了上述思路还可以考虑: 在从库中进行操作,之后执行主从切换; 第三方在线DDL工具
+       除了上述思路还可以考虑: 在从库中进行操作,之后执行主从切换; 第三方在线DDL工具(pt-online-schema-change)
     c> 从上面一个问题可以延伸的一个问题是,如何设计或者优化千万级别的表? 一般可以通过理清以下几个问题来设计或者优化:
        数据的容量, 未来1-3年内会有大概多少条数据,每条数据大概多少个字节; 字段, 是否有大字段,是否有部分字段频繁更新; 索引, 哪些字段
        经常出现在where/group by/order by等子句中; sql操作类型统计, select:update+delete:insert的比例大概是多少,确定常见的使用
        场景(读多写少or读少写多?); 执行量级, 数据库每天的执行量级大概有多少; 并发, 对并发操作有何要求; 引擎, 选哪种存储引擎;
        另外对于mysql调优还可以调整几个关键的buffer和cache参数,比如:key_buffer_size,read_buffer_size,table_open_cache等,具体可
        参考: https://cloud.tencent.com/developer/article/1119268
+    d> 第三方在线ddl工具,PT-OSC(Percona Toolkit Online Schema Change)的原理:
+       创建一张新表,表结构与原表相同; alter新表; 在原表上创建insert/update/delete三种类型的触发器trigger; 将旧表数据copy到新表,
+       同时通过触发器将旧表中的操作映射到新表; 如果原表有外键约束,处理外键; 原表重命名为old表,新表重命名为原表(这两步操作需保证
+       原子性); 删除old表,删除trigger
+       PT-OSC的使用限制: 原表不能存在触发器; 原表必须存在primary key或者unique key; 对外键的处理需要指定alter-foreign-keys-method
+       参数; 在执行过程中如果有对主键的更新操作,则会出现重复的数据(pt3.0.2)
+       更多三方工具参考:https://cloud.tencent.com/developer/article/1005177
 15. mysql delimiter设置分隔符,默认为分号,可以通过delimiter重新设置,与存储过程并无必然联系,一般在执行含分号的多条语句时使用,比如自定义
     函数、存储过程或者触发器(慎用,太消耗资源)
 16. mysql存储过程是一组完成特定功能的sql语句块,经过预编译保存在进程字典中,常用于批量处理一些重复性高的操作;
