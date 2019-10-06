@@ -51,8 +51,8 @@
       需要注意:首先是要保证只有在成功拿到锁之后,再执行key的过期时间设置; 其次是每个进程在setnx key是value值最好是随机值,在del key前,先get
       一下,只在当前key的值和自己保存的随机值一致时,才执行del操作,这样做的目的是防止逻辑处理时间过长,导致key已失效,且下一个进程已获得该key,
       那么若直接执行del操作,则会误删下一个进程的锁请求
-3. Redis保证单个命令的原子性，而Redis的事务并没有作任何原子性的保证，且事务中各个指令互不影响，既不会回滚，也不会终止后续指令的执行，感觉Redis
-   事务更像批处理
+3. Redis保证单个命令的原子性，而Redis的事务并没有作任何原子性的保证，且事务中各个指令互不影响，既不会回滚，也不会终止后续指令的执行,感觉
+   Redis事务更像批处理
 4. Redis的save/bgsave命令备份当前数据库数据到dump.rdb文件，恢复操作是将该文件copy到Redis安装目录，直接启动服务(如果需要多个Redis服务怎么办。。。)
 5. Redis分区是将数据放到多个实例中(好奇Redis的集群和分区的区别),Redis集群可以在运行时进行动态的伸缩性调整，灵活性比较高
 6. Redis Hash是一个string类型的field和value的映射表,适于存储对象,同时Redis set是一个string类型的无序集合,且set是通过哈希表实现的,那么也少不了
@@ -85,14 +85,14 @@
       空间来缓解内存压力,如果系统未开启swap时,如果整体内存超过系统内存上限,会触发OOM Killer把mongod进程干掉
    c> lldb调试mongod
 9. 分区和索引哪个优先执行？
-	查询条件子句中含有分区条件，则先过滤分区，再在对应分区执行索引操作，否则在所有分区执行索引操作。因此，在实践中尽量避免分区列和索引列
-	的不匹配，或者条件子句中包含过滤分区的条件
+     查询条件子句中含有分区条件，则先过滤分区，再在对应分区执行索引操作，否则在所有分区执行索引操作。因此，在实践中尽量避免分区列和索引列
+     的不匹配，或者条件子句中包含过滤分区的条件
 10. 如何实现读写分离？
-	目前mysql读写分离通常采用的做法是主节点处理写操作，并异步复制更新数据到从节点，而从节点处理select等查询操作，总结就是主从复制+读
-	写分离。读写分离的好处：
-	1) 增加冗余备份,提高可用性
+      目前mysql读写分离通常采用的做法是主节点处理写操作，并异步复制更新数据到从节点，而从节点处理select等查询操作，总结就是主从复制+读
+      写分离。读写分离的好处：
+        1) 增加冗余备份,提高可用性
 	2) 一主多从或多主多从,减轻单一节点压力,实现负载均衡,提升系统性能
-	主从结构存在的问题是主从之间异步复制导致的数据不一致,既主从间的数据延迟问题
+      主从结构存在的问题是主从之间异步复制导致的数据不一致,既主从间的数据延迟问题
 11. a> mysql5.7.8引入json类型,且使用的是内部的二进制格式而非字符串,支持对文档的快速查询
     b> mysql8.0支持窗口函数(window functions),按官网定义窗口函数对查询结果做聚合类操作(A window function performs an aggregate-like 
        operation on a set of query rows),聚合操作一般是对组数据(group by)操作,输出单个值,比如求每个student的平均分:
@@ -164,8 +164,31 @@
        PT-OSC的使用限制: 原表不能存在触发器; 原表必须存在primary key或者unique key; 对外键的处理需要指定alter-foreign-keys-method
        参数; 在执行过程中如果有对主键的更新操作,则会出现重复的数据(pt3.0.2)
        更多三方工具参考:https://cloud.tencent.com/developer/article/1005177
-15. mysql delimiter设置分隔符,默认为分号,可以通过delimiter重新设置,与存储过程并无必然联系,一般在执行含分号的多条语句时使用,比如自定义
-    函数、存储过程或者触发器(慎用,太消耗资源)
+15. a> mysql delimiter设置分隔符,默认为分号,可以通过delimiter重新设置,与存储过程并无必然联系,一般在执行含分号的多条语句时使用,
+       比如自定义函数、存储过程或者触发器(慎用,太消耗资源)
+    b> InnoDB的缓冲池(buffer pool),缓存表数据与索引数据,把磁盘上的数据加载到缓冲池,避免每次访问都进行磁盘IO,起到加速访问的作用;
+       首先了解预读的概念,磁盘读写并不是按需读取,而是按页读取,一次至少读一页数据(一般是4K),如果要读取的数据就在页中,就能省去后续
+       的磁盘IO,提高效率,预读的有效性主要体现在访问数据时,通常都遵循"集中读写"的原则,也就是说使用一些数据,大概率会使用附近的数据,
+       这就是所谓的"局部性原理",它表明提前加载是有效的,确实能够减少磁盘IO,InnoDB的缓冲池也是按页缓存;
+       其次,InnoDB使用改进的LRU(Least Recently Used,最近最少使用)算法管理缓冲页,传统的LRU算法为了减少数据移动,一般用链表实现,
+       主要包括两种操作: 要读取的页已在缓冲池中,只需将该页移动到LRU的头部,没有页被淘汰; 要读取的页不在缓冲池,除了放入LRU头部之外,
+       还要淘汰LRU尾部页;
+       Mysql对传统LRU的改进主要是为了解决预读失效和缓冲池污染问题,预读失效是指预读操作中提前放入缓冲池的页,最终没有被mysql读取,
+       缓冲池污染是指,当某一个sql语句要扫描大批量数据时,可能会把缓冲池中的所有页都淘汰出去,导致大量热数据被换出,mysql性能下降,
+       比如在一个数据量比较大的表中执行:select * from user where name like '%thd%'; 即便最后的结果集中只有少量数据,但like
+       不能命中索引,必须全表扫描,这就需要将页都加载到缓冲池中,但是每个页只会访问一次,真正的热数据会被淘汰出去;
+       解决预读失效的方法是将LRU分为新生代(new sublist),老生代(old sublist)两个部分,新老sublist首尾相连(新生代的尾连接老生代
+       的头),新的页加入缓冲池时,只加入到老生代的头部,如果数据真正被读取(预读成功),才会被加入到新生代头部,如果数据没有被读取,则
+       会比新生代更早被淘汰出缓冲池,综上优化预读失效的主要思路是让预读失败的页,停留在缓冲池里的时间尽可能的短,真正被读取的数据
+       留在缓冲池里的时间尽可能的长;
+       mysql解决缓冲池污染问题的是通过引入"老生代停留时间窗口"机制解决的,假设:T=老生代停留时间窗口,插入老生代头部的页,即使立刻
+       被访问也不会被放入新生代头部,只有满足"被访问"且"在老生代停留时间"大于T时,才会被放入新生代头部;加入"老生代停留时间窗口"后,
+       大量短时间被加载的页,并不会插入新生代头部,而是优先淘汰那些短期内访问了一次的页,而只有在老生代停留时间大于T的页,才会被插入
+       新生代头部;
+       上述缓冲策略对应的参数主要有以下三个:innodb_buffer_pool_size 配置缓冲池的大小,一般在内存允许的情况下,可以调大这个参数;
+       innodb_old_blocks_pct 老生代占整个LRU链表长度的百分比,默认是37; innodb_old_blocks_time 老生代停留时间窗口,单位是ms,
+       默认是1000,上述参数可以通过sql语句:mysql> show variables like '%innodb_buffer_pool_size%'; or mysql> show 
+       variables like '%innodb_old_blocks%'; 查看
 16. mysql存储过程是一组完成特定功能的sql语句块,经过预编译保存在进程字典中,常用于批量处理一些重复性高的操作;
     mysql5.7中information_schema.routines表查看存储过程信息
     create procedure proc_name(parameters)
@@ -175,21 +198,23 @@
     存储过程默认绑定当前数据库,若需指定某数据库则在存储过程名前加数据库名即可
     存储过程参数分为输入参数IN,输出参数OUT,输入输出参数INOUT,默认为IN类型,声明方式为:[IN|OUT|INOUT] para_name datatype
     常用的数据类型datatype有:int float varchar()
-    sql语句块请参考sql教程,常用的有变量定义赋值相关的set,declare,控制语句if - then - else,case及循环语句,其它的还有字符串类的concat,substring,length,数学类的abs,floor,format,rand,round,日期时间类的current_date,current_time,current_timestamp,date,year,month等,具体的函数可以在需要的时候查询具体的参数和用法
+    sql语句块请参考sql教程,常用的有变量定义赋值相关的set,declare,控制语句if - then - else,case及循环语句,其它的还有字符串类的          	    	concat,substring,length,数学类的abs,floor,format,rand,round,日期时间类的current_date,current_time,current_timestamp,
+    date,year,month等,具体的函数可以在需要的时候查询具体的参数和用法
     存储过程还可以使用prepare,execute,deallocate|drop预处理语句,用法如下:
 	set @table = 'tables';
-    set @sql_str = concat('select count( * ) from ', @table);
-    prepare schema_table from @sql_str; execute schema_table; drop prepare schema_table;
+        set @sql_str = concat('select count( * ) from ', @table);
+        prepare schema_table from @sql_str; execute schema_table; drop prepare schema_table;
     调用存储过程使用call proc_name
     删除存储过程使用drop [if exists] proc_name
 17. mysql有哪些索引类型？
-	mysql索引由数据库引擎实现,所以不同的引擎实现的索引类型及实现方式都有所区别,索引是表空间的一部分,索引信息存储在information_schema.innodb_sys_indexes
-	以下内容参考自:https://segmentfault.com/q/1010000003832312
-	从数据结构角度分为BTree索引、hash索引、空间索引
-	从索引存储角度分为聚簇索引和非聚簇索引
-	从逻辑角度分为主键索引(primary key)、普通/单列索引(index)、唯一索引(unique)、全文索引(fulltext)、组合索引
-	hash索引以hash形式组织索引结构,每个键对应一个值,散列分布,所以单个查询速度很快,不支持范围查找和排序
-	BTree或B+Tree索引,应用广泛,以平衡树的形式来组织,适合排序、范围查找,关于BTree和B+Tree的详细介绍可参考:http://blog.codinglabs.org/articles/theory-of-mysql-index.html
+      mysql索引由数据库引擎实现,所以不同的引擎实现的索引类型及实现方式都有所区别,索引是表空间的一部分,索引信息存储在    
+      information_schema.innodb_sys_indexes
+      以下内容参考自:https://segmentfault.com/q/1010000003832312
+      从数据结构角度分为BTree索引、hash索引、空间索引; 从索引存储角度分为聚簇索引和非聚簇索引;
+      从逻辑角度分为主键索引(primary key)、普通/单列索引(index)、唯一索引(unique)、全文索引(fulltext)、组合索引、
+      hash索引,以hash形式组织索引结构,每个键对应一个值,散列分布,所以单个查询速度很快,不支持范围查找和排序;
+      BTree或B+Tree索引,应用广泛,以平衡树的形式来组织,适合排序、范围查找,
+    注: 关于BTree和B+Tree的详细介绍可参考:http://blog.codinglabs.org/articles/theory-of-mysql-index.html
 18. memcached只支持字符串类型,而Redis提供五种数据类型,且每种数据类型都有专属命令
 19. Redis在提高可用性上采用主从异步复制结构,且并不保证数据的强一致性,也即是主节点在给客户端回复之后,才会向从节点发送写操作(可能会在未来提供同步写方法),另一中可能导致不一致的是集群出现网络分区,部分节点被孤立
 20. Redis只有集群模式运行的节点才能组成集群,普通节点无法组成集群,集群模式运行需要开启redis.conf中的 cluster-enabled yes
