@@ -238,6 +238,8 @@
     hostaddr --> IPv4地址
     service --> /etc/services中的service-name,可以有多个,以逗号分隔,如:lsof -i:rje,echo
     port --> 端口号,可以有多个,同样以逗号分隔,如:lsof -i:80,8088
+    注: 关于文件描述符fd, fd是一个整数,它存在于进程的PCB(process control block)中,PCB中有一个文件描述符表,fd就是该表的索引,
+    索引对应的项是指向一个已打开文件的指针,文件指针指向进程用户空间中一个名为FILE的结构体变量,FILE结构包含一个缓冲区和一个fd
 34. PAM(Pluggable Authentication Modules) 可插拔认证模块
     PAM机制采用模块化设计和插件功能,使用户可以轻易地在应用程序中插入新的认证模块或替换原先的组件,同时不必对应用程序做任何修改
     PAM为了实现插件化和易用性,采用了分层设计思想,让各认证鉴别模块和应用程序独立,然后通过PAM API作为二者联系的纽带
