@@ -187,8 +187,22 @@
        新生代头部;
        上述缓冲策略对应的参数主要有以下三个:innodb_buffer_pool_size 配置缓冲池的大小,一般在内存允许的情况下,可以调大这个参数;
        innodb_old_blocks_pct 老生代占整个LRU链表长度的百分比,默认是37; innodb_old_blocks_time 老生代停留时间窗口,单位是ms,
-       默认是1000,上述参数可以通过sql语句:mysql> show variables like '%innodb_buffer_pool_size%'; or mysql> show 
-       variables like '%innodb_old_blocks%'; 查看
+       默认是1000,上述参数可以通过以下sql语句查看:mysql> show variables like '%innodb_buffer_pool_size%'; or mysql> show 
+       variables like '%innodb_old_blocks%';
+    c> mysql最大连接数 mysql> show variables like '%max_connections%';
+       mysql服务启动后到当前,同一时刻最大并发连接数 mysql> show status like 'max_used_connections';
+       mysql当前所有连接的状态 mysql> show processlist; 
+       修改mysql最大连接数:使用sql语句,立即生效,服务重启后失效, mysql> set global max_connections = 1024; 修改/etc/my.cnf,添加
+       max_connections = 1024, 重启服务器后永久生效;
+       mysql有一个wait_timeout变量,关闭非交互式连接前的最大存活秒数,而interactive_timeout变量则是关闭交互式连接前最大存活描述, 
+       两者默认是28800s(8h),查看sql语句如下:
+       mysql> show global variables like '%wait_timeout'; 
+       mysql> show global variables like '%interactive_timeout';
+       若要改变这两个全局变量,方法同max_connections变量,需要注意的是wait_timeout这个全局变量,如果设置的过长,则mysql里将会有大量
+       的sleep进程(可通过show_processlist查看),这些空闲连接白白消耗内存,而且如果迟迟不断开,随着连接的不断增加,有可能会达到系统的
+       max_connections上限,报'too many connections'错误,wait_timeout设置时间过短也不行,有可能会遇到'mysql has gone away'之类的
+       问题,所以一般可以先这只一个较大的值,运行一段时间之后,show_processlist查看连接情况,如果发现有大量处于sleep状态的空闲连接,
+       则可以适当的调小一些
 16. mysql存储过程是一组完成特定功能的sql语句块,经过预编译保存在进程字典中,常用于批量处理一些重复性高的操作;
     mysql5.7中information_schema.routines表查看存储过程信息
     create procedure proc_name(parameters)
