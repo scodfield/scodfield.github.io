@@ -98,8 +98,8 @@ Tips to remember:
    g. KeepAliveTime 120000 (ms)
    h. KeepAliveInterval 1000 (系统未收到响应而重发保活信号的间隔,ms)
    调整参数,关闭注册表,重启电脑即可
-6. windows下查看tcp、udp及端口等统计情况:netstat -an | find "ESTABLISHED" /c 统计活跃状态的tcp连接,状态与linux类似,包括LISTENING,CLOSE_WAIT,
-   ESTABLISHED,TIME_WAIT
+6. windows下查看tcp、udp及端口等统计情况:netstat -an | find "ESTABLISHED" /c 统计活跃状态的tcp连接,状态与linux类似,包括
+   LISTENING,CLOSE_WAIT,ESTABLISHED,TIME_WAIT
 7. netstat参数 
    -a 显示所有连接和监听端口
    -n 以数字形式显示地址和端口号
@@ -145,13 +145,20 @@ Tips to remember:
     服务器的读通道,客户端收到ACK后关闭自己的写通道,后两次挥手重复操作
     被动关闭方在发送ACK后,进入CLOSE_WAIT状态,该状态下,被动方要做的就是检查是否还有要发送给对方的数据,若没有,那就可以关闭这个socket了
     为什么三次挥手,其中的一个原因是防止已失效的连接请求报文又发送到了服务端
-14. OSI七层网络模型从下到上为:物理层,数据链路层,网络层,传输层,会话层,表示层,应用层,第二层数据链路层上的数据称为帧(Frame),第三层网络层
-    上的数据称为包(Packet),第四层传输层上的数据称为段(Segment)
-    表示层的功能是对数据进行格式化,代码转换,数据加密等
-    会话层提供会话控制,提供的服务包括认证(Authentication),权限(Permission),会话恢复(Session restoration)
-    传输层提供端到端的接口,网络层为数据包选择路由,数据链路层传输有地址的帧及错误检测,物理层以二进制形式在物理媒体上传输数据
-    TCP/IP协议族采用的是五层模型,将表示层和会话层放到应用层中,不过在使用过程中,出现了一个提供安全加密服务的层(SSL/TLS),有了安全层之后
-    各应用层协议都可以加上一个S(Security),如HTTPS就是原本的HTTP协议有了SSL/TLS的保护
+14. a> OSI七层网络模型从下到上为:物理层,数据链路层,网络层,传输层,会话层,表示层,应用层,第二层数据链路层上的数据称为帧(Frame),第三层
+       网络层上的数据称为包(Packet),第四层传输层上的数据称为段(Segment);
+       表示层的功能是对数据进行格式化,代码转换,数据加密等;
+       会话层提供会话控制,提供的服务包括认证(Authentication),权限(Permission),会话恢复(Session restoration)
+       传输层提供端到端的接口,网络层为数据包选择路由,数据链路层传输有地址的帧及错误检测,物理层以二进制形式在物理媒体上传输数据;
+    b> TCP/IP协议族采用的是五层模型,将表示层和会话层放到应用层中,不过在使用过程中,出现了一个提供安全加密服务的层(SSL/TLS),有了安全层
+       之后各应用层协议都可以加上一个S(Security),如HTTPS就是原本的HTTP协议有了SSL/TLS的保护;
+    c> 数据链路层对数据帧的长度有一个限制,也就是链路层所能承受的最大数据长度,这个值称为最大传输单元(Max Transmission Unit,MTU),
+       数据链路层协议中的以太网Ethernet协议和IEEE802.3协议,都定义了MTU,分别是1500和1492字节,需要注意的是,MTU定义的是MAC帧中数据区
+       的长度,并不包括MAC帧的首尾长度(共18B),也就是说MTU限制的是IP数据报的长度,如果IP层的数据报长度大于MTU,则需要对数据报分片;
+       由于IP报文头部占用20字节,所以IP数据报的数据区的最大长度是1480B,而tcp的头部占用20B,所以传输tcp报文段数据区的最大长度是1460B,
+       UDP头部占用8B,所以UDB报文数据区的最大长度为1472B; 不过从协议结构上看,IP报文头部中有2个字节表明报文总长度,所以IP报文的最大长度
+       是65535B;
+       链路层的MAC帧定义中,14字节的头部,4字节的尾部; IP协议头20字节; TCP协议头20字节; udp协议头8字节
 15. Linux环境网络IO的同步,异步,阻塞,非阻塞,复用
     对于一个网络IO,比如读取read来说,它涉及两个对象(调用IO的用户process/thread,内核kernel),两个阶段(等待数据准备,数据从内核copy到进程)
     blocking IO:用户进程调用recvfrom系统调用,在kernel准备数据及copy数据阶段,用户进程都是阻塞的,直到kernel完成copy,返回ok,用户进程解除block状态;
