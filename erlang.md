@@ -441,5 +441,16 @@
     这两种方式区别:如果条件语句是这样的 X >= N; N >= 0 当前半句出现异常,后面半句还是会执行,而且结果可能是true; 如果条件语句是 X >= N orelse 
     N >= 0 当前半句出现异常的时候,后半句会被跳过,返回的结果就是异常,另外在when之后的表达式中,不能出现自定义function,会产生副作用,所以一般都是
     build
-81. 关于lists:seq的教训,商品无限制购买,客户端传了一个99999999,又由于每一次的价格不一样,所以要单独计算每次的价格并累加,脑残的用了lists:seq/2生成
-    当前购买次数到最新购买次数的一个列表,结果导致内存被耗尽,节点崩溃,解决方案:一是限制单次购买上限;二是用尾递归函数计算价格
+81. 关于lists:seq的教训,商品无限制购买,客户端传了一个99999999,又由于每一次的价格不一样,所以要单独计算每次的价格并累加,
+    脑残的用了lists:seq/2生成当前购买次数到最新购买次数的一个列表,结果导致内存被耗尽,节点崩溃,解决方案:一是限制单次购买上限;
+    二是用尾递归函数计算价格
+82. 关于登录验证,玩家从登录服拿到登录时计算的token,在发送请求登录协议时带上该token,Game服调用同样的计算接口,再次计算token,比较二者是否
+    相同,验证通过则继续Game服的登录流程,erlang的crypto模块提供了一组加密函数,如下:
+    哈希函数(Hash Functions): sha1/2/3,md4/5,blake2
+    消息认证MACs(Message Authentication Codes): hmac,cmac,poly1305
+    对称加密(Symmetric Ciphers): des,3des,aes,blowfish,chacha20,chacha_poly1305
+    分组密码(Modes): ecb,cbc,cfb,ofb,ctr,gcm,ccm
+    非对称加密-公钥(Asymetric Ciphers - Public Key Techniques): ras,dss,ecdsa,srp
+    MACs是带私密密钥的Hash函数,消息的散列值由只有通信双方知道的私有密钥shared key来控制,erlang提供了crypto:hmac/3/4,hmac函数的第一个
+    参数Type指定散列函数,包括以下: sha,sha224,sha256,sha384,sha512,sha3_224,sha3_256,sha3_384,sha3_512,blake2b,blake2s,md4,md5,
+    第二个参数指定共享的私密密钥authentication key,一般由通信双方约定即可
