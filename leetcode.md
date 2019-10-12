@@ -369,3 +369,28 @@
       }
       return result
     }
+15. 盛最多谁的容器,最开始的思路是内外双层循环,计算以每一个坐标为最左边界时,与其右边各坐标所构成的容器容量,时间复杂度O(N^2),
+    显然这种解法too native,看了官方题解可以采用"双指针法",从数组两端开始往中间移动,以左右指针所指向坐标值为高度,两坐标差为长度,
+    双指针法每次移动较高度低一侧的指针,直到两指针相遇,虽然在移动过程中,长度在逐渐变小,但是高度有可能会变大,这可以保证在移动过程中
+    新容器的容量变大,同样的之所以移动高度较低的一侧,也是因为长度在逐渐变小,如果移动高度较高一侧的指针,则高度取决于较低一侧,而长度
+    在减少,那么新容器容量绝不会超过之前的容量,双指针法时间复杂度为O(N),代码如下:
+    func maxArea(height []int) int {
+      if len(height) <= 1 {
+            return 0
+	}
+      var maxArea,left,right,tempArea int
+      left, right = 0, len(height)-1
+      for left < right {
+    	if height[left] < height[right] {
+    		tempArea = height[left] * (right - left)
+    		left++
+    	} else {
+    	    tempArea = height[right] * (right - left)
+    		right--
+    	}
+    	if maxArea < tempArea {
+    	    maxArea = tempArea
+    	 }
+        }
+        return maxArea
+      }
