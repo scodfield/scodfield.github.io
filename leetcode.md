@@ -369,7 +369,7 @@
       }
       return result
     }
-15. 盛最多谁的容器,最开始的思路是内外双层循环,计算以每一个坐标为最左边界时,与其右边各坐标所构成的容器容量,时间复杂度O(N^2),
+15. 盛最多水的容器,最开始的思路是内外双层循环,计算以每一个坐标为最左边界时,与其右边各坐标所构成的容器容量,时间复杂度O(N^2),
     显然这种解法too native,看了官方题解可以采用"双指针法",从数组两端开始往中间移动,以左右指针所指向坐标值为高度,两坐标差为长度,
     双指针法每次移动较高度低一侧的指针,直到两指针相遇,虽然在移动过程中,长度在逐渐变小,但是高度有可能会变大,这可以保证在移动过程中
     新容器的容量变大,同样的之所以移动高度较低的一侧,也是因为长度在逐渐变小,如果移动高度较高一侧的指针,则高度取决于较低一侧,而长度
@@ -394,3 +394,34 @@
         }
         return maxArea
       }
+16. 接雨水,最初的思路是将每一个坐标作为可盛放雨水的容器的bottom,计算基于该bottom的容器的容量,所计算的区域不止包括该坐标的容量,
+    还可能会包含左右多个坐标(求取的区域是可能跨多个坐标的一个长方形),算法时间复杂度为O(N^2),需注意的是,在横向扩展坐标时,有可能
+    遇到和当前计算的坐标相同高度的其它坐标,为避免重复计算,需借助额外的数组标记坐标是否已被同高度的其它坐标计算过,代码较长,时间
+    复杂度较高,看了官方题解,双指针法实现O(N^2)复杂度,算法的思路和盛水容器类似,移动高度较低一端的指针,同时维护leftMax&rightMax,
+    不过要注意的是,和第一种思路相比,计算的是当前坐标上所能存储的水的多少(并不是横跨多个坐标的水量),代码如下:
+    func trap(height []int) int {
+        if len(height) <= 2 {
+    	    return 0
+        }
+        var total,left,right,leftMax,rightMax int
+        left, right = 0, len(height) - 1
+        leftMax, rightMax = height[left], height[right]
+        for left < right {
+    	    if height[left] < height[right] {
+    		if height[left] >= leftMax {
+    			leftMax = height[left]
+    		} else {
+    			total += leftMax - height[left]
+    		}
+    		left++
+    	    } else {
+    		if height[right] >= rightMax {
+    			rightMax = height[right]
+    		} else {
+    			total += rightMax - height[right]
+    		}
+    		right--
+    	    }
+        }
+        return total
+    }
