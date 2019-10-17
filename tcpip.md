@@ -83,8 +83,26 @@ Tips to remember:
       可以接受其它socket的连接请求,把默认的主动套接字变为被动套接字
    d> socket_accept 等待套接字的连接请求,参数为listen返回的被动套接字,accept函数从处于监听状态的socket的连接请求队列中,取出一个请求,创建
       一个新的套接字,与客户端套接字建立连接通道,如果连接成功,返回新创建的套接字fd,失败则返回invalid_socket
-4. SYN攻击:客户端伪造大量IP地址,不间断的向服务器发送SYN包,塞满服务端半连接队列,导致正常的SYN请求被丢弃,SYN攻击是DDos攻击的一种,检测SYN攻击
-   netstat + awk '/^tcp/' 查看SYN_RECV状态的tcp连接即可
+4. a> SYN flood攻击:客户端伪造大量IP地址,不间断的向服务器发送SYN包,塞满服务端半连接队列,导致正常的SYN请求被丢弃,SYN攻击是DDos攻击的一种,
+      检测SYN攻击: netstat + awk '/^tcp/' 查看SYN_RECV状态的tcp连接即可,常见的DDos攻击方式参见miscellaneous.md
+   b> 可通过修改内核参数,有效缓解syn flood攻击,主要参数如下: net.ipv4.tcp_syncookies = 1; net.ipv4.tcp_max_syn_backlog = 4096;
+      net.ipv4.tcp_synack_retires = 2; 分别对应:启动SYN Cookies,设置SYN最大半连接队列,syn+ack报文最大重试次数;
+      SYN cookie的作用是缓解服务器资源压力,启用之前,服务器在接到syn包后立即分配存储空间,并随机一个数字作为序列号,发送SYN+ACK报文,
+      然后保存连接状态等待客户端ACK报文,完成三次握手,启用SYN cookie之后,服务器不再分配存储空间,而是通过基于时间种子的随机数算法设置一个
+      序列号,替换完全随机的序列号,发送SYN+ACK报文后清空资源,不保存任何状态信息,服务器收到ACK报文后,通过cookie检验算法鉴定是否与发出去的
+      SYN+ACK报文序列号一致,一致则完成握手,失败则丢弃
+   c> SYN cookie如何在不分配资源保存请求关键信息(连接的源和目的四元组及tcp选项信息包括:最大报文段MSS,时间戳timestamp,
+      窗口缩放因子Wscale等)的情况下,验证后续到达的ACK的有效性,以及获取SYN报文中携带的tcp选项信息?
+      SYN cookie可以解决上述问题中的一部分,SYN cookie使用以下规则构造序列号: t 为一个缓慢增长的时间戳; m 为客户端发送的SYN报文中MSS
+      的值; s 为连接的四元组信息与t经过hash后的值取低24bit,s = HASH(sip,dip,sport,dport,t);
+      则服务端序列号n为: 高5位为 t mod 32; 紧接着3位为 m的编码值; 低24位为s,
+      当客户端返回ACK报文后,服务端原始序列号为ack-1,然后: 将高5位表示的t 与当前时间比较,看其到达时间是否可接受; 取高5位的t,与连接四元组
+      重新计算s,并与ack-1的低24位比较,看是否一致,不一致则说明报文是伪造的; 解码MSS信息; 经过上述操作,即可顺利建立连接
+      但是SYN cookie并没有被纳入tcp标准,原因也很明显,有上述表述可知其存在一些缺陷: MSSb编码只有3bit,最多只能表示8种MSS值; 服务器无法
+      保存只在SYN及SYN+ACK报文中协商的其它选项,比如Wscale,SACK,因为没有地方保存这些协商信息; 增加了HASH运算;
+      注: 如果客户端和服务器都打开了时间戳选项,那么服务器可以将客户端在SYN报文中携带的Wscale,SACK,ECN信息存放在时间戳的低6位,客户端会
+      在ACK的TSecr字段,把这些值带回来
+      参考: https://segmentfault.com/a/1190000019292140
 5. 在进行本地压测的时候,出现一个情形,首次启动客户机没有任何问题,加机器人再次启动客户机时,日志报:connrefused
    第一反应是上次的客户机tcp连接没有释放,由于客户机tcp连接设置了保活机制(keepalive),而默认的保活检测时间过长(默认是7200s),以及保活重发次数
    另外一个会影响的参数是系统释放连接资源之前的等待时间(TcpTimedWaitDelay),系统不释放资源导致本地动态端口,TCB,TCB hashtable等系统资源不足,
@@ -112,15 +130,26 @@ Tips to remember:
    /i 不区分大小写
    "" 指定要搜索的字符串
    比如显示端口为20001的所有连接: netstat -ano | find "20001" ,类似的还有一个findstr,不需要(""),如: netstat -ano | findstr 20001
-9. HTTP/1.0 短连接,每次request都会建立一个单独的连接,因此请求较多时,连接的建立和释放会占用大量的系统资源
-   HTTP/1.1 支持长连接,管线处理,在一个连接上可以传送多个请求和响应,并且客户端可以在上一个请求未返回前再次发送请求,不过服务器则需要保证
-   按客户端请求的顺序,返回响应,1.1还新增了一些请求/响应头域来扩展功能,比如:status code, request method(options,put,delete..),host域
-   HTTP状态码, 1xx 消息,服务端已收到请求,需要请求者继续执行操作; 2xx 成功,请求收到并被处理; 3xx 重定向,需要进一步操作完成请求; 4xx 客户端
-   错误,语法错误或找不到请求的资源; 5xx 服务端错误,服务器在处理请求的过程中出现错误
-   常见状态码:
-    200 ok 请求成功; 305 use proxy 请求的资源必须通过代理访问; 400 bad request 客户端语法or请求参数有误; 401 unauthorized 请求需要用户
-    认证; 403 forbidden 服务器理解请求,但拒绝执行; 404 not found 服务器未找到请求的资源; 500 internal server error 服务器内部错误; 501 
-    not implemented 服务器不支持请求的功能; 502 bad gateway 网关or代理服务器尝试发送请求时,从上游服务器收到一个无效的响应
+9. a> HTTP/1.0 短连接,每次request都会建立一个单独的连接,因此请求较多时,连接的建立和释放会占用大量的系统资源
+      HTTP/1.1 支持长连接,管线处理,在一个连接上可以传送多个请求和响应,并且客户端可以在上一个请求未返回前再次发送请求,不过服务器
+      则需要保证按客户端请求的顺序,返回响应,1.1还新增了一些请求/响应头域来扩展功能,
+      比如:status code, request method(options,put,delete..),host域;
+      HTTP状态码: 1xx 消息,服务端已收到请求,需要请求者继续执行操作; 2xx 成功,请求收到并被处理; 3xx 重定向,需要进一步操作完成请求; 
+      4xx 客户端错误,语法错误或找不到请求的资源; 5xx 服务端错误,服务器在处理请求的过程中出现错误
+   b> 常见状态码: 200 ok 请求成功; 305 use proxy 请求的资源必须通过代理访问; 400 bad request 客户端语法or请求参数有误;
+      401 unauthorized 请求需要用户认证; 403 forbidden 服务器理解请求,但拒绝执行; 404 not found 服务器未找到请求的资源; 
+      500 internal server error 服务器内部错误; 501 not implemented 服务器不支持请求的功能; 
+      502 bad gateway 网关or代理服务器尝试发送请求时,从上游服务器收到一个无效的响应
+   c> HTTP header之connection: 通用消息头,控制当前事务结束后,网络连接是否保持打开状态,常用值由:keep-alive,close
+      close 表示客户端(request)或服务器(response)想要关闭连接,这是HTTP 1.0的默认值;
+      keep-alive 表示客户端和服务器保持持久连接,这是HTTP 1.1中的默认值,如果客户端使用1.1协议,服务器不希望使用长连接的话,则
+      response header中需指明connection:close
+   d> HTTP header之keep-alive: 通用消息头,允许消息发送者暗示连接状态,还可以用来设置超时时长和最大请求数:timeout,max
+      timeout 指定一个空闲连接保持打开状态的最小时长(s);
+      max 在连接关闭前,当前连接可以发送请求的最大值,对于非管道连接,此值为0有效,其它值会被忽略,对于管道连接,使用该字段限制管道使用
+      connection&keep-alive使用示例: Connection: keep-alive \r\n Keep-Alive: timeout=5, max=1000 \r\n ;
+      注: 需要将connection header的值设置为"keep-alive"时,keep-alive header才有意义
+      另: HTTP/2协议中,connection&keep-alive这两个header是被忽略的,使用其它机制进行连接管理
 10. 服务器在httpc:request/4时报错:inet eaddrinuse, 同时:erl -sname test  也会报同样的错误,POSIX Error Codes说是address被占用
     通过对比其他资料,这个address应该就是需要占用的端口,httpc申请的是动态端口,那么很有可能是动态端口不够用
     /proc/sys/net/ipv4/ip_local_port_range 查看本地TCP/UDP端口范围
