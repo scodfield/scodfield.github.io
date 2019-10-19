@@ -17,13 +17,13 @@
    退出过程会一直持续到main()(主协程)退出为止,跟踪堆栈则是从当前调用panic的协程函数开始直到main(),运行时错误(如,数组越界)也会
    导致panic,等价于调用了内置函数panic,其参数由接口类型runtime.Error给出;
    e> func recover()interface{} 也是内建函数,用于重新获得panic协程的控制,只有在延迟函数内部,调用recover才有用,在延迟函数内
-   调用recover,可以取到panic的错误信息,停止panic续发事件(panicking sequence),程序恢复正常运行,如果在defer外部调用recover,不能停止panic
-   续发事件,只有在同一个go协程中调用recover才行,recover不能恢复一个不同协程的panic,recover恢复panic之后,堆栈跟踪就被释放,但是可以通过
-   runtime/debug.PrintStack()函数打印堆栈跟踪,导入debug包,并在defer的recover函数里调用即可:
+   调用recover,可以取到panic的错误信息,停止panic续发事件(panicking sequence),程序恢复正常运行,如果在defer外部调用recover,不能
+   停止panic续发事件,只有在同一个go协程中调用recover才行,recover不能恢复一个不同协程的panic,recover恢复panic之后,堆栈跟踪就被释放,
+   但是可以通过runtime/debug.PrintStack()函数打印堆栈跟踪,导入debug包,并在defer的recover函数里调用即可:
    import "runtime/debug" 
-   defer recov()   
-   func recov(){if r := recover(); r != nil
-     fmt.Println("recovered: ", r) debug.PrintStack()}
+     defer recov()   
+     func recov(){if r := recover(); r != nil
+       fmt.Println("recovered: ", r) debug.PrintStack()}
    在Printf()函数中,使用'%T'格式说明符,可以打印出变量的类型,unsafe包提供了一个Sizeof()函数,该函数接收变量并返回它的字节大小,
    不过unsafe包可能会带来可移植性问题,因此需要小心使用;
    go有着非常严格的强类型特征,没有自动类型提升/转换,比如在C语言中,整型可以和浮点型变量相加,但go中会报错(invalid operation),操作符
@@ -89,28 +89,29 @@
    切片是可索引的,可通过len()函数获取切片的长度,cap()函数获取切片的容量
    可通过append()函数向切片追加元素,例:append(slice1,0) // 添加一个元素   append(slice1,1,2,3) // 同时添加多个元素
    可通过copy()函数在切片间拷贝,例:copy(slice2,slice1) // 将slice1的数据拷贝到slice2中,copy()需要注意的是声明slice2的时候要指定len的大小,
-   即: slice2 := make([]int, 5),否则上述copy失败,错误声明:slice2 := make([]int,0) 则执行上述copy之后,len(slice2)=0,cap(slice2)=0,slice2=[]
+   即: slice2 := make([]int, 5),否则上述copy失败,错误声明:slice2 := make([]int,0) 
+   则执行上述copy之后,len(slice2)=0,cap(slice2)=0,slice2=[]
    切片由三部分组成:指向底层数组的指针,len,cap
    基于数据或切片创建新切片时,新切片的大小和容量计算公式:slice2 := slice[i:j] 设定slice的cap=k,则slice2的len=j-i, cap = k-i
-   上述的计算公式中len的计算好理解,对于cap而言,为啥是k-i,因为slice2的底层数组指针指向下表为i的元素,那么新的cap=原来的cap - i,也就是说切片的容量
-   是从创建切片索引开始的底层数组中元素的个数
+   上述的计算公式中len的计算好理解,对于cap而言,为啥是k-i,因为slice2的底层数组指针指向下表为i的元素,那么新的cap=原来的cap - i,
+   也就是说切片的容量是从创建切片索引开始的底层数组中元素的个数;
    切片和数据的不同点,在函数调用时,切片是引用传递,数组是值传递,但是可以显式的取数据的地址
    所谓底层数组的指针,可通过一个例子来说明:var slice1 = []int{0,1,2,3,4,5}  slice2 := slice1[:3] slice1[1] = 10,则打印slice2 = [0,10,2]
    切片append()时,如果cap不足会扩大,新的cap计算方式:ceil((cap+len(arr))/2) * 2, 
    例:slice1 := []int {0,1,2,3} slice2 := slice1[2:] 
       slice2 = append(slice2,4,5,6,7,8)  // slice2.cap = ceil((slice2.cap + len([4,5,6,7,8])/2) * 2
-   切片持有对底层数组的引用,只有切片在内存中,数组就不会被垃圾回收,如果有一个较大的数据,但我们只处理其中的一部分数据,由该数组创建切片时,只要仍在使用
-   切片,数组就不会被回收,解决办法是使用func copy(dst, src []T)int函数来生成一个切片副本,这样可以使用新切片,原始数组被垃圾回收
-   记一个小坑:在爬取豆瓣电影top250的时候,解析函数parseUrl有一个slice参数,在外层调用声明:var results []Result,解析后在外层调用时,发现results为空,
-   按说切片是地址传递,为啥最后还是空呢,这是因为在parseUrl函数中调用了append函数,在添加元素的时候,切片的空间不够,分配了新的空间,在外层调用函数中
-   results还是指向原来的地址,所以正确的做法是在外层调用函数中:results = parseUrl(url,results),相应的parseUrl/2函数要将最后新的results返回,具
-   体实现参见douban_top250.go
-5. go并发,通过go关键字开启goroutine线程,goroutine是轻量级线程,由go运行时进行管理,goroutine语法格式: go f_name(parameters), 通道channel可用于
-   两个goroutine之间的通信,通道可由关键字chan和make()函数创建,例: ch := make(chan int),默认情况下通道是没有缓冲区的,发送端发送数据,同时必须有
-   接收端接收数据,(经过测试,貌似没有缓冲区的通道,存储数据的部分是个栈结构,带缓冲区的是个队列),通道可通过make的第二个参数设置缓冲区大小,带缓冲区的
-   通道允许发送端的数据发送和接收端的数据获取处于异步状态,也就是说带缓冲区的通道,可以先将数据放在缓冲区,等待接收端接收数据,如果不带缓冲区,发送方
-   会阻塞直到接收端从通道接收数据,如果带缓冲,发送方会阻塞直到被发送的值被拷贝到缓冲区,缓冲区已满,则发送方会一直阻塞,直到接收方接收数据
-   close()函数关闭通道
+   切片持有对底层数组的引用,只有切片在内存中,数组就不会被垃圾回收,如果有一个较大的数据,但我们只处理其中的一部分数据,由该数组创建切片时,
+   只要仍在使用切片,数组就不会被回收,解决办法是使用func copy(dst, src []T)int函数来生成一个切片副本,这样可以使用新切片,原始数组被垃圾回收
+   记一个小坑:在爬取豆瓣电影top250的时候,解析函数parseUrl有一个slice参数,在外层调用声明:var results []Result,解析后在外层调用时,
+   发现results为空,按说切片是地址传递,为啥最后还是空呢,这是因为在parseUrl函数中调用了append函数,在添加元素的时候,切片的空间不够,
+   分配了新的空间,在外层调用函数中results还是指向原来的地址,所以正确的做法是在外层调用函数中:results = parseUrl(url,results),
+   相应的parseUrl/2函数要将最后新的results返回,具体实现参见douban_top250.go
+5. go并发,通过go关键字开启goroutine线程,goroutine是轻量级线程,由go运行时进行管理,goroutine语法格式: go f_name(parameters), 
+   通道channel可用于两个goroutine之间的通信,通道可由关键字chan和make()函数创建,例: ch := make(chan int),默认情况下通道是没有缓冲区的,
+   发送端发送数据,同时必须有接收端接收数据,(经过测试,貌似没有缓冲区的通道,存储数据的部分是个栈结构,带缓冲区的是个队列),
+   通道可通过make的第二个参数设置缓冲区大小,带缓冲区的通道允许发送端的数据发送和接收端的数据获取处于异步状态,
+   也就是说带缓冲区的通道,可以先将数据放在缓冲区,等待接收端接收数据,如果不带缓冲区,发送方会阻塞直到接收端从通道接收数据,
+   如果带缓冲,发送方会阻塞直到被发送的值被拷贝到缓冲区,缓冲区已满,则发送方会一直阻塞,直到接收方接收数据close()函数关闭通道
 6. 参考系列
    a> 深度解密Go语言之map https://mp.weixin.qq.com/s/2CDpE5wfoiNXm1agMAq4wA
    b> [译] 我是如何在大型代码库上使用 pprof 调查 Go 中的内存泄漏 https://juejin.im/post/5ce11d1ee51d4510601117fd
@@ -133,46 +134,55 @@
     Int()和String()方法可以分别取出reflect.Value的特定数据类型
     参考: https://studygolang.com/articles/13178
 11. Go包(package)用于组织go源代码,提供了更好的可重用性,可读性和可维护性,所有可执行的go程序都必须包含一个main函数,main函数应该放置于main包中
-    package packagename 这一行代码指定了该源文件属于哪一个包,放在每一个源文件的第一行,go install dir_name 编译dir_name命名的程序,会在dir_name
-    中寻找包含main函数的文件,并生成dir_name命名的二进制或可执行文件,属于某一个包的源文件都应该放置于一个单独的文件夹内,例如dir_name程序里的一个工具
-    类的源文件,在dir_name文件夹内创建util文件夹,并在新util内创建util.go(./dir_name/util/util.go),util.go的第一句就是:package util
+    package packagename 这一行代码指定了该源文件属于哪一个包,放在每一个源文件的第一行,go install dir_name 编译dir_name命名的程序,
+    会在dir_name中寻找包含main函数的文件,并生成dir_name命名的二进制或可执行文件,属于某一个包的源文件都应该放置于一个单独的文件夹内,
+    例如dir_name程序里的一个工具类的源文件,在dir_name文件夹内创建util文件夹,并在新util内创建util.go(./dir_name/util/util.go),
+    util.go的第一句就是:package util
     所有包都可以包含一个init函数,init函数没有任何参数和返回值,也不能显式的调用它,常用于初始化任务及开始执行之前检查程序的正确性
     包的初始化顺序如下:
       a> 首先初始化被导入的包,如果一个包导入了另一个包,则会先初始化被导入的包,一个包可能会被多次导入,但只会被初始化一次;
       b> 包级别的变量;
       c> 然后调用init函数,包可以有多个init函数(分布于多个文件中)
-    导入包却不使用它,编译器编译时会报错,也就是说导入不使用的包在go中是非法的,这么做的目的是为避免导入过多未使用的包,导致编译时间显著增加,有时会先
-    导入暂时用不到的包,此时可通过空白标识符来规避上述问题(与erlang类似),比如: var _ = math.Sqrt(3 * 5)
+    导入包却不使用它,编译器编译时会报错,也就是说导入不使用的包在go中是非法的,这么做的目的是为避免导入过多未使用的包,
+    导致编译时间显著增加,有时会先导入暂时用不到的包,此时可通过空白标识符来规避上述问题(与erlang类似),比如: var _ = math.Sqrt(3 * 5)
 12. Go协程(goroutine),是与其它函数或方法并发运行的函数或方法,go通过协程和信道(channel)来处理并发
     go协程可以看作是轻量级的线程,创建一个go协程的成本很小(与erlang类型,spawn一个erlang进程消耗也很小),go协程相比系统线程的优势如下:
-    a> 相比线程,go协程的成本极低,堆栈大小只有若干kb,并可根据应用增减,线程必须指定堆栈大小,且固定不变
-    b> go协程会复用数量较少的os线程(类似erlang中beam的调度线程),若该线程中的某一个协程发生阻塞,系统会新建os线程,并把其它剩余的协程迁移到新线程上
+    a> 相比线程,go协程的成本极低,堆栈大小只有若干kb,并可根据应用增减,线程必须指定堆栈大小,且固定不变;
+    b> go协程会复用数量较少的os线程(类似erlang中beam的调度线程),若该线程中的某一个协程发生阻塞,系统会新建os线程,
+       并把其它剩余的协程迁移到新线程上;
     c> go协程之间使用信道来进行通信(erlang则采用基本消息的actor模型)
-    启动一个新协程,协程的调用会立即返回,程序接着执行下一行代码,与直接调用函数的不同就在于,并不会等待新协程的任何返回值;如果希望运行go协程,则主协程
-    必须继续运行,主协程终止,则程序终止
+    启动一个新协程,协程的调用会立即返回,程序接着执行下一行代码,与直接调用函数的不同就在于,并不会等待新协程的任何返回值;
+    如果希望运行go协程,则主协程必须继续运行,主协程终止,则程序终止;
     注: go程序的主函数main()会运行在一个特殊的协程上,称为go主协程main goroutine
-13. Go信道(channel),是协程之间通信的管道,所有信道都关联了一个类型,信道只能传输这种类型的数据,传输其它类型的数据都是非法的(erlang毕竟是动态语言
-    可以发任意类型的消息,只要接收方可以有效处理即可),信道的零值为nil,零值没有任何意义,与map和切片一样,应该用make()来创建信道,信道通过箭头'<-'来
-    标识是发送数据还是接受数据,'<-'箭头方向背离信道变量,表明从信道取数据,'<-'箭头方向指向信道变量,表明向信道写数据
-    信道的发送和接受都是阻塞的,当向信道发送数据时,程序控制会在发送数据的语句处阻塞,直到有其它go协程从该信道读取数据时才会解锁阻塞,读取过程类似,
-    如果没有协程向该信道写入数据,则读取协程会一直阻塞,这种特性使得协程之间通信时不需要使用锁或其它条件变量(erlang采用异步消息,当没有可处理的消息时
-    陷入空转,不过erlang启动beam时可以指定启动的os调度线程数量,而go如果出现大量协程阻塞,岂不是要启动N多os线程?)
-    信道需要避免的是死锁,当向一个信道发送数据,而没有任何协程接收,或者从某一个信道读取数据,但是没有任何协程向该信道写数据,此时会触发panic,返回运行时
-    错误,一般是fatal error:all goroutine are asleep - deadlock
-    通常创建的信道都是双向信道,既可以发送数据,也可以接收数据,不过在某些情况下可以把双向信道转换为单向信道(send/receive-only),但是反过来不行,比如
-    可以在主协程创建双向信道,新协程函数的信道参数定义为单向信道类型,send-only: func xxx (sendOnlyChannel chan<- int){}
-    receive-only: func xxx (receiveOnleyChannel <-chan int) {},在主协程创建双向信道:add_ch := make(chan int) go xxx(add_ch)  
-    add_res := <-add_res fmt.Println(add_res),则在xxx协程里add_ch为只能发送数据的单向信道,而在主协程里是一个双向信道,仍然可以接收数据
-    close(ch_variable)用来关闭信道,一般由发送数据的协程来关闭信道,在接收数据时,可通过多一个参数来判断信道是否关闭: v, ok := <- ch_variable
-    当ok == false时,表示此时正在读取一个已关闭的信道,v 则是信道类型的零值,比如读取一个已关闭的chan int,此时v的值为0,这种方式需要自己判断信道是否
-    已关闭,最常用的做法是使用for range循环,for range循环会一直从信道中接收数据,一旦关闭了chan,循环就自动结束:for v := range ch_variable {xxx}
-    缓冲信道(buffered channels),通过向make()函数再传递一个表示容量的参数(表示缓冲区大小),就可以创建一个缓冲信道,无缓冲信道的接收和发送都是阻塞的
-    而缓冲信道只在缓冲区已满的情况下才会阻塞向信道发送数据,同样也只在缓冲为空的情况下才会阻塞从信道接收数据
-    WaitGroup用于等待一批协程执行结束,来自于sync包,程序会一直阻塞,直到这些协程全部执行完毕,WaitGroup是一个结构体类型,WaitGroup使用计数器来工作
-    WaitGroup.Add()方法增加计数,WaitGroup.Done()方法减少计数,WaitGroup.Wait()方法会阻塞调用它的协程,直到计数器为0时才会解除阻塞
-    缓冲信道的重要应用之一就是工作池,工作池就是一组等待任务分配的线程,一旦完成所分配的任务,就可以继续等待分配任务
-    select,select语句用于在多个发送/接收信道操作中进行选择,select语句会一直阻塞,直到有发送/接收操作准备就绪,如果有多个信道操作准备完毕,select会
-    随机选择其中的一个执行,select语法与switch相似,只不过每个case语句都是信道操作,使用default语句执行默认操作,防止select语句一直阻塞;
+13. a> Go信道(channel),是协程之间通信的管道,所有信道都关联了一个类型,信道只能传输这种类型的数据,传输其它类型的数据都是非法的
+       (erlang毕竟是动态语言可以发任意类型的消息,只要接收方可以有效处理即可),信道的零值为nil,零值没有任何意义,与map和切片一样,
+       应该用make()来创建信道,信道通过箭头'<-'来标识是发送数据还是接受数据,'<-'箭头方向背离信道变量,
+       表明从信道取数据,'<-'箭头方向指向信道变量,表明向信道写数据信道的发送和接受都是阻塞的,当向信道发送数据时,
+       程序控制会在发送数据的语句处阻塞,直到有其它go协程从该信道读取数据时才会解锁阻塞,读取过程类似,
+       如果没有协程向该信道写入数据,则读取协程会一直阻塞,这种特性使得协程之间通信时不需要使用锁或其它条件变量(erlang采用异步消息,
+       当没有可处理的消息时陷入空转,不过erlang启动beam时可以指定启动的os调度线程数量,而go如果出现大量协程阻塞,岂不是要启动N多os线程?)
+       信道需要避免的是死锁,当向一个信道发送数据,而没有任何协程接收,或者从某一个信道读取数据,但是没有任何协程向该信道写数据,
+       此时会触发panic,返回运行时错误,一般是fatal error:all goroutine are asleep - deadlock
+    b> 通常创建的信道都是双向信道,既可以发送数据,也可以接收数据,不过在某些情况下可以把双向信道转换为单向信道(send/receive-only),
+       但是反过来不行,比如可以在主协程创建双向信道,新协程函数的信道参数定义为单向信道类型,
+       send-only: func xxx (sendOnlyChannel chan<- int){}
+       receive-only: func xxx (receiveOnleyChannel <-chan int) {},
+       在主协程创建双向信道:add_ch := make(chan int) go xxx(add_ch)  
+       add_res := <-add_res fmt.Println(add_res),则在xxx协程里add_ch为只能发送数据的单向信道,而在主协程里是一个双向信道,仍然可以接收数据
+       close(ch_variable)用来关闭信道,一般由发送数据的协程来关闭信道,在接收数据时,可通过多一个参数来判断信道是否关闭
+       即: v, ok := <- ch_variable, 当ok == false时,表示此时正在读取一个已关闭的信道,v 则是信道类型的零值,
+       比如读取一个已关闭的chan int,此时v的值为0,这种方式需要自己判断信道是否已关闭,最常用的做法是使用for range循环,
+       for range循环会一直从信道中接收数据,一旦关闭了chan,循环就自动结束:for v := range ch_variable {xxx}
+    c> 缓冲信道(buffered channels),通过向make()函数再传递一个表示容量的参数(表示缓冲区大小),就可以创建一个缓冲信道,
+       无缓冲信道的接收和发送都是阻塞的而缓冲信道只在缓冲区已满的情况下才会阻塞向信道发送数据,
+       同样也只在缓冲为空的情况下才会阻塞从信道接收数据;
+    d> WaitGroup用于等待一批协程执行结束,来自于sync包,程序会一直阻塞,直到这些协程全部执行完毕,
+       WaitGroup是一个结构体类型,WaitGroup使用计数器来工作
+       WaitGroup.Add()方法增加计数,WaitGroup.Done()方法减少计数,WaitGroup.Wait()方法会阻塞调用它的协程,直到计数器为0时才会解除阻塞
+       缓冲信道的重要应用之一就是工作池,工作池就是一组等待任务分配的线程,一旦完成所分配的任务,就可以继续等待分配任务
+       select,select语句用于在多个发送/接收信道操作中进行选择,select语句会一直阻塞,直到有发送/接收操作准备就绪,
+       如果有多个信道操作准备完毕,select会随机选择其中的一个执行,select语法与switch相似,只不过每个case语句都是信道操作,
+       使用default语句执行默认操作,防止select语句一直阻塞;
 14. Go Runtime,go的运行时管理着调度(scheduler),垃圾回收(gc)和goroutine的运行环境
     go运行时负责运行goroutine,并把它们映射到操作系统线程上,每个goroutine由一个G结构体来表示,结构体字段用来维护此goroutine的栈和状态,运行时管理G
     并把它们映射到Logical Processor(P),P可以看做是是一个抽象的资源或者上下文,操作系统线程(M)获取P以便运行G
@@ -209,8 +219,8 @@
 16. some worthy tips
     a> go中,函数是一等公民,函数和其它类型一样,可以被赋值,传递给函数或者从函数中返回,但函数两点需要注意: 函数值类型不能作为map的key(可以作为value);
        函数值之间不能比较,只能和nil比较,函数类型的零值是nil
-    b> 匿名函数赋值给变量,中间状态也被保存在变量中,那么在对匿名函数遍历的时候(创建了一个匿名函数slice或数组),匿名函数访问的外部变量是遍历结束后最终
-       的变量值,因为多个闭包共享这个中间状态,示例如下:
+    b> 匿名函数赋值给变量,中间状态也被保存在变量中,那么在对匿名函数遍历的时候(创建了一个匿名函数slice或数组),
+       匿名函数访问的外部变量是遍历结束后最终的变量值,因为多个闭包共享这个中间状态,示例如下:
        var nonSlice []func()
        strSlice := []string {"1","3","5","7"}
        for _, str := range strSlice {
@@ -281,7 +291,7 @@
        go build命令在编译一个或多个包含库源码文件的代码包时,只会做检查性的编译,不会输出任何结果文件
        go build命令既不能同时编译多个含有命令源码文件的代码包,也不能同时编译多个命令源码文件,因为如果把多个命令源码文件看成一个整体,那么多个
        文件中的main函数就属于重名函数,编译器会抛出重复定义错误
-       go build常见参数如下:
+       除了-o/i这两个flags,其余flags和其它命令(build,clean,get,install,list,run,test)共享,常见参数如下:
          -o xxx 指定编译输出文件名称
          -i 使得go build命令安装编译目标依赖的且还未被安装的代码包,默认放在当前工作区目录的pkg目录下的响应子目录中
          -a 强行对所有涉及到的代码包(包括标准库中的代码包)进行重新构建,即便已经是最新的
@@ -300,32 +310,52 @@
          -tags 指定实际编译期间,需要受理的编译标签(编译约束)的列表,一般会作为源码文件开始处注释的一部分,如:
          // +build darwin dragonfly freebsd linux nacl netbsd ...
          -toolexec 此标记让我们自定义在编译期间使用一些go工具(vet,asm)的方式
-    b> go install命令编译并安装指定的代码包及其依赖包,当指定的代码包的依赖还没有被编译和安装时,会先去处理依赖包,与go build命令一样,go install
-       命令的代码包参数应该以导入路径的形式提供($GOROOT/src,$GOPATH/xxx_project/src),传给go build命令的大多数标记也可以传递给go install, go
-       install只比go build多做了一件事:安装编译后的结果文件到指定目录,假如我们有以下项目目录结构:
+    b> go install命令编译并安装指定的代码包及其依赖包,当指定的代码包的依赖还没有被编译和安装时,会先去处理依赖包,
+       与go build命令一样,go install命令的代码包参数应该以导入路径的形式提供($GOROOT/src,$GOPATH/xxx_project/src),
+       传给go build命令的大多数标记也可以传递给go install, go install只比go build多做了一件事:安装编译后的结果文件到指定目录,
+       假如我们有以下项目目录结构:
        $GOPATH/home/go_proj/thd: ebin/ pkg/ src/ ../src/logging  ../src/helper ../src/utils
-       如果go install命令后面跟的代码包中只包含库源码文件,那么go install命令会把编译后的文件保存在源码文件所在工作区的pkg/下,如果我们cd到
-       thd/src/utils目录下,执行:go install -v -work, 那么将编译安装当前代码包,我们会在thd/pkg/下发现一个新的子目录,由当前平台的计算架构和操作
-       系统命名的子目录,比如linux_386/,linux_386/目录下是代码包utils的归档文件utils.a,我们可以在utils/下编译安装logging代码包,以目录相对路径
-       的方式(本地代码包路径),如: thd/src/utils/$ go install -a -v -work ../logging, 本地代码包路径以"./" or "../"的形式开始,本地代码包路径
-       不支持绝对路径,go install命令会把标准库中的代码包的归档文件(.a)放到GO安装目录的pkg子目录中,而把指定代码包的第三方依赖的代码包的归档文件
-       放置到当前项目的pkg子目录下,实现标准库代码包的归档文件和用户代码包的归档文件,以及不同项目的代码包的归档文件之间的分离
-    c> go get命令可以根据实际情况从互联网上下载或更新指定的代码包及其依赖包,并对它们进行编译和安装,go get命令所做的动作也被称为代码包远程导入,
-       传递给该命令的参数也被称为代码包远程导入路径,go get不仅可以从github上下载代码包,也可以从任何命令支持的某个或某些代码版本控制系统检出
-       代码包,go get所做的就是从版本系统控制的远程仓库中检出代码包并对其编译安装
-    d> go run命令可以编译并运行命令源码文件(main),它包含了编译动作所以也适用go build命令的标记,go run命令只接受源码文件作为参数,而不接收代码包
-       也不接受测试源码文件,如果命令源码文件可以接受参数,可以在go run命令的文件参数后面跟上参数,如:
-       thd/src/logging/$ go run main.go -pra_name xxx, 参数名以"-"开头,紧跟着的是参数名"pra_name",空格及参数值,如果需要多个参数,依次类推
-    e> go test命令会自动测试每一个指定的代码包,前提是指定的代码包中存在测试源码文件,测试源码文件是以"_ test.go"为后缀的,内含若干测试函数的源码
-       文件,这种测试以代码包为单位,go test在执行完代码包中的测试文件之后,会以代码包为单位打印出测试概要信息(测试时不同代码包以空格分隔),第一列
-       为测试结果(是否通过),第三列为测试用时(以秒为单位)
+       如果go install命令后面跟的代码包中只包含库源码文件,那么go install命令会把编译后的文件保存在源码文件所在工作区的pkg/下,
+       如果我们cd到thd/src/utils目录下,执行:go install -v -work, 那么将编译安装当前代码包,
+       我们会在thd/pkg/下发现一个新的子目录,由当前平台的计算架构和操作系统命名的子目录,
+       比如linux_386/,linux_386/目录下是代码包utils的归档文件utils.a,我们可以在utils/下编译安装logging代码包,以目录相对路径
+       的方式(本地代码包路径),如: thd/src/utils/$ go install -a -v -work ../logging, 
+       本地代码包路径以"./" or "../"的形式开始,本地代码包路径不支持绝对路径,go install命令会把标准库中的代码包的
+       归档文件(.a)放到GO安装目录的pkg子目录中,而把指定代码包的第三方依赖的代码包的归档文件
+       放置到当前项目的pkg子目录下,实现标准库代码包的归档文件和用户代码包的归档文件,以及不同项目的代码包的归档文件之间的分离;
+    c> go get命令可以根据实际情况从互联网上下载或更新指定的代码包及其依赖包,并对它们进行编译和安装,go get命令所做的动作
+       也被称为代码包远程导入,传递给该命令的参数也被称为代码包远程导入路径,go get不仅可以从github上下载代码包,
+       也可以从任何命令支持的某个或某些代码版本控制系统检出代码包,go get所做的就是从版本系统控制的远程仓库中检出代码包并对其编译安装;
+    d> go run命令可以编译并运行命令源码文件(main),它包含了编译动作所以也适用go build命令的标记,
+       go run命令只接受源码文件作为参数,而不接收代码包也不接受测试源码文件,如果命令源码文件可以接受参数,
+       可以在go run命令的文件参数后面跟上参数,如: thd/src/logging/$ go run main.go -pra_name xxx, 
+       参数名以"-"开头,紧跟着的是参数名"pra_name",空格及参数值,如果需要多个参数,依次类推;
+    e> go test命令会自动测试每一个指定的代码包,前提是指定的代码包中存在测试源码文件,测试源码文件是以"_ test.go"为后缀的,
+       内含若干测试函数的源码文件,这种测试以代码包为单位,go test在执行完代码包中的测试文件之后,
+       会以代码包为单位打印出测试概要信息(测试时不同代码包以空格分隔),第一列为测试结果(是否通过),第三列为测试用时(以秒为单位);
+    f> go build -gcflags传递给go tool compile命令的参数,常用参数如下:
+       -c num 编译期间的并发数,默认为1,并发编译,提供编译效率,如: go build -gcflags="-c 4"; 
+       -I dir1 指定搜索路径,如: go build -gcflags="-I ~/go_util/";
+       -D relative_path 设置本地导入(local imports)的相对路径(relative path);
+       -N 禁用go内部的一些优化(聚合变量,函数),一般是编译结果需要gdb调试时使用,常与"-l"连用,如: go build -gcflags="-N -l" main.go;
+       -l 禁用内联优化;
+       -S 在标准输出打印代码的汇编信息,如: go build -gcflags="-S" main.go;
+       -h 在第一个错误处中断,并打印堆栈跟踪信息,如: go build -gcflags="-h" has_error.go; 
+       -gcflags中还有和调试信息(-dwarf等)及调试编译器本身相关的参数,详见: go doc cmd/compile
+       注: 以windows为例,go tool相关的命令可在:GO_INSTALL_PATH/pkg/tool文件夹下查看
+    g> go build -ldflags传递给go tool link命令的参数,常用参数如下:
+       -s 省略符号表和debug信息,panic的时候没有文件名和行号信息; -w 禁用DWARF符号表,得到的程序不能用gdb调试; 
+       -X importpath.name=value 为包中的变量赋值,如: go build -ldflags="-X main.auth=scod -X 'main.GO_VERSION=`go version`'"
+       上述示例中,由于go version命令的输出有空格,所以使用"'',``"这两个引号括了起来
+       -ldflags还有很多其他参数(-n,-u,-L),可通过:go doc cmd/link
+       注:-X will not work if the initializer makes a function call or refers to other variables
 18. tips about Beego框架之bee(类似erlang的rebar),bee工具是一个为了协助快速开发beego项目而创建的项目,通过bee可以快速创建项目,实现热编译,开发
     测试以及项目打包/发布,通过以下命令创建bee工具:go get github.com/beego/bee, 安装后默认在$GOPATH/bin,常用命令如下:
     a> new命令,新建一个web项目,在$GOPATH/src路径下,shell/cmd命令行执行:bee new thd 创建一个名为thd的新项目
     b> api命令,new新建web项目,api命令创建API应用,该命令还支持一些自定义参数自动连接数据库,创建相关的model和controller,如:
        bee api thd_api -table="xxx" -driver=mysql/tidb... -conn=root:xx@tcp(db_ip:port)/table_name
-    c> run命令,监控beego项目,通过fsnotify监控文件系统,可以实时看到项目修改之后的效果,可以实时监控项目中controller相关的.go文件的更改,自动build
-       及restart整个项目,只需刷新浏览器即可看到最新的效果,无需再手动编译运行
+    c> run命令,监控beego项目,通过fsnotify监控文件系统,可以实时看到项目修改之后的效果,可以实时监控项目中controller相关的.go文件的更改,
+       自动build及restart整个项目,只需刷新浏览器即可看到最新的效果,无需再手动编译运行
     d> test命令,基于go test封装的一个命令,执行beego项目test/下的测试用例
     e> pack命令,用来发布应用的时候打包,会把项目打包成zip文件
     f> generate命令自动生成代码,参数如下:
