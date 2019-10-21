@@ -349,6 +349,12 @@
        上述示例中,由于go version命令的输出有空格,所以使用"'',``"这两个引号括了起来
        -ldflags还有很多其他参数(-n,-u,-L),可通过:go doc cmd/link
        注:-X will not work if the initializer makes a function call or refers to other variables
+    h> go build&install&run的区别:
+       go build dir1/ 编译包时,如果文件夹下是main包(dir1/ 文件夹下的文件:package main),则在执行shell的当前目录生成可执行文件(可执行
+       文件名为该文件夹名称,并不会生成main.o/exe),若dir1/ 非main包,不会生成任何文件(并不会生成.a等库文件);
+       go install dir1/ 编译包时,非main包生成.a等库文件并copy到$GOPATH/pkg/$GOOS_GOARCH/dir1, 同时main包生成的可执行文件
+       copy到$GOPATH/bin/下;
+       go run file1 ... 编译指定的文件,同时生成可执行文件并执行(只能作用于main包文件),对于非main包文件:cannot run non-main package
 18. tips about Beego框架之bee(类似erlang的rebar),bee工具是一个为了协助快速开发beego项目而创建的项目,通过bee可以快速创建项目,实现热编译,开发
     测试以及项目打包/发布,通过以下命令创建bee工具:go get github.com/beego/bee, 安装后默认在$GOPATH/bin,常用命令如下:
     a> new命令,新建一个web项目,在$GOPATH/src路径下,shell/cmd命令行执行:bee new thd 创建一个名为thd的新项目
