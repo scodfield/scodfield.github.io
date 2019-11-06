@@ -202,6 +202,8 @@
        接收不发送,与上述情况相反,常见问题是发送完所有数据后,发送者忘记关闭channel,接收者不知道发送完毕,依然在等待接收,导致阻塞,
        解决方法是发送完毕记得及时close channel;
        nil channel,向nil channel发送和接受数据都会导致阻塞,详细可见16.l;
+    f> 调用close()函数,关闭nil channel时报panic: close of nil channel,若没有recover时整个进程直接退出;
+       调用close()函数,重复关闭一个已关闭的channel时报: close of closed channel,无recover时整个进程直接退出;
 14. Go Runtime,go的运行时管理着调度(scheduler),垃圾回收(gc)和goroutine的运行环境
     go运行时负责运行goroutine,并把它们映射到操作系统线程上,每个goroutine由一个G结构体来表示,结构体字段用来维护此goroutine的栈和状态,
     运行时管理G,并把它们映射到Logical Processor(P),P可以看做是是一个抽象的资源或者上下文,操作系统线程(M)获取P以便运行G,
@@ -243,7 +245,8 @@
     https://segmentfault.com/a/1190000012597428
     https://mp.weixin.qq.com/s?__biz=MzU4ODczMDg5Ng==&mid=2247483688&idx=1&sn=46742e533886fe8b2fb91d79cf5144eb&scene=21#wechat_redirect
 16. some worthy tips
-    a> go中,函数是一等公民,函数和其它类型一样,可以被赋值,传递给函数或者从函数中返回,但函数两点需要注意: 函数值类型不能作为map的key(可以作为value);
+    a> go中,函数是一等公民,函数和其它类型一样,可以被赋值,传递给函数或者从函数中返回,但函数两点需要注意: 
+       函数值类型不能作为map的key(可以作为value);
        函数值之间不能比较,只能和nil比较,函数类型的零值是nil
     b> 匿名函数赋值给变量,中间状态也被保存在变量中,那么在对匿名函数遍历的时候(创建了一个匿名函数slice或数组),
        匿名函数访问的外部变量是遍历结束后最终的变量值,因为多个闭包共享这个中间状态,示例如下:
