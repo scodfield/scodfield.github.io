@@ -1,62 +1,69 @@
 1. 新的数据类型interface,channel,channel的运算符'<-',defer,recover与panic
    a> go的数据类型中,只有切片slice,字典map和信道channel是引用类型,其它都是值类型
-   b> defer延迟调用函数,含有defer语句的函数,在函数返回前,调用另一个函数,main() {defer hello() xxx },在main()函数返回前调用hello()函
-   数,不仅适用于函数,还可以延迟调用(结构体)方法,defer语句的实参取值是在执行defer语句的时候,而非在调用延迟函数的时候,
-   main() { a := 5 defer printA(a)
-   a = 10 fmt.Println("before defer a:" a)} func printA(a int) { fmt.Println("in defer a:",a) },上述延迟调用结果:"in defer a 5"
-   defer栈,当在一个函数内多次调用defer语句时,Go会把defer调用放入一个栈中,再按照LIFO的顺序执行(可以实现字符串逆序输出)
-   当一个函数应该在与当前代码流无关的环境下调用时,可以使用defer,比如用到sync.WaitGroup的地方,在协程函数内声明一个: defer wg.Done()
+   b> defer延迟调用函数,含有defer语句的函数,在函数返回前,调用另一个函数,main() {defer hello() xxx },
+      在main()函数返回前调用hello()函数,不仅适用于函数,还可以延迟调用(结构体)方法,
+      defer语句的实参取值是在执行defer语句的时候,而非在调用延迟函数的时候,
+      main() { a := 5 defer printA(a)
+         a = 10 fmt.Println("before defer a:" a)} 
+      func printA(a int) { fmt.Println("in defer a:",a) },
+      上述延迟调用结果:"in defer a 5";
+      defer栈,当在一个函数内多次调用defer语句时,Go会把defer调用放入一个栈中,再按照LIFO的顺序执行(可以实现字符串逆序输出)
+      当一个函数应该在与当前代码流无关的环境下调用时,可以使用defer,比如用到sync.WaitGroup的地方,在协程函数内声明一个:defer wg.Done()
    c> mutex 是sync包中的一个结构体类型,它主要定义了Lock()和Unlock()这两个方法,用于在Go中提供了一种处理竟态条件(race confition)的
-   加锁机制(locking mechanism),可确保在某时刻只有一个协程在临界区(critical section)运行,防止出现竟态条件,如果有协程持
-   有了锁(Lock()),当其它协程试图获得该锁时,这些协程会被阻塞,知道mutex变量解锁锁定(Unlock())为止,另外一种实现加锁的方法是使用非缓冲
-   信道,在操作临界区前发送数据,操作后接收数据即可
+      加锁机制(locking mechanism),可确保在某时刻只有一个协程在临界区(critical section)运行,防止出现竟态条件,如果有协程持
+      有了锁(Lock()),当其它协程试图获得该锁时,这些协程会被阻塞,知道mutex变量解锁锁定(Unlock())为止,另外一种实现加锁的方法
+      是使用非缓冲信道,在操作临界区前发送数据,操作后接收数据即可;
    d> func panic(interface{})会终止程序的执行,并在延迟defer函数(如果定义了延迟函数)执行完之后,程序控制返回执行该panic()函数
-   调用的调用方,退出过程一直进行直到当前协程的所有函数都退出,然后打印panic信息,接着打印堆栈跟踪(stack trace),发生panic时,recover
-   可重新获得对该程序的控制,panic-recover与其它语言的try-catch-finally类似,调用panic的两种场景:发生不能恢复的错误,程序无法在继续
-   运行下去(如,端口被其它程序占用,导致当前web应用绑定端口失败);发生了一个编程上的错误(如,一个非空的参数,在实际调用时为nil),上述
-   退出过程会一直持续到main()(主协程)退出为止,跟踪堆栈则是从当前调用panic的协程函数开始直到main(),运行时错误(如,数组越界)也会
-   导致panic,等价于调用了内置函数panic,其参数由接口类型runtime.Error给出;
+      调用的调用方,退出过程一直进行直到当前协程的所有函数都退出,然后打印panic信息,接着打印堆栈跟踪(stack trace),
+      发生panic时,recover可重新获得对该程序的控制,panic-recover与其它语言的try-catch-finally类似;
+      调用panic的两种场景:发生不能恢复的错误,程序无法在继续运行下去(如,端口被其它程序占用,导致当前web应用绑定端口失败);
+      发生了一个编程上的错误(如,一个非空的参数,在实际调用时为nil),上述退出过程会一直持续到main()(主协程)退出为止;
+      跟踪堆栈则是从当前调用panic的协程函数开始直到main(),运行时错误(如,数组越界)也会导致panic,
+      等价于调用了内置函数panic,其参数由接口类型runtime.Error给出;
    e> func recover()interface{} 也是内建函数,用于重新获得panic协程的控制,只有在延迟函数内部,调用recover才有用,在延迟函数内
-   调用recover,可以取到panic的错误信息,停止panic续发事件(panicking sequence),程序恢复正常运行,如果在defer外部调用recover,不能
-   停止panic续发事件,只有在同一个go协程中调用recover才行,recover不能恢复一个不同协程的panic,recover恢复panic之后,堆栈跟踪就被释放,
-   但是可以通过runtime/debug.PrintStack()函数打印堆栈跟踪,导入debug包,并在defer的recover函数里调用即可:
-   import "runtime/debug" 
-     defer recov()   
-     func recov(){if r := recover(); r != nil
-       fmt.Println("recovered: ", r) debug.PrintStack()}
-   在Printf()函数中,使用'%T'格式说明符,可以打印出变量的类型,unsafe包提供了一个Sizeof()函数,该函数接收变量并返回它的字节大小,
-   不过unsafe包可能会带来可移植性问题,因此需要小心使用;
-   go有着非常严格的强类型特征,没有自动类型提升/转换,比如在C语言中,整型可以和浮点型变量相加,但go中会报错(invalid operation),操作符
-   两侧的变量类型必须一致,类型转换为T(v),其中v为变量,T为系统变量类型(int,string,float),类型转换举例:i := int(56.78)
-   go中字符串是字节的切片,'+'操作符可用于拼接字符串,go中的字符串兼容unicode编码,并使用utf-8编码,字符串的遍历,可以通过:
-   for xxx len(str){},不过这种方式是逐个遍历每个字节,对于特殊字符可能会有问题,可使用下述rune切片转化,另一种遍历方式为for range{},
-   该方法可以避免上述特殊字符问题(自动区分代码点),Go中的字符串是不可变的,它可以通过类似于数组下标的方式访问,但是一旦赋值,不能通过
-   下标方式更改,可以将字符转换为rune切片,再更改即可;
-   rune是go内建类型,int32的别称,rune表示一个代码点(code point),代码点无论占用多少个字节,都可以用一个rune来表示,在遍历字符串时,
-   特殊字符占用2个字节以上的情况下,如果适用'%c'会发现输出字符和原字符不一致,这时候就需要rune类型,
-   例: runes := []rune("Señor"),这时候再用"%c",即可正确打印"ñ",使用方法就是把字符串转化为一个rune切片
-   Go结构体可以声明匿名字段和匿名结构体,匿名字段默认该字段类型即是该字段名称,type n_s struct {name string int},
-   var n_var n_s, n_var.int = 18
-   如果结构体中有匿名的结构体类型字段,则该匿名结构体里的字段就称为提升字段,提升字段就像输入外部结构体一样,外部结构体变量
-   和指针可以直接通过"."点号操作符访问,
-   type Addr struct {state, country string} type Person struct { name string age int Addr}, var p Person fmt.Println(p.state)
-   结构体名称以大写字母开头,则是其它包可以访问的导出类型(exported type),结构体是值类型,如果每一个字段都是可比较的,那么该结构体
-   也是可比较的,如果两个结构体变量的对应字段相等,则这两个结构体变量是相等的,如果结构体包含不可比较字段(如:map类型字段),
-   则结构体变量也不可比较(go只有三种引用类型);
-   Go方法(methods),方法就是一个函数,它在func关键字和函数名之间加入了一个特殊的接收器类型,接收器可以是结构体类型,也可以是
-   非结构体类型,接收器可以在方法内部访问,接收器类型类似于面向对象中的this指针,所以可以用结构体和方法模拟面向对象编程,同时一个方法可以
-   被定义到多个不同类型的结构体上,可以用来实现多态,结构体可以使用指针接收器和值接收器,二者的区别是,在指针接收器的方法内部的改变,
-   对调用者是可见,而值接收器则不然(类似函数的值和指针传递),使用指针接收器的场景:在方法内部对接收器的改变必须对调用者可见时;
-   结构体字段太多,拷贝结构体的代价太大时;其它场景使用值接收器都可以接受,
-   与匿名结构体字段一样,如果匿名结构体实现了一个方法,外部结构体也可以直接访问该方法,比如:func (a Addr) fullAddr{fmt.Println(xxx)},
-   可以直接:p.fullAddr(),值接收器和函数的值参数类似,但也有区别,当函数定义为值参数时,它只能接受值参数,但是当一个方法为值接收器时,它可以同时
-   接受值接收器和指针接收器,同样的指针参数和指针接收器,指针参数的函数只接受指针,使用指针接收器的方法可以使用指针接收器和值接收器
-   对于在非结构体类型上定义方法,需保证方法的接收器类型定义和方法的定义在同一个包中,比如在自己项目的main包中如下定义:
-   package main func (a int) add
-   (b int) {}  func main() {},
-   则编译报错:cannot define new methods on non-local type int, 这是因为add方法的定义和int这个系统类型的定义不在同
-   一个包中,解决办法是在当前包中,为内置类型int创建一个类型别名,创建以该类型别名为接收器的方法:
-   type myInt int func (a myInt) add(b myInt) myInt{}
+      调用recover,可以取到panic的错误信息,停止panic续发事件(panicking sequence),程序恢复正常运行,如果在defer外部调用recover,
+      不能停止panic续发事件,只有在同一个go协程中调用recover才行,recover不能恢复一个不同协程的panic,
+      recover恢复panic之后,堆栈跟踪就被释放,但是可以通过runtime/debug.PrintStack()函数打印堆栈跟踪,导入debug包,
+      并在defer的recover函数里调用即可:
+      import "runtime/debug" 
+         defer recov()   
+      func recov(){if r := recover(); r != nil
+         fmt.Println("recovered: ", r) debug.PrintStack()}
+      在Printf()函数中,使用'%T'格式说明符,可以打印出变量的类型,unsafe包提供了一个Sizeof()函数,该函数接收变量并返回它的字节大小,
+      不过unsafe包可能会带来可移植性问题,因此需要小心使用;
+   f> go有着非常严格的强类型特征,没有自动类型提升/转换,比如在C语言中,整型可以和浮点型变量相加,但go中会报错(invalid operation),
+      操作符两侧的变量类型必须一致,类型转换为T(v),其中v为变量,T为系统变量类型(int,string,float),类型转换举例:i := int(56.78)
+   g> go中字符串是字节的切片,'+'操作符可用于拼接字符串,go中的字符串兼容unicode编码,并使用utf-8编码,字符串的遍历,可以通过:
+      for xxx len(str){},不过这种方式是逐个遍历每个字节,对于特殊字符可能会有问题,可使用下述rune切片转化,
+      另一种遍历方式为for range{},该方法可以避免上述特殊字符问题(自动区分代码点),Go中的字符串是不可变的,
+      它可以通过类似于数组下标的方式访问,但是一旦赋值,不能通过下标方式更改,可以将字符转换为rune切片,再更改即可;
+   h> rune是go内建类型,int32的别称,rune表示一个代码点(code point),代码点无论占用多少个字节,都可以用一个rune来表示,
+      在遍历字符串时,特殊字符占用2个字节以上的情况下,如果适用'%c'会发现输出字符和原字符不一致,这时候就需要rune类型,
+      例: runes := []rune("Señor"),这时候再用"%c",即可正确打印"ñ",使用方法就是把字符串转化为一个rune切片;
+   i> Go结构体可以声明匿名字段和匿名结构体,匿名字段默认该字段类型即是该字段名称,type n_s struct {name string int},
+      var n_var n_s, n_var.int = 18
+      如果结构体中有匿名的结构体类型字段,则该匿名结构体里的字段就称为提升字段,提升字段就像输入外部结构体一样,
+      外部结构体变量和指针可以直接通过"."点号操作符访问,
+      type Addr struct {state, country string} type Person struct { name string age int Addr}, var p Person fmt.Println(p.state)
+      结构体名称以大写字母开头,则是其它包可以访问的导出类型(exported type),结构体是值类型,如果每一个字段都是可比较的,那么该结构体
+      也是可比较的,如果两个结构体变量的对应字段相等,则这两个结构体变量是相等的,如果结构体包含不可比较字段(如:map类型字段),
+      则结构体变量也不可比较(go只有三种引用类型);
+   j> Go方法(methods),方法就是一个函数,它在func关键字和函数名之间加入了一个特殊的接收器类型,接收器可以是结构体类型,也可以是
+      非结构体类型,接收器可以在方法内部访问,接收器类型类似于面向对象中的this指针,所以可以用结构体和方法模拟面向对象编程,
+      同时一个方法可以被定义到多个不同类型的结构体上,可以用来实现多态,
+      结构体可以使用指针接收器和值接收器,二者的区别是,在指针接收器的方法内部的改变,
+      对调用者是可见,而值接收器则不然(类似函数的值和指针传递),使用指针接收器的场景:在方法内部对接收器的改变必须对调用者可见时;
+      结构体字段太多,拷贝结构体的代价太大时;其它场景使用值接收器都可以接受,
+      与匿名结构体字段一样,如果匿名结构体实现了一个方法,外部结构体也可以直接访问该方法,比如:func (a Addr) fullAddr{fmt.Println(xxx)},
+      可以直接:p.fullAddr(),值接收器和函数的值参数类似,但也有区别,当函数定义为值参数时,它只能接受值参数,
+      但是当一个方法为值接收器时,它可以同时接受值接收器和指针接收器,同样的指针参数和指针接收器,
+      指针参数的函数只接受指针,使用指针接收器的方法可以使用指针接收器和值接收器
+      对于在非结构体类型上定义方法,需保证方法的接收器类型定义和方法的定义在同一个包中,比如在自己项目的main包中如下定义:
+      package main func (a int) add
+          (b int) {}  func main() {},
+      则编译报错:cannot define new methods on non-local type int, 这是因为add方法的定义和int这个系统类型的定义不在同一个包中,
+      解决办法是在当前包中,为内置类型int创建一个类型别名,创建以该类型别名为接收器的方法:
+      type myInt int func (a myInt) add(b myInt) myInt{}
 2. a> select语句的case必须是一个通信操作,select随机选一个可运行的case,如果没有则阻塞,直到有case可运行,比较感兴趣的是如果有多个可运行
    的case,将会如何选择,能保证公平嘛，有优先级取舍嘛,由以下解析可知,go底层将所有case语句打乱顺序,一个一个循环检测是否channel是否可读或可写,
    select底层解析:https://mp.weixin.qq.com/s?__biz=MzUzMjk0ODI0OA==&mid=2247483766&idx=1&sn=eb605a64bed0b2066a12083f26fb04b6&chksm=faaa3501cdddbc177121ba14a6604743d5ea881ca8299d5609ac8eb9b6eca4f2a142ad5aabfd&token=1212449367&lang=zh_CN&scene=21#wechat_redirect
@@ -79,6 +86,27 @@
       uintptr则可用于指针运算,同时没有指针语义,也就是说uintptr无法持有指向的对象,会被GC回收,
       三种指针之间的转换关系: 普通指针 <--> unsafe.Pointer <--> uintptr
       例: a := 32  uptr := uintptr(unsafe.Pointer(&a))
+   e> 接口interface在Go中也是一种数据类型,它定义若干方法,任何类型只要实现了这些方法,就实现了该接口,属于该接口类型的变量,要注意的是
+      实现接口定义的方法的数据类型,既可以是非接口类型,也可以是接口类型;
+      在Go中实现关系是隐式的,两个类型之间的实现关系不需要再代码上显式地表示出来(并没有implements关键字),Go编译器将自动在需要的时候
+      检查两个类型之间的实现关系,传统的派生式及类关系构建的模式,让类型间拥有强耦合的父子关系,这种关系一般会以"类派生图"的方式进行,
+      大型软件通常具有极为复杂的派生树,且随着系统的功能不断增加,"派生树"会变得越来越复杂,Go的接口实现是隐式的,无须让实现接口的类型
+      写出实现了哪些接口,这种设计称为非侵入式设计,这种非侵入的设计方式,让实现接口的各个类型之间都是平行的,组合的,并不存在派生的关系;
+      对于接口定义的方法,既可以由一个类型完全实现,也可以通过在类型或结构体中嵌入其它类型或结构体来实现,如下:
+      type Service interface { Start() Log(string) }
+      type Logger struct {}
+      func (log * Logger) Log(l string) {}
+      type GameServer struct { Logger }
+      func (server * GameServer) start() {}
+      func main() {
+          var s GameServer = new(GameServer)
+          s.Start()
+          s.Log("xxxx")
+      }
+      空接口是接口类型的一种特殊形式,空接口没有任何方法,因此任何类型都无需实现空接口,从实现的角度看,任何值都满足这个接口的需求,
+      因此,空接口可以保持任何值,也可以从空接口中取出原值,空接口类型类似于C#/Java中的Object, C语言中的Void*, C++中的std::any,
+      在泛型和模板出现之前,空接口是一种非常灵活的数据抽象保存和使用的方法,空接口的内部实现保存了对象的类型和指针;
+      注: 接口类型变量无法调用属性
 3. 函数的形参就像定义在函数体内部的局部变量,这样就很好理解值传递,在调用函数时,将实际参数值复制一份赋值给形参,传递到函数中,所以值传递时
    对形参的修改不会影响实参的值;在此基础上引用传递,就是将实际参数的地址复制一份复制给形参,所以此时函数体内的局部变量形参所指向的是
    内存中的一个地址,任何对形参的修改都将改变地址内保存的值,而实参也指向该地址,表现上就是对形参的改变会同时影响到实参;
