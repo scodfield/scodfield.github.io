@@ -166,7 +166,14 @@
    d> Go面试必考题目之method篇 https://mp.weixin.qq.com/s/US7MnIJfekJRazioxyWQhg
    e> 异常检测的N种方法，阿里工程师都盘出来了 https://mp.weixin.qq.com/s/w7SbAHxZsmHqFtTG8ZAXNg
    f> 浅谈Go语言实现原理:https://draveness.me/golang/
-7. Go内存分配:https://mp.weixin.qq.com/s?__biz=MzUzMjk0ODI0OA==&mid=2247483835&idx=1&sn=da048d277a12937e911d7fcbcf1ed11c&chksm=faaa35cccdddbcdaf38fe9e2060138164ad53c2d9e328d88944364cfd98f6991101846f7912e&mpshare=1&scene=23&srcid=#rd
+7. a> Go内存分配:https://mp.weixin.qq.com/s?__biz=MzUzMjk0ODI0OA==&mid=2247483835&idx=1&sn=da048d277a12937e911d7fcbcf1ed11c&chksm=faaa35cccdddbcdaf38fe9e2060138164ad53c2d9e328d88944364cfd98f6991101846f7912e&mpshare=1&scene=23&srcid=#rd
+   b> 逃逸分析Escape Analysis,概括的说就是(编译器)自动决定变量分配方式(分配到栈or堆)
+      对于没有逃逸分析的语言(c/c++),需要开发者自己不断学习如何进行内存分配,比如函数局部变量尽量使用栈,全局变量和结构体成员使用堆分配等,
+      Go语言将上述内存分配过程整合到编译器中,通过编译器分析代码的特征和生命周期,决定使用栈or堆来进行内存分配,这个过程称为"逃逸分析",
+      使用如下命令查看逃逸分析结果: go run/build/... -gcflags="-m -l" xxx.go, 
+      -m 参数表示进行内存分配分析, -l 参数表示避免程序内联,也就是避免进行程序优化
+      注: 函数的局部变量一般都分配在函数的调用栈中,分配和回收速度非常快,因为整个分配内存的过程和函数调用栈的分配与回收同步,相比之下
+      堆内存的分配和回收就要慢的多,因为它需要在系统内存中找到一段连续的空间,堆内存适合不可预知大小的内存分配
 8. Go中的指针分为两类:类型指针,允许对数据进行修改,但不能进行偏移和运算;切片,由指向起始元素的指针,元素数量和容量组成,切片比原始指针
    具备更强大的特性,更安全,切片发生越界时,运行时会报宕机,并打印堆栈,而原始指针会崩溃,go中指针定义后,没有分配变量时,它的值为nil,
    这一点和c/c++不同,c/c++中声明后赋值前,指针变量可能指向任意地址,也就是野指针,另一个就是go是自动回收内存,
