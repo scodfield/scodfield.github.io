@@ -305,3 +305,4 @@ Tips to remember:
     net.core.rmem_default = 1024000  % 接收套接字默认缓冲区大小(byte)
     net.core.rmem_max = 1024000  % 接收套接字最大缓冲区大小(byte)
     参考: https://www.cnblogs.com/jking10/p/5472386.html
+    关于backlog：https://segmentfault.com/a/1190000019252960
