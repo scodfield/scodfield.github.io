@@ -127,6 +127,33 @@
    b> 如何理解go语言中的闭包,闭包是匿名函数与匿名函数所引用的环境的组合,这种特性使得匿名函数不用通过参数传递的方式,就可以
       直接引用外部变量,类似于常规函数直接引用全局变量,闭包同时保存有一个中间状态,当闭包作为函数返回值,并赋值给一个变量时,
       该变量不仅保存了匿名函数的地址,同时还有整个闭包的状态,状态会一直保存在这个被赋值的变量中,直到变量被销毁,整个闭包也被销毁;
+   c> Go的单例模式,单例模式是一种设计模式,保证系统运行中类只创建一个实例,单例模式可分为懒汉式和饿汉式,懒汉式是创建对象时比较懒,
+      不急着创建,只在需要时才创建实例,饿汉式是在系统初始化时就创建好实例,需要时直接拿来使用即可,
+      懒汉式单例可通过声明包级别的全局变量和获取实例函数实现,饿汉式可通过全局变量和包的init()函数实现,如下:
+      type config struct { ... }
+      var conf *config
+      // 懒汉式
+      func getInstance() * config {
+          if conf == nil {
+              conf = new(config)
+              return conf
+          {
+          return conf
+      }
+      // 饿汉式
+      func init() {
+          conf = new(config)
+      }
+      不过上述懒汉式的实现中,并没有考虑线程安全,可以使用sync.Once结构体,其中的Do()方法只会执行一次,改造后的代码如下:
+      var onceSingle = sync.Once
+      func getInstance() * config {
+          onceSingle.Do(
+              func() {
+                  conf = new(config)
+              })
+          return conf
+      }
+      关于sync.Once结构体及Do()方法,参考:https://go.googlesource.com/go/+/refs/tags/go1.13.3/src/sync/once.go#line12,line40
 5. go中的切片是对数组的抽象,数组在声明时已确定大小,切片则不同,可以认为切片是动态数组,它的长度是不固定的,可以追加元素,追加元素时
    切片的容量会扩大,可以通过声明一个未指定大小的数组来定义切片,或通过make()来创建切片,定义方式如下:
    var slice1 []type;  // 未指定大小的数组
