@@ -154,6 +154,8 @@
           return conf
       }
       关于sync.Once结构体及Do()方法,参考:https://go.googlesource.com/go/+/refs/tags/go1.13.3/src/sync/once.go#line12,line40
+   d> why there is no way to get a goroutin ID?
+      https://liudanking.com/performance/golang-%E8%8E%B7%E5%8F%96-goroutine-id-%E5%AE%8C%E5%85%A8%E6%8C%87%E5%8D%97/
 5. go中的切片是对数组的抽象,数组在声明时已确定大小,切片则不同,可以认为切片是动态数组,它的长度是不固定的,可以追加元素,追加元素时
    切片的容量会扩大,可以通过声明一个未指定大小的数组来定义切片,或通过make()来创建切片,定义方式如下:
    var slice1 []type;  // 未指定大小的数组
