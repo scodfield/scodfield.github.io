@@ -304,5 +304,12 @@ Tips to remember:
     net.core.somaxconn = 10000  % socket的监听队列(backlog)上限,linux kernel参数
     net.core.rmem_default = 1024000  % 接收套接字默认缓冲区大小(byte)
     net.core.rmem_max = 1024000  % 接收套接字最大缓冲区大小(byte)
+    net.netfilter.nf_conntrack_max = 4197304 % 最大跟踪连接数
+    net.netfilter.nf_conntrack_buckets = 1049326 % 跟踪连接哈希表,默认为nf_conntrack_max/4
+    net.netfiletr.nf_conntrack_tcp_timeout_established = 9000 % 处于established状态的连接从跟踪连接表中删除的超时时间
     参考: https://www.cnblogs.com/jking10/p/5472386.html
     关于backlog：https://segmentfault.com/a/1190000019252960
+24. 关于nf_conntrack,是内核中一个用来记录和跟踪连接状态的模块,是iptables&NAT的基础,
+    症状: 服务器负载正常,但请求大量超时,应用的访问日志看不到相关请求,
+    dmesg: kernel: nf_conntrack: table full, dropping packet.
+    详细参考: http://keithmo.me/post/2018/08/25/conntrack-tuning/
