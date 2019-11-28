@@ -150,6 +150,14 @@ Tips to remember:
       connection&keep-alive使用示例: Connection: keep-alive \r\n Keep-Alive: timeout=5, max=1000 \r\n ;
       注: 需要将connection header的值设置为"keep-alive"时,keep-alive header才有意义
       另: HTTP/2协议中,connection&keep-alive这两个header是被忽略的,使用其它机制进行连接管理
+   e> html form元素有个enctype属性,表明将数据发送到服务端时浏览器使用的编码类型,有如下三种:
+      application/x-www-form-urlencoded 默认编码方式,将form表单中的数据编码为如下格式的字符串:name1=val1&name2=val2...,
+      若form的action=get,则将该字符串append到url后面,并以'?'分隔,若action=post,则将该字符串封装到http body中上传到服务端;
+      multipart/form-data 将表单数据编码为一条消息,浏览器以form中的控件为单位进行分割,每个控件对应消息的一个单元,
+      每个消息单元包含:文件类型Content-Type,主题响应标题Content-Disposition,控件名称name,及分割符boundary等,
+      该类型编码方式上传的是二进制数据,由于多媒体传输的都是大量数据,所以规定上传文件必须是post方法,且input控件的type属性=file;
+      text/plain 数据以纯文本方式进行编码;
+      参考:https://www.fakemark.cn/untitled-1506477860653.html
 10. 服务器在httpc:request/4时报错:inet eaddrinuse, 同时:erl -sname test  也会报同样的错误,POSIX Error Codes说是address被占用
     通过对比其他资料,这个address应该就是需要占用的端口,httpc申请的是动态端口,那么很有可能是动态端口不够用
     /proc/sys/net/ipv4/ip_local_port_range 查看本地TCP/UDP端口范围
