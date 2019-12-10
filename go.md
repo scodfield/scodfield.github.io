@@ -482,13 +482,17 @@
        bee generate migration [migrationfile] [-fields="xxx"] 生成数据库架构更新迁移文件
        bee generate test [routerfile] 生成router文件的测试用例
        bee generate appcode [-tables="xxx"] [-driver=mysql] [-conn="root:@tcp(ip:port)/table_name] [-level=3] 
-          基于已创建的database自动生成appcode,-tables是一列以逗号分隔的表名,默认为空,表示database中的所有表, -driver [mysql|postgres|sqllist]
+          基于已创建的database自动生成appcode,-tables是一列以逗号分隔的表名,默认为空,表示database中的所有表, 
+          -driver [mysql|postgres|sqllist]
           默认是mysql, -conn driver使用的连接数据库信息,-level 1|2|3 1-models 2-models,controllers 3-models,controllers,router
     g> migrate命令,用于项目的数据库迁移,每次项目升级,降级的sql管理
        bee migrate [-driver=mysql] [-conn="xxx"] 运行all migrations
        bee migrate rollback [-driver=xxx] [-conn="xxx] 回滚上一次migration操作
        bee migrate reset [-driver=xxx] [-conn="xxx"] 回滚all migration操作
        bee migrate refresh [-driver=xx] [-conn="xxx"] 回滚all migration 并再次重新运行
+    h> beego的orm支持自动建表,同时自动驼峰转蛇形,除了字段开头的大写字母之外,遇到大写会增加"_ ",且保留字段中原有的下划线,
+       orm没有指定主键时,struct中字段名为"id"的field自动指定为自增主键(models_boot.go),当然也支持标签方式指定主键pk(models_utils.go),
+       beego/orm/models_info_m.go定义了modelInfo结构,models_info_f.go文件定义了fields和fieldInfo结构
     bee安装目录下有一个bee.json文件,为bee工具的配置文件,有几个常见的配置项
        "watch_ext" : [] 可用于监控其它类型的文件,默认只监控.go的文件
        "cmd_args" : [] 如果需要在每次启动时加入启动参数,可使用该配置项
