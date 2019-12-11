@@ -122,6 +122,7 @@
        gc回收主要集中在新生代,回收的效率也会比较高,STW的时间更短,新生代的回收频率要比老年代高,erlang采用该算法进行垃圾回收,
        同时基于erlang线程避免了STW,erlang:garbage_collect/0/1/2对当前or指定进程进行垃圾回收,可以通过环境变量ERL_FULLSWEEP_AFTER及
        erlang:system_flag(fullsweep_after,Number)设置Number次浅扫描后,触发深度扫描;
+    参考:http://legendtkl.com/2017/04/28/golang-gc/
 12. HTTP缓存:https://mp.weixin.qq.com/s?__biz=MzUzMjk0ODI0OA==&mid=2247483754&idx=1&sn=5882213a4c48c6938ce5029f9b267a27&chksm=faaa351dcdddbc0bd3a6eb69f9e1fe6711a39320737c1db6035296037fc8a9b677b4c98a62dd&token=1212449367&lang=zh_CN&scene=21#wechat_redirect
 13. DMA(Direct Memory Access)直接内存存取,允许不同速度的硬件来沟通,而不需要依赖cpu参与,DMA并不见得速度有多快,
     只是它不需要cpu参与,所以在DMA拷贝数据的时候,cpu可以做别的事,当然两者也有有所影响,毕竟都需要使用系统的数据总线传输数据,
