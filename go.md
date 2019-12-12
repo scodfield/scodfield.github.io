@@ -497,3 +497,11 @@
        "watch_ext" : [] 可用于监控其它类型的文件,默认只监控.go的文件
        "cmd_args" : [] 如果需要在每次启动时加入启动参数,可使用该配置项
        "envs" : [] 如果需要在每次启动时设置临时环境变量参数,可使用该配置项
+19. some worthy tips II
+    a> 有几种方法实现int to string,
+       在知道变量特定类型的前提下通过制定类型说明符使用fmt.Sprintf()返回变量的字符串形式,但Sprintf会使用反射reflect,故不推荐,
+       src/fmt/print.go#Line217 Sprintf() --> doPrintf()#Line1144="p.buf.writeString(reflect.TypeOf(arg).String())";
+       一般常用的是strconv.Itoa()函数,不过翻了下源码发现Itoa()调用的是strconv.FormatInt(),(Itoa Integer to ASCII),
+       src/strconv/itoa.go#Line34,从该函数的注释可知:"Itoa is equivalent to FormatInt(int64(i), 10).";
+       所以第三种方法是strconv.FormatInt()函数,有意思的是从参考资料可知,直接调用strconv.FormatInt要比strconv.Itoa快0.1ns;
+       参考: https://stackoverflow.com/questions/10105935/how-to-convert-an-int-value-to-string-in-go
