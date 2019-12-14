@@ -1,44 +1,89 @@
-1. a> Redis不存在表的概念，一个Redis实例中，直接存储5大数据类型：字符串(string)、列表(list)、哈希(hash)、集合(set)、有序集合(zset)
-   b> Redis expire命令用于设置key的过期时间,以秒为单位,过期后key将不再可用(被自动删除),示例:expire key_name time_in_seconds,另一个设置
-      过期的命令是expireat,以Unix时间戳(unix timestamp)的格式设置key的过期时间,示例:expireat key_name time_in_unix_timestamp
-   c> string类型除了最常用的get/set命令,还有一个incr命令,将key中存储的数字值加一,与之对应还有一个incrby xxx命令,key中存储的数字值增加指定的
-      增量值,执行两个命令时,如果key不存在,那么key的值会先被初始化为0,再执行incr/incrby命令,如果key对应的值包含错误类型,或者字符串类型的值不能
-      表示为数字,会返回一个错误,但是Redis没有数字类型,所以key存储的字符串会被解释为十进制的64位有符号整数来执行incr/incrby操作
-      除了上述操作,string类型的getset,decr/decrby命令可加减key对应的数值
-   d> 组合使用string类型的incr&expire命令可以实现在规定时间内的计数器,比如我们游戏中日常副本每天只能挑战三次,那么每次玩家请求挑战的时候,执行:
-      newcount = eredis.incr(role_1001_daily_chapter_xx),返回最新的挑战次数newcount,如果newcount > 3,则当天挑战次数已用完,不能再请求挑战,
-      至于role_1001_daily_chapter_xx这个key的过期时间,可通过eredis.expire(role_1001_daily_chapter_xx,seconds_to_next_zero)来设置为零点
-      过期,这个时间可以通过明日零点的unixstamp减去当前时间得到,也可以通过eredis.expireat()命令直接设置为明日的零点时间,这样服务端程序就无需再
-      每日零点刷新,即可实现记录副本的每日挑战次数
-   e> Redis set集合也可以用来做计数器,比如我想统计网站的UV(unique visitor,独立访客),那么对于每个请求,parse出ip之后,通过:sadd s_name member
-      命令将访客ip添加到uv_counter这个集合中,最后再通过:scard s_name取出uv_counter这个set中成员的数量,得到UV数据,但是set类型是通过hash表实现
-      的,所以当统计的量比较大的时候,就非常浪费空间,而Redis提供的Hyperloglog这种数据结构就是用来解决这类统计问题的
-   f> Redis Hyperloglog 是一种巧妙的近似估计海量数据基数的算法,所谓基数就是数据集中不重复元素的个数,比如数据集:{1,2,5,7,5,7,},那么基数集就是
-      {1,2,5,7},基数就是4,基数估计就是在误差可接受的范围内,快速计算基数,Hyperloglog内部维护了16384个桶(bucket),用来记录每个桶内的元素数量,
-      当一个元素到来时,它会散列到其中的一个桶,以一定的概率影响这个桶的计数值(每个桶有一个count,记录散列到该桶的数值的个数),将所有的桶的计数值
-      进行调合均值累加,结果会非常接近真实的计数值,Hyperloglog主要提供了一下三个命令:pfadd key element 添加元素到指定的key中; pfcount key 获取
-      给定key的基数估计值; pfmerge destkey sourcekye [sourcekey...] 将多个Hyperloglog key合并为到一个key中
-      Hyperloglog的每个key只占用12k的内存,16384个桶(2^14),每个桶占用6bits,最大可表示的值为63,所以占用的内存:(16384 * 6)/(8 * 1024) = 12kb
+1. a> Redis不存在表的概念，一个Redis实例中，直接存储5大数据类型：字符串(string)、列表(list)、哈希(hash)、集合(set)、有序集合(zset);
+   b> Redis expire命令用于设置key的过期时间,以秒为单位,过期后key将不再可用(被自动删除),示例:expire key_name time_in_seconds,
+      另一个设置过期的命令是expireat,以Unix时间戳(unix timestamp)的格式设置key的过期时间,示例:expireat key_name time_in_unix_timestamp;
+   c> string类型除了最常用的get/set命令,还有一个incr命令,将key中存储的数字值加一,与之对应还有一个incrby xxx命令,key中存储的数字值
+      增加指定的增量值,执行两个命令时,如果key不存在,那么key的值会先被初始化为0,再执行incr/incrby命令,如果key对应的值包含错误类型,
+      或者字符串类型的值不能表示为数字,会返回一个错误,但是Redis没有数字类型,所以key存储的字符串会被解释为十进制的64位有符号整数
+      来执行incr/incrby操作,除了上述操作,string类型的getset,decr/decrby命令可加减key对应的数值;
+   d> 组合使用string类型的incr&expire命令可以实现在规定时间内的计数器,比如我们游戏中日常副本每天只能挑战三次,
+      那么每次玩家请求挑战的时候,执行:newcount = eredis.incr(role_1001_daily_chapter_xx),返回最新的挑战次数newcount,
+      如果newcount > 3,则当天挑战次数已用完,不能再请求挑战,至于role_1001_daily_chapter_xx这个key的过期时间,可通过
+      eredis.expire(role_1001_daily_chapter_xx,seconds_to_next_zero)来设置为零点过期,这个时间可以通过明日零点的unixstamp减去
+      当前时间得到,也可以通过eredis.expireat()命令直接设置为明日的零点时间,这样服务端程序就无需再每日零点刷新,即可实现记录副本的
+      每日挑战次数;
+   e> Redis set集合也可以用来做计数器,比如我想统计网站的UV(unique visitor,独立访客),那么对于每个请求,parse出ip之后,
+      通过:sadd s_name member命令将访客ip添加到uv_counter这个集合中,最后再通过:scard s_name取出uv_counter这个set中成员的数量,
+      得到UV数据,但是set类型是通过hash表实现的,所以当统计的量比较大的时候,就非常浪费空间,而Redis提供的Hyperloglog这种数据结构
+      就是用来解决这类统计问题的;
+   f> Redis Hyperloglog 是一种巧妙的近似估计海量数据基数的算法,所谓基数就是数据集中不重复元素的个数,比如数据集:{1,2,5,7,5,7,},
+      那么基数集就是{1,2,5,7},基数就是4,基数估计就是在误差可接受的范围内,快速计算基数,Hyperloglog内部维护了16384个桶(bucket),
+      用来记录每个桶内的元素数量,当一个元素到来时,它会散列到其中的一个桶,以一定的概率影响这个桶的计数值(每个桶有一个count,记录散列到
+      该桶的数值的个数),将所有的桶的计数值进行调合均值累加,结果会非常接近真实的计数值,Hyperloglog主要提供了以下三个命令:
+      pfadd key element 添加元素到指定的key中; pfcount key 获取给定key的基数估计值; pfmerge destkey sourcekye [sourcekey...] 
+      将多个Hyperloglog key合并为到一个key中Hyperloglog的每个key只占用12k的内存,16384个桶(2^14),每个桶占用6bits,最大可表示的值为63,
+      所以占用的内存:(16384 * 6)/(8 * 1024) = 12kb;
+   g> redis提供两种持久化的方式:
+      RDB持久化是在指定的时间间隔将内存中的数据(键值对)快照写入磁盘文件(默认dump.rdb),实际操作是fork一个子进程,先将数据写入临时文件,
+      写入成功后,再替换之前的文件,同时该文中用二进制压缩存储,rdb的配置搜索redis.conf的snapshoting;
+      RDB模式的优点是:单个redis数据库实例只有一个数据文件,便于备份,也便于压缩后转移到其它介质存储或灾害恢复,fork子进程备份,可以避免
+      redis主进程执行IO操作,所以性能比较高,最后则是相比AOF模式,在数据量较大时,RDB的启动效率会更高;
+      RDB模式的缺点是:可用性不高,如果系统在下一次持久化之前宕机,则上次持久化后到宕机期间的数据都将丢失;
+      AOF持久化以日志的形式记录服务器的每一个写和删除操作(不记录查询操作),以文本的方式记录,打开文件(appendonly.rof)可以看到
+      详细的操作记录,AOF的配置搜索redis.conf的append only mode;
+      AOF模式的优点是:较高的数据可用性,aof提供了三种同步模式,每秒同步,修改同步和不同步,该模式下默认是每秒同步,每秒同步是异步同步,
+      效率较高,一旦系统宕机,丢失的一秒之内修改的数据,修改同步是同步持久化,每次发生的数据变化都会同步到磁盘文件中,不过效率最低,
+      不同步就是不会持久化,aof模式的第二个优点是对日志文件的操作是使用append追加模式,系统宕机也不会破坏文件,即便是追加文件一半时
+      系统宕机,在下次redis启动时也可以通过redis-check-aof工具来修复aof文件,第三个优点是aof文件格式可读性强,同时也便于用户灵活处理;
+      AOF模式的缺点是:对于具有相同数量的数据集而言,aof文件一半要比rdb文件大,数据量大时数据恢复较慢,根据同步策略不同,aof的效率一般
+      会较慢于rdb(不同步策略与rdb效率相同),由于rdb使用快照的方式存储数据,而aof是追加执行命令的方式,所以理论上说,rdb比aof模式要健壮,
+      aof存在一些隐藏的bug;
+      综上,在可以容忍一段时间内的数据丢失的场景下,最好使用RDB模式(数据恢复快,避免aof的异常bug),否则就使用AOF模式,不过redis支持同时
+      使用上述两种持久化模式;
+   h> redis持久化的AOF模式还有一个需要关注的点是重写rewrite,由于aof模式是不断将写和删除命令追加到aof文件中,那么随着redis的运行,
+      aof文件会越来越大,占用的系统内存越大,同时aof恢复所需的时间也越长,为了解决这个问题,redis新增了重写机制,当aof文件的大小超过
+      所设定的阈值时,启动重写机制,压缩文件内容,只保留可以恢复数据集的最小指令集,具体操作是:直接读取当前所有键值对,然后对每一个键,
+      使用一个命令去代替之前记录的对这个键的多个操作命令,生成一个新的文件去替换原来的aof文件;
+      重写触发主要通过以下两个配置项:
+      auto-aof-rewrite-percentage 100 aof自动重写配置,当目前aof文件大小超过上次重写的aof文件大小的百分之多少时触发重写,redis调用
+      bgrewriteaof对aof文件进行重写;
+      auto-aof-rewrite-min-size 64mb 设置允许重写的最小aof文件大小,避免达到设定百分比时文件仍然较小的情况下重写;
+      redis默认会记录上次重写时的aof文件大小,在默认配置下,当aof文件大小是上次重写时的两倍且文件大于64m时触发重写;
+      由于redis是单线程工作,因此如果重写aof需要较长时间,那么在重写期间,redis将无法提供服务,为了解决这个问题,redis将aof重写放到子进程
+      中进行,好处是: 子进程重写期间,主进程可以继续提供服务; 使用子进程而不是线程可以避免对数据加锁,因为fork的子进程带有父进程的
+      数据副本,保证数据的安全性, 不过上述方案又引入了新问题,在重写期间主进程仍在提供服务,则新的操作命令可能也对数据库进行了修改,
+      这将是的重写后的数据库和当前最新的数据库状态不一致,针对这个问题,redis服务器设置了一个aof重写缓冲区,这个缓冲区在子进程创建后
+      开始使用,重写期间,父进程每执行一条修改命令,就会把这个修改命令也发送到重写缓冲区,当子进程重写完成后,给父进程发送一个信号,
+      父进程接收该信号后,调用函数将缓冲区的命令写到新的aof文件中;
+      注1:重写时压缩命令举例,比如针对某一个键有如下命令:sadd reg_set "utc"; sadd reg_set "xod" "dvs" "mod"; srem reg_set "xod";
+          那么重写后,对于reg_set这个键,在新的aof文件中只有如下一个命令: sadd reg_set "utc" "dvs" "mod"
+      参考: https://www.cnblogs.com/ysocean/p/9114267.html
+   i> redis实例及各类型容量:
+      单个redis实例最大可以处理2^32个键,实测每个实例最少可以处理2.5亿个键;
+      一个字符串string类型的value最大可以存储512m;
+      每个散列hash,列表list,集合set及有序集合zset可以容纳2^32个元素or键值对;
+      现有业务基本上很难达到上述容量的极限,所以一般redis的极限容量是系统内存
+      参考: http://www.redis.com.cn/redis-interview-questions; https://redis.io/topics/data-types
 2. Redis应用:
-   a> 位图bitmap,位图并不是一种特殊的数据结构,本质上是二进制字符串,也可以看作是byte数组(go的底层文件/socket存储就是字节数组),redis string类型
-      中有几个操作bit位的命令,get/set可以直接获取和设置整个位图的内容,也有单独的bit位操作命令getbit/setbit等,这些命令将byte数组看成bit数组来
-      处理,常用命令如下:setbit key offset value 对key所存储的字符串,设定or清除指定偏移bit上的值,setbit online 1001 1; getbit key offset
-      对key所存储的字符串,获取指定偏移bit上的值,getbit online 1001; bitcount key [start] [end] 计算key存储的字符串中,被设置为1的bit位的
-      数量,set online no_one_online, bitcount online; bitop operation destkey key [otherkeys...] 对一个或多个bitmap进行位操作,并将结果
-      保存到destkey上,位操作operation,可以是AND,OR,NOT,XOR这四种操作中的任意一种
-      位图基于bit位,非常节省空间,设置的时候时间复杂度为O(1),读取的时候时间复杂度为O(N),二进制计算速度非常快,基于上述优点,位图适用于各类的统计,
-      比如游戏中玩家是否在线,统计当前在线玩家人数,记录并统计玩家当月的签到情况等等
-   b> 布隆过滤器bloom filter,用于判断一个元素是否在某个集合,布隆过滤器实际上是一个很长的二进制bit数组和一系列的hash函数,有点是空间效率和查询
-      时间都比较高,缺点是有一定的误判率及删除困难,bit数组初始全部为0,当一个元素被加入到集合当中时,这个元素被k个hash函数计算出k个值,这些值是
-      在bit数组中的offset,然后将bit数组中k个映射值对应的bit位置为1,至于判断一个元素是否存在,同样经过上述k个hash函数的计算,如果计算出的k个位置
-      上全为1,则判断这个元素很大可能已存在,如果有一个位置为0,则该元素肯定不存在,由此可见,布隆过滤器有一定的误判率,且由于误判率的存在,导致难以
-      删除指定元素,因为无法确切保证该元素是否存在,布隆过滤器的特点使得它适用于大数据规模下不需要精确过滤的场景,比如检查垃圾邮件地址,爬虫url地址
-      去重,解决缓存穿透等,关于缓存穿透问题,比如恶意构造出一系列还未注册的玩家id,请求玩家的数据,此时缓存系统中并未有该玩家的数据,所以会导致对数据
-      库的大量读写请求,那么就可以考虑构建一个所有已注册玩家ID的布隆过滤器,一旦发现请求还未注册玩家的信息,直接返回相关提示,而不用执行先访问缓存
-      再访问数据库等一系列操作,大大减少缓存穿透对数据库的访问压力
-      redis4.0提供了布隆过滤器插件,下载编译安装Rebloom插件,redis添加参数:rebloom_module="/path/to/rebloom.so" 启动参数: 
-      --loadmodule $rebloom_module, 主要的命令:bf.add 添加元素; bf.exists 查询元素是否存在; bf.madd 一次添加多个元素; bf.mexists 一次
-      查询多个元素是否存在,redis中有两个值决定布隆过滤器的准确性,error_rate 允许的错误率,这个值越低,所需的bit数组越大,占用空间也越大; 
+   a> 位图bitmap,位图并不是一种特殊的数据结构,本质上是二进制字符串,也可以看作是byte数组(go的底层文件/socket存储就是字节数组),
+      redis string类型中有几个操作bit位的命令,get/set可以直接获取和设置整个位图的内容,也有单独的bit位操作命令getbit/setbit等,
+      这些命令将byte数组看成bit数组来处理,常用命令如下:setbit key offset value 对key所存储的字符串,设定or清除指定偏移bit上的值,
+      setbit online 1001 1; getbit key offset对key所存储的字符串,获取指定偏移bit上的值,getbit online 1001; bitcount key [start] [end]
+      计算key存储的字符串中,被设置为1的bit位的数量,set online no_one_online, bitcount online; bitop operation destkey key [otherkeys...]
+      对一个或多个bitmap进行位操作,并将结果保存到destkey上,位操作operation,可以是AND,OR,NOT,XOR这四种操作中的任意一种位图基于bit位,
+      非常节省空间,设置的时候时间复杂度为O(1),读取的时候时间复杂度为O(N),二进制计算速度非常快,基于上述优点,位图适用于各类的统计,
+      比如游戏中玩家是否在线,统计当前在线玩家人数,记录并统计玩家当月的签到情况等等;
+   b> 布隆过滤器bloom filter,用于判断一个元素是否在某个集合,布隆过滤器实际上是一个很长的二进制bit数组和一系列的hash函数,
+      优点是空间效率和查询时间都比较高,缺点是有一定的误判率及删除困难,bit数组初始全部为0,当一个元素被加入到集合当中时,这个元素
+      被k个hash函数计算出k个值,这些值是在bit数组中的offset,然后将bit数组中k个映射值对应的bit位置为1,至于判断一个元素是否存在,
+      同样经过上述k个hash函数的计算,如果计算出的k个位置上全为1,则判断这个元素很大可能已存在,如果有一个位置为0,则该元素肯定不存在,
+      由此可见,布隆过滤器有一定的误判率,且由于误判率的存在,导致难以删除指定元素,因为无法确切保证该元素是否存在,布隆过滤器的特点使得它
+      适用于大数据规模下不需要精确过滤的场景,比如检查垃圾邮件地址,爬虫url地址去重,解决缓存穿透等,关于缓存穿透问题,比如恶意构造出一系列
+      还未注册的玩家id,请求玩家的数据,此时缓存系统中并未有该玩家的数据,所以会导致对数据库的大量读写请求,那么就可以考虑构建一个所有
+      已注册玩家ID的布隆过滤器,一旦发现请求还未注册玩家的信息,直接返回相关提示,而不用执行先访问缓存,再访问数据库等一系列操作,
+      大大减少缓存穿透对数据库的访问压力,redis4.0提供了布隆过滤器插件,下载编译安装Rebloom插件,
+      redis添加参:rebloom_module="/path/to/rebloom.so" 启动参数:--loadmodule $rebloom_module, 
+      主要的命令:bf.add 添加元素; bf.exists 查询元素是否存在; bf.madd 一次添加多个元素; bf.mexists 一次查询多个元素是否存在,
+      redis中有两个值决定布隆过滤器的准确性,error_rate 允许的错误率,这个值越低,所需的bit数组越大,占用空间也越大; 
       initial_size 布隆过滤器可以存储的元素个数,当实际存储的元素个数超过这个值后,过滤器的准确率会下降,可以使用bf.reserve命令来设置这两个值,
       bf.reserve bf_key 0.001 1000, 一般都要在调用bf.add命令前,显式调用bf.reserve来创建一个布隆过滤器,如果bf_key已存在,再调用bf.reserve
       时会报错,如果不调用bf.reserve,默认的的error_rate是0.01,initial_size是100
@@ -53,10 +98,10 @@
       那么若直接执行del操作,则会误删下一个进程的锁请求
 3. Redis保证单个命令的原子性，而Redis的事务并没有作任何原子性的保证，且事务中各个指令互不影响，既不会回滚，也不会终止后续指令的执行,感觉
    Redis事务更像批处理
-4. Redis的save/bgsave命令备份当前数据库数据到dump.rdb文件，恢复操作是将该文件copy到Redis安装目录，直接启动服务(如果需要多个Redis服务怎么办。。。)
+4. Redis的save/bgsave命令备份当前数据库数据到dump.rdb文件，恢复操作是将该文件copy到Redis安装目录，直接启动服务
 5. Redis分区是将数据放到多个实例中(好奇Redis的集群和分区的区别),Redis集群可以在运行时进行动态的伸缩性调整，灵活性比较高
-6. Redis Hash是一个string类型的field和value的映射表,适于存储对象,同时Redis set是一个string类型的无序集合,且set是通过哈希表实现的,那么也少不了
-   映射,则Redis的哈希用的是哪个哈希算法,有无用到一致性哈希,一致性哈希又用到了哪些地方?
+6. Redis Hash是一个string类型的field和value的映射表,适于存储对象,同时Redis set是一个string类型的无序集合,且set是通过哈希表实现的,
+   那么也少不了映射,则Redis的哈希用的是哪个哈希算法,有无用到一致性哈希,一致性哈希又用到了哪些地方?
    redis底层数据结构:
    typedef strutc redisobj {
        unsigned type;
@@ -97,33 +142,35 @@
     b> mysql8.0支持窗口函数(window functions),按官网定义窗口函数对查询结果做聚合类操作(A window function performs an aggregate-like 
        operation on a set of query rows),聚合操作一般是对组数据(group by)操作,输出单个值,比如求每个student的平均分:
        select id,name,avg(score) as avg_score from scores group by stu_id order by avg_score,窗口函数后一般跟over子句(over clause),
-       over子句格式为OVER(window_spec),聚合函数窗口函数后都可跟over子句,比如: avg(score) as avg_score OVER(partition by stu_id) from scores
-       order by avg_score, window_spec包括4个部分,常用的是下面两个:partition_clause,partition by xxx 指定如何对query rows分组; 
+       over子句格式为OVER(window_spec),聚合函数窗口函数后都可跟over子句,比如: 
+       avg(score) as avg_score OVER(partition by stu_id) from scores order by avg_score, 
+       window_spec包括4个部分,常用的是下面两个:partition_clause,partition by xxx 指定如何对query rows分组; 
        order_clause order by xxx asc|desc 指定如何排序及排序方向;
        窗口函数中和排序相关的有以下四种:
        row_number() 连续排序,相同的值序号不一样,select row_number() over(order by s.score) as rank,s.stu_id,s.name,s.score from scores s
        rank() 跳跃排序,相同的值归为一组且序号一样,select rank() over(同上) 同上....
        dense_rank() 连续排序,相同的值归为一组且序号一样,select dense_rank() over(同上) 同上....
        ntile(group_num) 将所有记录分为group_num个组,每组中各个元素的序号都一样,select ntile(4) over(同上) 同上....,将学生按成绩分成分四档
-    c> mysql是一个客户端/服务器架构的软件,mysql服务器可同时与多个客户端连接,每个连接称之为一个会话(session),不同的会话可能同时发送一系列sql
-       请求,服务器把每个会话发送的sql语句放到不同的事务里进行处理,这样就可能出现不同的事务同时访问相同的记录,而理论上事务应该满足ACID,其中I就是
-       Isolation 隔离性,也就是说不同的事务应该彼此互不干扰,那么最简单的同时也是隔离级别最高的方法就是串行化(serializable),如果一个事务在对某个
-       记录访问时,其它事务排队,当该事务提交后,其它事务才可以继续访问该记录,这种方法的缺点是牺牲了系统的并发处理能力
+    c> mysql是一个客户端/服务器架构的软件,mysql服务器可同时与多个客户端连接,每个连接称之为一个会话(session),不同的会话可能
+       同时发送一系列sql请求,服务器把每个会话发送的sql语句放到不同的事务里进行处理,这样就可能出现不同的事务同时访问相同的记录,
+       而理论上事务应该满足ACID,其中I就是Isolation 隔离性,也就是说不同的事务应该彼此互不干扰,那么最简单的同时也是隔离级别最高的方法
+       就是串行化(serializable),如果一个事务在对某个记录访问时,其它事务排队,当该事务提交后,其它事务才可以继续访问该记录,
+       这种方法的缺点是牺牲了系统的并发处理能力;
        在引入事务隔离之前,先普及一下并发事务可能出现的几个问题:
        首先是脏读,事务A读取了事务B更新但未提交的数据(数据处于更改的中间状态),事务B回滚,那么此时事务A读取到的数据就是脏数据;
        其次是不可重复读,事务A多次读取某个数据,事务B在A读取的过程中,对数据更新并提交,导致A在多次读取时,数据的结果不一致;
        最后是幻读,事务A多次做同一个涉及某个范围的查询,事务B对A范围内的数据做了Insert/Delete操作,导致A的查询结果数量多了或少了,就像出现幻觉
        mysql有四种事务隔离级别,除了上述所说的串行化之外,还有以下三种:
        read uncommitted 读未提交,如果一个事务读能取到另一个未提交事务修改过的数据,这种隔离级别就称为读未提交;
-       read committed 读已提交,如果一个事务只能读取到另一个已提交事务修改过的数据,并且其它事务每对该数据进行一次修改并提交后,该事务都能查询
-       到最新的数据,那么这种隔离级别就称为读已提交
-       repeatable read 可重复读,如果一个事务只能读取到另一个已提交事务修改过的数据,但是第一次读取某条记录后,即使再有其它事务对该记录修改并
-       提交,该事务之后再读取时,读到的仍是第一次读到的值,而不是每次都读取到最新的数据,这种隔离级别称为可重复读,InnoDB引擎默认的采用该隔离级别,
-       可重复读使用了MVCC(多版本并发控制)机制,每当有事务对记录进行insert/delete/update操作时,都会更改记录隐藏的版本号,在可重复读隔离级别下
-       select操作并不会记录更新版本号,而是去读事务第一次select时记录的版本号(类似于快照),需要注意的是,可重复读隔离级别下,select读取的是旧的
-       版本号,insert/update/delete读取的是最新的版本号,比如:A事务select 库存 = 10,这个时候B事务生成一个订单,减去1,并提交,再轮到A事务生成
-       订单,同时库存-1,执行完B事务及A事务的扣减操作后,再次查询select 库存 = 8,也就是说在可重复读隔离级别下,同一个事务中如果执行了inset/upd
-       ate/delete操作,此时会更新到最新的版本号,select读的也是最新的版本号
+       read committed 读已提交,如果一个事务只能读取到另一个已提交事务修改过的数据,并且其它事务每对该数据进行一次修改并提交后,
+       该事务都能查询到最新的数据,那么这种隔离级别就称为读已提交;
+       repeatable read 可重复读,如果一个事务只能读取到另一个已提交事务修改过的数据,但是第一次读取某条记录后,即使再有其它事务
+       对该记录修改并提交,该事务之后再读取时,读到的仍是第一次读到的值,而不是每次都读取到最新的数据,这种隔离级别称为可重复读,
+       InnoDB引擎默认的采用该隔离级别,可重复读使用了MVCC(多版本并发控制)机制,每当有事务对记录进行insert/delete/update操作时,
+       都会更改记录隐藏的版本号,在可重复读隔离级别下select操作并不会记录更新版本号,而是去读事务第一次select时记录的版本号(类似于快照),
+       需要注意的是,可重复读隔离级别下,select读取的是旧的版本号,insert/update/delete读取的是最新的版本号,比如:A事务select 库存 = 10,
+       这个时候B事务生成一个订单,减去1,并提交,再轮到A事务生成订单,同时库存-1,执行完B事务及A事务的扣减操作后,再次查询select 库存 = 8,
+       也就是说在可重复读隔离级别下,同一个事务中如果执行了inset/update/delete操作,此时会更新到最新的版本号,select读的也是最新的版本号;
 12. a> 两个索引是不是一定用得上？
 	不一定，包含但不限于下列情况索引将会失效：
 	1) 查询子句的条件字段使用了函数
@@ -505,9 +552,9 @@
     查看当前用户权限, mysql> show grants;  
     查看某用户权限, mysql> show grants for 'xx'@'yyyy';
     回收权限, mysql> revoke privilege on *.* from 'xx'@'yyyy';
-    为了安全起见,mysql的root用户默认是不开远程访问权限的,在mysql系统库的user表,select user,host from user; 可以查看所有用户的的用户名及访问地址
-    此时若要修改某个用户的访问地址,update user set host ='%'/'ip_addr' where user = 'xxx'; flush privileges; mysql远程访问除了设置用户的访问
-    地址之外,还需要mysql位于公网,及设置mysql所在服务器防火墙
+    为了安全起见,mysql的root用户默认是不开远程访问权限的,在mysql系统库的user表,select user,host from user; 可以查看所有用户的
+    用户名及访问地址,此时若要修改某个用户的访问地址,update user set host ='%'/'ip_addr' where user = 'xxx'; flush privileges; 
+    mysql远程访问除了设置用户的访问地址之外,还需要mysql位于公网,及设置mysql所在服务器防火墙;
 62. 导入.frm,.myd,.myi文件
     .frm 描述了表的结构, .myd 为表的数据记录, .myi 则是表的索引数据
     mysql> create database new_db;
@@ -571,10 +618,11 @@
     select */fields_list from tb_name [where/order/group...] into outfile "/path/to/backup" fields terminated by "xx" 
     lines terminated by "yy"; 
     该备份方式数据存储在mysql server上,若为"./xxx.txt",则在/data/mysql/路径下
-70. 梳理了一下初始化流程,感觉还可以再精简一下mongo读取,每个玩家可以再减少两次读取操作,那么在玩家大规模登录的时候(比如10w),节省的读取次数还是很可观的
-    首先一个要确认的就是单个文档的大小,毕竟要把其它功能模块合并到已有的模块中去,而一般在连接mongo时,若safe=False,则客户端在向数据库发送插入,删除
-    等操作时,是不需要等待数据操作结果的(成功or失败),若单个文档超过大小上限,那么客户端程序并不会报错,解决方法是开启安全验证,连接时safe=True
-    由手册可知,MongoDB目前单个文档的大小上限是16M(https://docs.mongodb.com/manual/core/document/ Document Limitations)
+70. 梳理了一下初始化流程,感觉还可以再精简一下mongo读取,每个玩家可以再减少两次读取操作,那么在玩家大规模登录的时候(比如10w),节省的读取次数
+    还是很可观的,首先一个要确认的就是单个文档的大小,毕竟要把其它功能模块合并到已有的模块中去,而一般在连接mongo时,若safe=False,
+    则客户端在向数据库发送插入,删除等操作时,是不需要等待数据操作结果的(成功or失败),若单个文档超过大小上限,那么客户端程序并不会报错,
+    解决方法是开启安全验证,连接时safe=True;
+    由手册可知,MongoDB目前单个文档的大小上限是16M(https://docs.mongodb.com/manual/core/document/ Document Limitations);
 71. mysql int类型
     数据类型   字节  有/无符号最小-最大值
     tinyint   1byte -128-127/0-255 
@@ -583,19 +631,19 @@
     int       4byte -2147483648-2147483647/0-4294967295
     bigint    8byte -9223372036854775808-9223372036854775807/0-18446744073709551615
     int(M) int类型后面的这个数值M,表示的是最大显示宽度,最大有效显示宽度是255
-    M的值和int(M)所占用的存储空间没有任何关系(和int/tinyint有关系),M=10表示告诉数据库该字段存储的数据的宽度为10,如果存储的数据不是10位数,只有
-    该值仍在int类型的有效范围内,mysql也能正常存储
+    M的值和int(M)所占用的存储空间没有任何关系(和int/tinyint有关系),M=10表示告诉数据库该字段存储的数据的宽度为10,如果存储的数据
+    不是10位数,只有该值仍在int类型的有效范围内,mysql也能正常存储;
 72. mongo嵌套查询
     db.collection_name.find({'_id':unique_id},{'_id同层属性1.嵌套属性1':1, '_id同层属性1.嵌套属性2':0}
     1 - 表示查询结果中保留该字段;  0 - 表示查询结果中去除该字段
 73. mysql有四种类型日志
     error log 错误日志,记录mysqld的一些错误
-    general query log 一般查询日志,记录mysqld正在做的事情,比如客户端的连接和断开,客户端每条sql statment,详细记录了客户端传给服务器的每条查询
-    该日志非常影响性能
-    slow query log 慢查询日志,记录一些查询比较慢的sql statement,常用于开发者调优
-    Binary log 二进制日志,记录一些事件,包括数据库的改动,建表,数据改动等,也包括一些潜在的改动,比如:delete from t where id = xxx;记录所有改动
-    潜在改动的sql statement,以二进制的形式保存在磁盘中,bin log 的作用:可用于查看数据库的变更历史(任何时间点的所有sql操作);数据库的增量备份和恢复;
-    (增量备份和基于时间点的恢复);mysql复制(主主,主从复制)
+    general query log 一般查询日志,记录mysqld正在做的事情,比如客户端的连接和断开,客户端每条sql statment,详细记录了客户端传给服务器
+    的每条查询,该日志非常影响性能;
+    slow query log 慢查询日志,记录一些查询比较慢的sql statement,常用于开发者调优;
+    Binary log 二进制日志,记录一些事件,包括数据库的改动,建表,数据改动等,也包括一些潜在的改动,比如:delete from t where id = xxx;
+    记录所有改动和潜在改动的sql statement,以二进制的形式保存在磁盘中,bin log 的作用:可用于查看数据库的变更历史(任何时间点的所有sql操作);
+    数据库的增量备份和恢复;(增量备份和基于时间点的恢复);mysql复制(主主,主从复制);
     mysql默认关闭bin log,可通过修改mysql配置文件打开,linux下配置文件为my.cnf,一般在/etc/my.cnf,windows下是my.ini 或者 my-default.ini
     开启Binlog,需要修改 log_bin[=base_name] base_name是生成的Binlog文件的前缀,没有的话,用的是pid-file选项的值
     max_binlog_size 每个Binlog文件的大小,最小是4m,最大与默认是1G
