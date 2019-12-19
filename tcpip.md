@@ -228,31 +228,35 @@ Tips to remember:
     select/poll都是无状态的,所以每次调用的时候都会提供整个fd set,优化就是内核维护状态相关的fd set,避免每次都返回整个fd set,
     Linux和BSD各自的实现是epoll/kqueue
     kqueue()函数类似于epoll_create(),kevent()则集成了epoll_ctl()和epoll_wait()
-    从性能上说epoll的一个缺陷是,单次系统调用无法更新多个fd状态,比如有100个fd需要更新状态,那么epoll不得不调用100次epoll_ctl(),那么过度调用系统调用
-    将会导致系统性能降级,相反在一次kevent()调用中,可以指定对多个fd进行状态更新
-    epoll的另外一个限制就是,它基于文件描述符工作,但是时钟,信号,信号量,进程,(linux中的)网络设备等不是文件,无法对这些非文件类型使用基于select/poll/
-    epoll的事件复用技术,Linux提供了许多补充性质的系统调用,比如signalfd(),eventfd(),timerfd_create()来转换非文件类型的文件描述符,然后就可以使用
-    epoll,只是不是那么优雅,而kqueue中kevent结构体支持多种非文件事件,例如,程序可以获得一个子进程退出事件,通过设置filter=EVFILT_PROC,ident=pid
-    fflags=NOTE_EXIT,发现一篇很清晰的对比epoll_vs_kqueue的文章:http://people.eecs.berkeley.edu/~sangjin/2012/12/21/epoll-vs-kqueue.html
-18. C10K问题就是Client 10000,说的是同时连接到服务器的客户端数量超过10000,即使硬件性能足够,依然无法正常提供服务,简而言之就是单机1w个并发连接问题
-    C10K问题受到创建进程数,内存空间等的限制,即便我们使用64位创建进程,提高进程创建的上限,使用虚拟内存,扩大内存的使用空间,然而问题依然存在,进程和
-    线程的创建都需要消耗一定的内存,每生成一个栈空间,都会产生内存开销,当使用内存超过物理内存时,一部分数据会被持久化到磁盘上,导致性能的大幅下降
-    C10K问题的突破是单个线程或进程管理多个客户端请求,通过异步编程和事件触发机制,IO的非阻塞,IO多路复用等来提高性能,底层解决方案是epoll,kqueue,
-    libevent等,应用层面的解决方案有OpenRestry,Golang,Node.js
+    从性能上说epoll的一个缺陷是,单次系统调用无法更新多个fd状态,比如有100个fd需要更新状态,那么epoll不得不调用100次epoll_ctl(),
+    那么过度调用系统调用,将会导致系统性能降级,相反在一次kevent()调用中,可以指定对多个fd进行状态更新
+    epoll的另外一个限制就是,它基于文件描述符工作,但是时钟,信号,信号量,进程,(linux中的)网络设备等不是文件,无法对这些非文件类型
+    使用基于select/poll/epoll的事件复用技术,Linux提供了许多补充性质的系统调用,比如signalfd(),eventfd(),timerfd_create()来转换
+    非文件类型的文件描述符,然后就可以使用epoll,只是不是那么优雅,而kqueue中kevent结构体支持多种非文件事件,例如,程序可以获得一个
+    子进程退出事件,通过设置filter=EVFILT_PROC,ident=pid,fflags=NOTE_EXIT;
+    发现一篇很清晰的对比epoll_vs_kqueue的文章:http://people.eecs.berkeley.edu/~sangjin/2012/12/21/epoll-vs-kqueue.html
+18. C10K问题就是Client 10000,说的是同时连接到服务器的客户端数量超过10000,即使硬件性能足够,依然无法正常提供服务,简而言之就是
+    单机1w个并发连接问题,C10K问题受到创建进程数,内存空间等的限制,即便我们使用64位创建进程,提高进程创建的上限,使用虚拟内存,
+    扩大内存的使用空间,然而问题依然存在,进程和线程的创建都需要消耗一定的内存,每生成一个栈空间,都会产生内存开销,当使用内存超过
+    物理内存时,一部分数据会被持久化到磁盘上,导致性能的大幅下降,
+    C10K问题的突破是单个线程或进程管理多个客户端请求,通过异步编程和事件触发机制,IO的非阻塞,IO多路复用等来提高性能,
+    底层解决方案是epoll,kqueue,libevent等,应用层面的解决方案有OpenRestry,Golang,Node.js;
     参考来源:https://medium.com/@chijianqiang/%E7%A8%8B%E5%BA%8F%E5%91%98%E6%80%8E%E4%B9%88%E4%BC%9A%E4%B8%8D%E7%9F%A5%E9%81%93-c10k-%E9%97%AE%E9%A2%98%E5%91%A2-d024cb7880f3
     https://my.oschina.net/xianggao/blog/664275
 19. vps上的梯子,一旦请求连接就会出现十多个处于SYN_RECV状态的连接,暂时无解,不过刚好是个机会了解下tcp相关参数的配置
     tcp ipv4的参数位置: /proc/sys/net/ipv4/
     针对SYN_RECV有三个相关的参数:
-    tcp_syn_retries:integer 默认为5,对于新建连接,内核要发送多少个SYN请求,才会决定放弃,对通信良好的网络可调整为2
-    tcp_synack_retries:integer 默认为5,对于客户端的连接请求SYN,服务端内核会发送SYN+ACK数据报,该值决定了内核放弃连接之前所发送的SYN+ACK报次数
-    tcp_syncookies:integer 默认为1,表示开启syn cookie功能,tcp_syncookies可有效防范SYN Flood攻击,原理是在收到客户端的SYN,并返回SYN+ACK包时
-    不分配一个专门的数据区,而是根据SYN包计算一个cookie值,收到客户端ACK包时,由cookie值检查该ACK包是否合法,如果合法再分配专门的数据区处理tcp连接
+    tcp_syn_retries:integer 默认为5,对于新建连接,内核要发送多少个SYN请求,才会决定放弃,对通信良好的网络可调整为2;
+    tcp_synack_retries:integer 默认为5,对于客户端的连接请求SYN,服务端内核会发送SYN+ACK数据报,该值决定了内核放弃连接之前
+    所发送的SYN+ACK报次数;
+    tcp_syncookies:integer 默认为1,表示开启syn cookie功能,tcp_syncookies可有效防范SYN Flood攻击,原理是在收到客户端的SYN,
+    并返回SYN+ACK包时不分配一个专门的数据区,而是根据SYN包计算一个cookie值,收到客户端ACK包时,由cookie值检查该ACK包是否合法,
+    如果合法再分配专门的数据区处理tcp连接;
 20. 客户端反映两次请求的文件长度不一致,查了一下发现由于是基于轮询的负载,两次请求返回不同的登录服地址,登录服httpd服务对应的文件的大小不一致
     最后将连接设置为keep-alive,保证同一连接,多次请求返回同一登录服地址
     不过,由此倒引出了http响应中的content-length字段,在content-encoding,gzip,chunked等不同情境下,content-length字段大小不一致
-    content-length 是http消息实体的传输长度,注意区分消息实体长度和消息实体传输长度,在服务器开gzip的情况下,消息实体长度是压缩前的长度,消息实体
-    传输长度是压缩后的长度,在实际的交互中,客户端获取消息长度的规则:
+    content-length 是http消息实体的传输长度,注意区分消息实体长度和消息实体传输长度,在服务器开gzip的情况下,消息实体长度是压缩前的长度,
+    消息实体传输长度是压缩后的长度,在实际的交互中,客户端获取消息长度的规则:
     如果content-length存在且有效的情况下,则必须和消息实体的长度一致;
     如果存在transfer-encoding,则在header中不能有content-length字段,如果有也会忽略
     如果采用短连接,可以直接通过关闭服务器连接来确定消息的传输长度
@@ -321,3 +325,25 @@ Tips to remember:
     症状: 服务器负载正常,但请求大量超时,应用的访问日志看不到相关请求,
     dmesg: kernel: nf_conntrack: table full, dropping packet.
     详细参考: http://keithmo.me/post/2018/08/25/conntrack-tuning/
+25. 想用wireshark抓包看一下使用http获取登录信息时的数据报,发现wireshark抓取流量的前提是,希望截获的数据包是通过网卡转发,而本地的
+    web服务是127.0.0.1(环回地址),所以搜了一下,发现以下两种可以解决问题的方法:
+    a> 以管理员身份运行cmd, 执行:route add 本机ip(非localhost/127.0.0.1) mask 255.255.255.255 gateway_ip,
+       这样所有发往本机的包都会在网卡转一圈,使用wireshark就可以抓到本机自己和自己的通信流量,不过测试完成之后,需执行:
+       route delete 本机ip mask 255.255.255.255 gateway_ip删除该路由项,因为所有本机报文都经过网卡比较耗性能,另一个就是无法对
+       localhost和127.0.0.1生效,所以一般都是使用下面的方法;
+    b> 安装Npcap工具,Npcap的原理大致是虚拟一个网卡让操作系统把回环地址loopback的数据镜像一份到npcap adapter,然后wireshark可以
+       通过截取npcap adapter上的数据包来获得对本地数据包进行分析,
+       安装之后,启动wireshark,发现监听接口多了一个"adapter for loopback traffic capture"接口,选择该接口,启动捕获即可;
+    c> 使用wireshark抓包后,可以使用过滤规则得到想要的数据包,常见过滤规则如下:
+       过滤协议: http,tcp,udp,icmp,dns等;
+       过滤端口: tcp.port == 80/8080 or tcp.srcport == 80 // 只显示tcp报文中源端口为80的所有协议类型数据包;
+       过滤ip: ip.src/dst eq/== 192.168.1.9 // 源ip为192.168.1.9  or ip.addr eq/==192.168.1.9 // 源or目标ip为192.168.1.9;
+       http模式过滤: http.request.method == "GET"  or  http contains "HTTP/1.";
+       tcp参数过滤: tcp.flags.syn == 0x02 // 显示tcp SYN包  or tcp.window_size == 0 &&/and tcp.flags.rest != 1;
+       更多规则可参考以下:https://www.jianshu.com/p/06a92991cda9;
+    d> 关于localhost和127.0.0.1
+       localhost是一个域名,它一般对应于127.0.0.1(ipv4),在操作系统支持ipv6之后,它也同时指向ipv6的'::1';
+       127.0.0.1是一个环回地址,事实上整个127.* 网段都是环回地址,常用来测试本机的tcp/ip协议栈,发往这段A类地址的数据包都不会出网卡,
+       网络设备也不会对其路由,而环回地址一般分配给loopback接口,loopback可以认为是区别于物理的有线/无线网卡之外的一个虚拟网卡,通常
+       按惯例127.0.0.1就是这块虚拟网卡的ip,loopback接口用于本机各个应用之间的网络交互,windows中看不到这个接口,linux中该接口为lo,
+       linux上由ifconf命令,可发现有一个: lo: flags=73<UP,LOOPBACK,RUNNING> mtu 65536 ....
