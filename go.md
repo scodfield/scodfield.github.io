@@ -492,7 +492,10 @@
        bee migrate refresh [-driver=xx] [-conn="xxx"] 回滚all migration 并再次重新运行
     h> beego的orm支持自动建表,同时自动驼峰转蛇形,除了字段开头的大写字母之外,遇到大写会增加"_ ",且保留字段中原有的下划线,
        orm没有指定主键时,struct中字段名为"id"的field自动指定为自增主键(models_boot.go),当然也支持标签方式指定主键pk(models_utils.go),
-       beego/orm/models_info_m.go定义了modelInfo结构,models_info_f.go文件定义了fields和fieldInfo结构
+       beego/orm/models_info_m.go定义了modelInfo结构,models_info_f.go文件定义了fields和fieldInfo结构;
+       注:在使用beego orm的时候遇到一个小坑,最好在orm的连接字符串中指定时区信息,貌似是从某一版本的驱动程序会无视数据库和系统时区,因此
+       需要在连接字符串中指定时区,具体为:'root:password@proto(ip:port)/db_name?charset=xx&loc=Local',
+       这个问题具体可参见:https://golangtc.com/t/556e7c0ab09ecc04d3000007
     bee安装目录下有一个bee.json文件,为bee工具的配置文件,有几个常见的配置项
        "watch_ext" : [] 可用于监控其它类型的文件,默认只监控.go的文件
        "cmd_args" : [] 如果需要在每次启动时加入启动参数,可使用该配置项
