@@ -465,6 +465,11 @@
        全局的中断; 其次需要注意起始标记的根集合(Root Set), 所谓根集合本质是引用变量的集合,该集合中的引用变量指向要回收的内存空间,
        所以当前所有进程调用栈上的引用变量均属于根集合,相对其他语言来说还包括指向堆内存的全局和静态引用变量等;
        注: erlang进程外的共享堆GC采用的是引用计数(Reference Counting)算法(该算法有可能导致内存泄漏,具体可参考下述链接)
+    c> GC时伴随着内存的grow和shrink:
+       内存的增长有两个方面,其一是什么样的条件触发:1.当前进程堆空间不够用; 2.深扫描(fullsweep)之后,存活对象超过75%;
+       其二是以什么样的方式增长:1.第一阶段按照斐波那契数列(进程初始空间为233个word); 2.当进程空间大于130个word时,进入第二阶段,
+       每次多申请20%的内存,增长方式具体可见:OTP-XXX/erts/emulator/beam/erl_gc.c文件的erts_init_gc函数;
+       内存收缩主要关注什么条件下触发:1.浅扫描(Minor GC)后存活对象不超过25%; 2.深扫描后,存活对象不超过25%;
     参考: https://hamidreza-s.github.io/erlang%20garbage%20collection%20memory%20layout%20soft%20realtime/2015/08/24/erlang-garbage-collection-details-and-why-it-matters.html;
     Constructing and Matching Binaries: http://erlang.org/doc/efficiency_guide/binaryhandling.html#id65798
 84. Academic and Historical Questions about Erlang: http://erlang.org/faq/academic.html#id58328
