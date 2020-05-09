@@ -425,3 +425,56 @@
         }
         return total
     }
+17.字符串转换整数,本题需要注意异常及边界条件(空字符串,只包含空格的字符串,+/-后续空格,32bite的最大/小值),代码如下:
+	func myAtoi(str string) int {
+	    maxInt :=  1 << 31 - 1
+	    minInt := -1 << 31
+	    strLen := len(str)
+	    var result,i,sign int
+
+	    // trim left
+	    for (i < strLen) && (str[i] == ' ') {
+		i++
+	    } 
+
+	    if (strLen <= 0) || (i >= strLen) || (!isDigit(str[i]) && !isSign(str[i])) {
+		return 0
+	    }
+
+	    // signed
+	    if str[i] == '+' {
+		sign = 1
+		i++
+	    } else if str[i] == '-' {
+		sign = -1
+		i++
+	    } else {
+		sign = 1
+	    }
+
+	    // loop
+	    for i < strLen && isDigit(str[i]) {
+		result = result * 10 + int(str[i] - '0')
+		if result > maxInt {
+		    break
+		}
+		i++
+	    }
+	    result = result * sign
+
+	    if result > maxInt {
+		result = maxInt
+	    } else if result < minInt {
+		result = minInt
+	    }
+
+	    return result
+	}
+
+	func isDigit(c uint8) bool {
+	    return '0' <= c && c <= '9'
+	}
+
+	func isSign(c uint8) bool {
+	    return '+' == c || c == '-'
+	}
