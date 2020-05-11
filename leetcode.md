@@ -478,3 +478,21 @@
 	func isSign(c uint8) bool {
 	    return '+' == c || c == '-'
 	}
+18. 回文数,最开始的思路是求反转后的数,并与原始数字比较是否相等,后来参考了官方题解,简洁了不少,代码如下:
+      func isPalindrome(x int) bool {
+		if (x < 0) || (x % 10 == 0 && x != 0) {
+			return false
+		}
+		var halfx int
+
+		for x > halfx {
+			halfx = halfx * 10 + x % 10
+			x /= 10
+		}
+
+		if ( x == halfx) || (x == halfx / 10) {
+			return true
+		}
+
+		return false
+	}
