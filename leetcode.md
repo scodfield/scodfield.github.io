@@ -496,3 +496,44 @@
 
 		return false
 	}
+19. 回文串,思路是过滤去除无效的字符,并将大写转到小写,最后就是双指针,头尾相比较,代码如下:
+	func isPalindrome(s string) bool {
+		bytes := filterAndToLower(s)
+		head := 0
+		tail := len(bytes) - 1
+		for head < tail {
+			if bytes[head] != bytes[tail] {
+				return false
+			}
+		head++
+		tail--
+		}
+		return true
+	}
+
+	func filterAndToLower(s string) []byte {
+		var bytes []byte
+		var temp byte
+		for i := 0; i < len(s); i++ {
+			if isChar(s[i]) || isDigit(s[i]) {
+				temp = toLower(s[i])
+				bytes = append(bytes,temp)
+			}
+		} 
+		return bytes
+	}
+
+	func toLower(char byte) byte {
+		if ('A' <= char && char <= 'Z') {
+			return char + 32
+		}
+		return char
+	}
+
+	func isChar(c uint8) bool {
+	    return ('A' <= c && c <= 'Z') || ('a' <= c && c <= 'z')
+	}
+
+	func isDigit(c uint8) bool {
+	    return '0' <= c && c <= '9'
+	}
