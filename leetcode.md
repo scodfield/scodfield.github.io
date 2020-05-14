@@ -537,3 +537,31 @@
 	func isDigit(c uint8) bool {
 	    return '0' <= c && c <= '9'
 	}
+20. 验证回文字符串Ⅱ,初始思路为暴力解法,不出意外超出时间限制,看了下题解,采用双指针法从首尾往中心逼近,找到不相同的两个字符后,
+    分为[low+1,high]及[low,higt-1]两个子串,此时只需判断两个子串中的一个为回文字符串即可,代码如下:
+    func validPalindrome(s string) bool {
+		i := 0
+		j := len(s) - 1
+
+		for i < j {
+			if s[i] == s[j] {
+				i++
+				j--
+			} else {
+				return (palindromeStr(s,i+1,j)) || (palindromeStr(s,i,j-1)) 
+			}
+		}
+		return true
+	}
+
+	func palindromeStr(s string, low,high int) bool {
+		for low < high {
+			if s[low] == s[high] {
+				low++
+				high--
+			} else {
+				return false
+			}
+		}	
+		return true
+	}
