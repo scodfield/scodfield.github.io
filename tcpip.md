@@ -197,22 +197,30 @@ Tips to remember:
        是65535B;
        链路层的MAC帧定义中,14字节的头部,4字节的尾部; IP协议头20字节; TCP协议头20字节; udp协议头8字节
 15. Linux环境网络IO的同步,异步,阻塞,非阻塞,复用
-    对于一个网络IO,比如读取read来说,它涉及两个对象(调用IO的用户process/thread,内核kernel),两个阶段(等待数据准备,数据从内核copy到进程)
-    blocking IO:用户进程调用recvfrom系统调用,在kernel准备数据及copy数据阶段,用户进程都是阻塞的,直到kernel完成copy,返回ok,
-    用户进程解除block状态;
-    non-blocking IO:用户进程调用recvfrom,kernel未准备好数据时,并不会阻塞用户进程,而是直接返回一个error,用户进程接收到error,
-    得知数据还没准备好于是再次发起read操作,调用recvfrom,如此循环,直到kernel准备好数据后再次受到用户进程的系统调用,
-    此时kernel copy数据到用户缓冲区,返回ok,非阻塞IO需要在准备数据阶段,不断的发起询问,
-    所谓非阻塞指的就是准备数据阶段,每次询问都会立即得到一个结果;
-    IO复用(IO multiplexing),或者称之为event driven IO:常见的实现为select/epoll,基本原理是select/epoll方法会不断的轮询所负责的socket,
-    当某个socket的数据到达,就通知用户进程,调用流程如下:
-    当用户进程调用select,整个进程block,kernel监视select负责的socket,当其中任意一个socket的数据准备好了,select就返回,
-    此时用户进程发起read操作,kernel将数据copy到用户进程,select用到了两个system call(select,recvfrom),select的优势不在于单个
-    处理的更快,而是可以同时处理更多connection;
-    异步IO:用户进程发起异步读取操作之后,去做其它事,kernel接收到异步读之后,立刻返回,所以并不会阻塞用户进程,kernel等待数据准备,
-    并把数据copy到用户缓存之后,kernel给用户进程发送一个signal,告诉它read操作已完成;
-    POSIX同步与异步的定义:IO操作时进程阻塞为同步,非阻塞为异步
-    则阻塞,非阻塞与复用均为同步IO,非阻塞IO虽然在数据未准备好时并未阻塞,但当kernel准备好数据之后,用户进程再次调用recvfrom copy数据时会被阻塞
+    a> 对于一个网络IO,比如读取read来说,它涉及两个对象(调用IO的用户process/thread,内核kernel),两个阶段(等待数据准备,数据从内核copy到进程)
+       blocking IO:用户进程调用recvfrom系统调用,在kernel准备数据及copy数据阶段,用户进程都是阻塞的,直到kernel完成copy,返回ok,
+       用户进程解除block状态;
+       non-blocking IO:用户进程调用recvfrom,kernel未准备好数据时,并不会阻塞用户进程,而是直接返回一个error,用户进程接收到error,
+       得知数据还没准备好于是再次发起read操作,调用recvfrom,如此循环,直到kernel准备好数据后再次受到用户进程的系统调用,
+       此时kernel copy数据到用户缓冲区,返回ok,非阻塞IO需要在准备数据阶段,不断的发起询问,
+       所谓非阻塞指的就是准备数据阶段,每次询问都会立即得到一个结果;
+       IO复用(IO multiplexing),或者称之为event driven IO:常见的实现为select/epoll,基本原理是select/epoll方法会不断的轮询所负责的socket,
+       当某个socket的数据到达,就通知用户进程,调用流程如下:
+       当用户进程调用select,整个进程block,kernel监视select负责的socket,当其中任意一个socket的数据准备好了,select就返回,
+       此时用户进程发起read操作,kernel将数据copy到用户进程,select用到了两个system call(select,recvfrom),select的优势不在于单个
+       处理的更快,而是可以同时处理更多connection;
+       异步IO:用户进程发起异步读取操作之后,去做其它事,kernel接收到异步读之后,立刻返回,所以并不会阻塞用户进程,kernel等待数据准备,
+       并把数据copy到用户缓存之后,kernel给用户进程发送一个signal,告诉它read操作已完成;
+       POSIX同步与异步的定义:IO操作时进程阻塞为同步,非阻塞为异步
+       则阻塞,非阻塞与复用均为同步IO,非阻塞IO虽然在数据未准备好时并未阻塞,但当kernel准备好数据之后,用户进程再次调用recvfrom copy数据时会被阻塞;
+    b> 高性能IO模型浅析:https://www.cnblogs.com/fanzhidongyzby/p/4098546.html
+       基于Reactor模型的IO多路复用仍然调用了会阻塞线程的select系统调用（用户线程注册socket读写事件到reactor线程,由reactor线程调用select轮询内核,
+       可读写时再通知用户线程,最后由用户线程调用阻塞的read函数,内核将数据copy到指定的用户缓冲区,所以本质上基于reactor设计模式的多路复用允许在
+       一个线程内管理N个socket,非阻塞IO则是由多线程实现）, 它解决了非阻塞IO的多线程轮询浪费cpu的问题,但仍然不是真正的异步IO;
+       真正的异步IO(Proactor模式)需要操作系统的支持,提供异步读写API,异步IO模式下,玩家进程调用后立即返回(于基于Reactor的多路复用类似),等到内核通知玩家进程时,
+       数据已从内存copy到了用户空间,可以直接使用,不用像多路复用IO收到通知后,还需要再调用read系统调用copy数据（虽然此时数据已准备好,调用时不会阻塞）,
+       基于Proactor的异步IO流程: 用户进程直接使用内核提供的异步IO API发起请求,发起后立即返回,继续执行后续流程,内核开启独立的线程处理socke事件,数据准备好后,
+       copy数据到指定的用户缓冲区,然后内核将数据及用户注册的回调函数,分发给内部的proactor,由proactor将IO完成的消息通知给用户线程,异步IO完成.
 16. select/poll适用于所有的Unix系统,epoll则是Linux,从根本上说,poll/select这两个系统调用使用的是相同的代码,工作方式基本相同
     select定义:https://github.com/torvalds/linux/blob/v4.10/fs/select.c#L634-L656
     do_select定义:https://github.com/torvalds/linux/blob/v4.10/fs/select.c#L404-L542
